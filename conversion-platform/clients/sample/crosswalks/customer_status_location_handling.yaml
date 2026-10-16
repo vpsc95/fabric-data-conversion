@@ -1,0 +1,36 @@
+kind: crosswalk
+version: 1
+client: sample
+id: customer_status_location_handling
+description: 'Customer status -> location handling. Sources: sp_Load_UM_Customer.sql
+  lines 691-699, 791; SP_Load_UM_LOCATIONS.sql lines 205-209, 447-465. Codes are compared
+  case-insensitively (GP collation SQL_Latin1_General_CP1_CI_AS), so the script''s
+  ACTIVE/Active and Finaled/FINALED literals are one code each.'
+values:
+- legacy_code: ACTIVE
+  target: active
+  include: true
+  customer_id_rule: use_customer_id
+  location_rule: assign_location
+  reason: The script writes both 'ACTIVE' and 'Active'; they match the same rows under
+    the case-insensitive collation.
+- legacy_code: FINALED
+  target: finaled_if_no_active_at_location
+  include: true
+  customer_id_rule: VACANT in location when not ACTIVE
+  location_rule: own location only if no active account at LEFT(acct,7); else the
+    active account's location
+  reason: The script writes both 'Finaled' and 'FINALED'; they match the same rows
+    under the case-insensitive collation.
+- legacy_code: INACTIVE
+  target: history
+  include: true
+  customer_id_rule: use_customer_id
+  location_rule: point to the active or finaled account's location at LEFT(acct,7),
+    else none
+- legacy_code: DISCONNECT
+  target: history
+  include: true
+  customer_id_rule: use_customer_id
+  location_rule: point to the active or finaled account's location at LEFT(acct,7),
+    else none

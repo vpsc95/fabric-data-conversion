@@ -1,0 +1,188 @@
+/// The check against the known outcome (for SAMPLE, the go-live data integrity report): every metric is PASS, ALLOWED (explained difference with an approver), REVIEWED (a rule the key doesn't list, reviewed with evidence), FAIL or NEW.
+table 'Answer Key'
+
+	/// Metrics checked against the answer key.
+	measure Checks = COUNTROWS('Answer Key') + 0
+		formatString: #,##0
+		displayFolder: Answer key
+
+	measure 'Checks Passed' = CALCULATE([Checks], 'Answer Key'[Status] = "PASS") + 0
+		formatString: #,##0
+		displayFolder: Answer key
+
+	/// Differences that are explained and approved (allowances.json).
+	measure 'Checks Allowed' = CALCULATE([Checks], 'Answer Key'[Status] = "ALLOWED") + 0
+		formatString: #,##0
+		displayFolder: Answer key
+
+	/// Rules the answer key doesn't list, reviewed with evidence.
+	measure 'Checks Reviewed' = CALCULATE([Checks], 'Answer Key'[Status] = "REVIEWED") + 0
+		formatString: #,##0
+		displayFolder: Answer key
+
+	measure 'Checks Failed' = CALCULATE([Checks], 'Answer Key'[Status] = "FAIL") + 0
+		formatString: #,##0
+		displayFolder: Answer key
+
+	/// Rules the answer key doesn't list and no one has reviewed yet.
+	measure 'Checks New' = CALCULATE([Checks], 'Answer Key'[Status] = "NEW") + 0
+		formatString: #,##0
+		displayFolder: Answer key
+
+	/// Reproduced = no FAIL and no unreviewed NEW result.
+	measure 'Answer Key Result' = ```
+			IF(
+				[Checks] = 0,
+				"Not checked",
+				IF([Checks Failed] + [Checks New] = 0, "Reproduced", "Differences found")
+			)
+			```
+		formatString: General
+		displayFolder: Answer key
+
+	/// One line for the KPI card: how many checks passed, were allowed, reviewed, failed or are new.
+	measure 'Answer Key Summary' = ```
+			FORMAT([Checks Passed], "0") & " pass · " & FORMAT([Checks Allowed], "0") & " allowed · "
+				& FORMAT([Checks Reviewed], "0") & " reviewed · " & FORMAT([Checks Failed], "0") & " fail · "
+				& FORMAT([Checks New], "0") & " new"
+			```
+		formatString: General
+		displayFolder: Answer key
+
+	/// Status colour for the answer-key card: teal when reproduced, red when anything failed or is new.
+	measure 'Answer Key Color' = IF([Checks Failed] + [Checks New] > 0, "#DC2626", "#0F766E")
+		formatString: General
+		displayFolder: Answer key
+
+	/// The go-live integrity report's value for the selected metrics (blank where the report has no number).
+	measure 'Go-live Value' = SUM('Answer Key'[Expected Value])
+		formatString: #,##0.##
+		displayFolder: Answer key
+
+	/// This take's value for the selected metrics.
+	measure 'This Take Value' = SUM('Answer Key'[Actual Value])
+		formatString: #,##0.##
+		displayFolder: Answer key
+
+	/// Records the go-live integrity report shows as received.
+	measure 'Go-live Received' = CALCULATE([Go-live Value], 'Answer Key'[Metric] = "received")
+		formatString: #,##0
+		displayFolder: Answer key
+
+	/// Records the go-live integrity report shows as loaded.
+	measure 'Go-live Loaded' = CALCULATE([Go-live Value], 'Answer Key'[Metric] = "loaded")
+		formatString: #,##0
+		displayFolder: Answer key
+
+	/// Records the go-live integrity report shows as failed.
+	measure 'Go-live Failed' = CALCULATE([Go-live Value], 'Answer Key'[Metric] = "failed")
+		formatString: #,##0
+		displayFolder: Answer key
+
+	/// Reference line for the checks-passed card.
+	measure 'Checks Context' = "of " & FORMAT([Checks], "#,##0") & " checks against the go-live report"
+		formatString: General
+		displayFolder: Answer key
+
+	column 'Module Code'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: Module
+
+	column 'Take Key'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: TakeKey
+
+	column ClientId
+		dataType: string
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: ClientId
+
+	column TakeId
+		dataType: string
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: TakeId
+
+	column Metric
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Metric
+
+	/// Readable metric name, for example 'Control total RESI-DEP' or 'Rule CONN_INVALID_SERVICE_TYPE'.
+	column 'Metric Label'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: MetricLabel
+
+	column Expected
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Expected
+
+	column Actual
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Actual
+
+	column Status
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Status
+		sortByColumn: 'Status Order'
+
+	column 'Status Order'
+		dataType: int64
+		isHidden
+		summarizeBy: none
+		sourceColumn: StatusOrder
+
+	/// The go-live value as a number (blank when the key has no number for this metric).
+	column 'Expected Value'
+		dataType: double
+		formatString: #,##0.##
+		summarizeBy: none
+		sourceColumn: ExpectedValue
+
+	/// This take's value as a number.
+	column 'Actual Value'
+		dataType: double
+		formatString: #,##0.##
+		summarizeBy: none
+		sourceColumn: ActualValue
+
+	/// This take minus go-live; 0 means the number is reproduced exactly.
+	column Difference
+		dataType: double
+		formatString: #,##0.##
+		summarizeBy: none
+		sourceColumn: Difference
+
+	column Reason
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Reason
+
+	column 'Approved By'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: ApprovedBy
+
+	column 'Checked At'
+		dataType: dateTime
+		formatString: yyyy-mm-dd hh:nn
+		summarizeBy: none
+		sourceColumn: CheckedAt
+
+	partition 'Answer Key' = entity
+		mode: directLake
+		source
+			entityName: rpt_answer_key
+			schemaName: dbo
+			expressionSource: DL_Lakehouse

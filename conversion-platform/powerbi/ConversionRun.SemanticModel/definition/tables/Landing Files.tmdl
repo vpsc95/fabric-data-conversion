@@ -1,0 +1,79 @@
+/// Chain of custody: every file received for the take, with its SHA-256 hash, re-checked before the reshape reads it.
+table 'Landing Files'
+
+	/// Files received for the take.
+	measure 'Files Landed' = COUNTROWS('Landing Files') + 0
+		formatString: #,##0
+		displayFolder: Custody
+
+	/// Size of the files received, in MB.
+	measure 'Landed MB' = DIVIDE(SUM('Landing Files'[Size Bytes]), 1048576)
+		formatString: #,##0.0
+		displayFolder: Custody
+
+	column 'Take Key'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: TakeKey
+
+	column ClientId
+		dataType: string
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: ClientId
+
+	column TakeId
+		dataType: string
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: TakeId
+
+	column 'File Name'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: FileName
+
+	column 'Size Bytes'
+		dataType: int64
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: sum
+		sourceColumn: SizeBytes
+
+	column Sha256
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Sha256
+
+	column 'Modified UTC'
+		dataType: dateTime
+		formatString: yyyy-mm-dd hh:nn
+		summarizeBy: none
+		sourceColumn: ModifiedUtc
+
+	/// The reshape spec that reads the file; blank when no spec does.
+	column 'Spec Id'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: SpecId
+
+	column Sheets
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Sheets
+
+	column 'Recorded At'
+		dataType: dateTime
+		formatString: yyyy-mm-dd hh:nn
+		summarizeBy: none
+		sourceColumn: RecordedAt
+
+	partition 'Landing Files' = entity
+		mode: directLake
+		source
+			entityName: rpt_landing_file
+			schemaName: dbo
+			expressionSource: DL_Lakehouse

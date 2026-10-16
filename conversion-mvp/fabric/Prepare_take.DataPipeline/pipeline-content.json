@@ -1,0 +1,113 @@
+{
+  "properties": {
+    "description": "Prepare a take: 1 reshape the client's reports, 2 run the rules, 3 AI triage. Then review the Power BI report and run Approve_and_load.",
+    "activities": [
+      {
+        "name": "1 Reshape reports",
+        "type": "TridentNotebook",
+        "dependsOn": [],
+        "policy": {
+          "timeout": "0.01:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "notebookId": "{{1_Reshape_reports}}",
+          "workspaceId": "{{workspace_id}}",
+          "parameters": {
+            "take_id": {
+              "value": {
+                "value": "@pipeline().parameters.take_id",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "take_note": {
+              "value": {
+                "value": "@pipeline().parameters.take_note",
+                "type": "Expression"
+              },
+              "type": "string"
+            }
+          }
+        }
+      },
+      {
+        "name": "2 Run rules",
+        "type": "TridentNotebook",
+        "dependsOn": [
+          {
+            "activity": "1 Reshape reports",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ],
+        "policy": {
+          "timeout": "0.01:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "notebookId": "{{2_Run_rules}}",
+          "workspaceId": "{{workspace_id}}",
+          "parameters": {
+            "take_id": {
+              "value": {
+                "value": "@pipeline().parameters.take_id",
+                "type": "Expression"
+              },
+              "type": "string"
+            }
+          }
+        }
+      },
+      {
+        "name": "3 AI triage",
+        "type": "TridentNotebook",
+        "dependsOn": [
+          {
+            "activity": "2 Run rules",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ],
+        "policy": {
+          "timeout": "0.01:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "notebookId": "{{3_AI_triage}}",
+          "workspaceId": "{{workspace_id}}",
+          "parameters": {
+            "take_id": {
+              "value": {
+                "value": "@pipeline().parameters.take_id",
+                "type": "Expression"
+              },
+              "type": "string"
+            }
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "take_id": {
+        "type": "string",
+        "defaultValue": "go-live"
+      },
+      "take_note": {
+        "type": "string",
+        "defaultValue": ""
+      }
+    }
+  }
+}

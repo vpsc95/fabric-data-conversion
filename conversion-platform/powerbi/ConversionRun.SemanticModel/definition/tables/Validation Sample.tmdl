@@ -1,0 +1,104 @@
+/// The client's validation sample, side by side: legacy and converted values of 13 fields for about 50 accounts drawn from risk strata, rotating from take to take. For the client's validators; row-level secured in production.
+table 'Validation Sample'
+
+	/// Accounts in the take's validation sample.
+	measure 'Sample Accounts' = DISTINCTCOUNT('Validation Sample'[Legacy Acct No]) + 0
+		formatString: #,##0
+		displayFolder: Client validation
+
+	/// Field values compared legacy vs converted (mapped fields such as customer class are shown, not compared).
+	measure 'Fields Compared' = CALCULATE(COUNTROWS('Validation Sample'), NOT ISBLANK('Validation Sample'[Matches])) + 0
+		formatString: #,##0
+		displayFolder: Client validation
+
+	/// Compared fields whose converted value differs from the legacy value: what the client checks first.
+	measure 'Field Differences' = CALCULATE(COUNTROWS('Validation Sample'), 'Validation Sample'[Matches] == 0) + 0
+		formatString: #,##0
+		displayFolder: Client validation
+
+	/// Share of compared fields whose converted value equals the legacy value.
+	measure 'Field Match %' = DIVIDE(CALCULATE(COUNTROWS('Validation Sample'), 'Validation Sample'[Matches] = 1), [Fields Compared])
+		formatString: 0.0%
+		displayFolder: Client validation
+
+	column 'Take Key'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: TakeKey
+
+	column ClientId
+		dataType: string
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: ClientId
+
+	column TakeId
+		dataType: string
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: TakeId
+
+	column 'Legacy Acct No'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: LegacyAcctNo
+
+	column Stratum
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Stratum
+		sortByColumn: 'Stratum Order'
+
+	column 'Stratum Order'
+		dataType: int64
+		isHidden
+		summarizeBy: none
+		sourceColumn: StratumOrder
+
+	column Reason
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Reason
+
+	column 'Field Order'
+		dataType: int64
+		isHidden
+		summarizeBy: none
+		sourceColumn: FieldOrder
+
+	column Field
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Field
+		sortByColumn: 'Field Order'
+
+	column 'Compare As'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: CompareAs
+
+	column 'Legacy Value'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: LegacyValue
+
+	column 'Converted Value'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: ConvertedValue
+
+	column Matches
+		dataType: int64
+		isHidden
+		summarizeBy: none
+		sourceColumn: Matches
+
+	partition 'Validation Sample' = entity
+		mode: directLake
+		source
+			entityName: rpt_validation
+			schemaName: dbo
+			expressionSource: DL_Lakehouse

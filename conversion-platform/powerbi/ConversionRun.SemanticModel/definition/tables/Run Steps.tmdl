@@ -1,0 +1,99 @@
+/// The SQL build and validation steps of the latest run of each take: rows affected, duration and status.
+table 'Run Steps'
+
+	measure 'Step Seconds' = SUM('Run Steps'[Seconds])
+		formatString: #,##0.0
+		displayFolder: Run
+
+	measure 'Step Rows' = SUM('Run Steps'[Rows Affected])
+		formatString: #,##0
+		displayFolder: Run
+
+	/// Steps that didn't succeed (should be 0).
+	measure 'Steps Failed' = CALCULATE(COUNTROWS('Run Steps'), 'Run Steps'[Status] <> "Succeeded") + 0
+		formatString: #,##0
+		displayFolder: Run
+
+	measure 'Steps Color' = IF([Steps Failed] > 0, "#DC2626", "#0F766E")
+		formatString: General
+		displayFolder: Run
+
+	/// Reference line for the steps tile.
+	measure 'Steps Context' = FORMAT(COUNTROWS('Run Steps') + 0, "#,##0") & " SQL steps in " & FORMAT([Step Seconds] + 0, "#,##0") & " s"
+		formatString: General
+		displayFolder: Run
+
+	column 'Take Key'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: TakeKey
+
+	column ClientId
+		dataType: string
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: ClientId
+
+	column TakeId
+		dataType: string
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: TakeId
+
+	column 'Run Log Id'
+		dataType: int64
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: RunLogId
+
+	column 'Step Name'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: StepName
+
+	column 'Started At'
+		dataType: dateTime
+		formatString: yyyy-mm-dd hh:nn:ss
+		summarizeBy: none
+		sourceColumn: StartedAt
+
+	column 'Ended At'
+		dataType: dateTime
+		formatString: yyyy-mm-dd hh:nn:ss
+		summarizeBy: none
+		sourceColumn: EndedAt
+
+	column Seconds
+		dataType: double
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: sum
+		sourceColumn: Seconds
+
+	column 'Rows Affected'
+		dataType: int64
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: sum
+		sourceColumn: RowsAffected
+
+	column Status
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Status
+
+	column Message
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Message
+
+	partition 'Run Steps' = entity
+		mode: directLake
+		source
+			entityName: rpt_run_step
+			schemaName: dbo
+			expressionSource: DL_Lakehouse

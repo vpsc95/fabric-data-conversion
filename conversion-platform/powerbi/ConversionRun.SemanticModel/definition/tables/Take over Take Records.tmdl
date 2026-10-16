@@ -1,0 +1,67 @@
+/// Flagged records compared with the client's previous take: fixed since the last take, newly flagged, or still flagged.
+table 'Take over Take Records'
+
+	/// Records flagged in the previous take that pass now.
+	measure 'Records Fixed Since Last Take' = CALCULATE(SUM('Take over Take Records'[Records]), 'Take over Take Records'[Status] = "fixed since last take") + 0
+		formatString: #,##0
+		displayFolder: Take over take
+
+	/// Records that pass in the previous take and are flagged now.
+	measure 'Records Newly Flagged' = CALCULATE(SUM('Take over Take Records'[Records]), 'Take over Take Records'[Status] = "newly flagged") + 0
+		formatString: #,##0
+		displayFolder: Take over take
+
+	/// Records flagged in both takes.
+	measure 'Records Still Flagged' = CALCULATE(SUM('Take over Take Records'[Records]), 'Take over Take Records'[Status] = "still flagged") + 0
+		formatString: #,##0
+		displayFolder: Take over take
+
+	column 'Module Code'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: Module
+
+	column 'Take Key'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: TakeKey
+
+	column ClientId
+		dataType: string
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: ClientId
+
+	column TakeId
+		dataType: string
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: TakeId
+
+	column 'Prev Take Id'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: PrevTakeId
+
+	column Status
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Status
+
+	column Records
+		dataType: int64
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: sum
+		sourceColumn: Records
+
+	partition 'Take over Take Records' = entity
+		mode: directLake
+		source
+			entityName: rpt_take_diff_record
+			schemaName: dbo
+			expressionSource: DL_Lakehouse

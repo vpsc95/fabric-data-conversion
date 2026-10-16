@@ -1,0 +1,344 @@
+version: 1
+defaults:
+  skip_values:
+  - ^\s*$
+  - ^[-=_*.\s]+$
+  unknown_columns: stop
+files:
+- match: CUSTOMERS 07172026.xlsx
+  sheets: all
+  header_row: 0
+  columns:
+    INCODE ACCT:
+      action: keep
+    SERVICE ADDRESS:
+      action: fake_street
+    FIRST NAME:
+      action: fake_name
+    LAST NAME:
+      action: fake_name
+    SOCIAL:
+      action: blank
+    DOB:
+      action: shift_date
+      mode: per_value
+      max_days: 365
+    DRIVERS LICENSE:
+      action: token_alnum
+      domain: licence
+    DL ST:
+      action: keep
+    ADDRESS 1:
+      action: fake_street
+    ADDRESS 2:
+      action: fake_street
+    ADDRESS ATTN:
+      action: fake_name
+    CITY:
+      action: redact_text
+    ST:
+      action: keep
+    ZIP:
+      action: keep
+    EMAIL:
+      action: fake_email
+    PHONE NUMBER:
+      action: fake_phone
+    CELL NUMBER:
+      action: fake_phone
+    HOME NUMBER:
+      action: keep
+    PRIMARY CONTACT:
+      action: fake_name
+    SECONDARY CONTACT:
+      action: fake_name
+    SEC DL:
+      action: token_alnum
+      domain: licence
+    SEC DL ST:
+      action: keep
+    SEC DOB:
+      action: shift_date
+      mode: per_value
+      max_days: 365
+    SEC EMAIL:
+      action: fake_email
+    SEC PHONE NUMBER:
+      action: fake_phone
+    SEC SOC:
+      action: keep
+    CUSTOMER CLASS:
+      action: fake_name
+    START DATE:
+      action: keep
+    CUSTOMER STATUS:
+      action: fake_name
+- match: Meter Asset List 07172026.xlsx
+  sheets: all
+  header_row: 0
+  columns:
+    Asset Type:
+      action: keep
+    Device Type:
+      action: keep
+    Serial Number:
+      action: token_alnum
+      domain: meter
+    Manufacturer:
+      action: redact_text
+    Status:
+      action: keep
+    Product Name:
+      action: fake_name
+    Address:
+      action: fake_street
+    Address Line 2:
+      action: fake_street
+    Address Line 3:
+      action: fake_street
+    Encoder Serial Number:
+      action: token_alnum
+      domain: meter
+- match: Meters and Readings 07172026.csv
+  header_row: 0
+  columns:
+    Location_Name:
+      action: fake_name
+    Register_Number:
+      action: keep
+    Endpoint_SN:
+      action: token_alnum
+      domain: meter
+    Meter_ID:
+      action: token_alnum
+      domain: meter
+    Meter_SN:
+      action: keep
+    Read_Time:
+      action: keep
+    Service_Point_Timezone:
+      action: keep
+    Read:
+      action: keep
+    Read_Unit:
+      action: keep
+    Read_Method:
+      action: keep
+    Encoder_Read:
+      action: keep
+    Flow_Time:
+      action: keep
+    Flow_Unit:
+      action: keep
+    Flow:
+      action: keep
+    Account_ID:
+      action: token_digits
+      preserve_prefix: 2
+      domain: account
+    Location_ID:
+      action: keep
+    Account_Full_Name:
+      action: fake_name
+    Billing_Address_Line1:
+      action: fake_street
+    Billing_Address_Line2:
+      action: fake_street
+    Billing_Address_Line3:
+      action: fake_street
+    Billing_City:
+      action: keep
+    Billing_State:
+      action: keep
+    Billing_ZIP:
+      action: keep
+    Location_Address_Line1:
+      action: fake_street
+    Location_City:
+      action: keep
+    Location_State:
+      action: keep
+    Location_ZIP:
+      action: keep
+    Service_Point_ID:
+      action: keep
+    Service_Point_Class_Code:
+      action: keep
+    Service_Point_Route:
+      action: keep
+    Service_Point_Cycle:
+      action: keep
+    Meter_Manufacturer:
+      action: keep
+    Meter_Model:
+      action: keep
+    Register_Resolution:
+      action: keep
+    Register_Unit_Of_Measure:
+      action: keep
+    Meter_Size:
+      action: keep
+    Meter_Size_Desc:
+      action: keep
+    Dials:
+      action: keep
+    Service_Point_Latitude:
+      action: round
+      decimals: 2
+    Service_Point_Longitude:
+      action: round
+      decimals: 2
+    Endpoint_Type:
+      action: token_alnum
+      domain: meter
+    Connector Type:
+      action: keep
+    Endpoint Status:
+      action: token_alnum
+      domain: meter
+    Battery Level:
+      action: keep
+    Signal Strength:
+      action: keep
+    Last Comm. Time:
+      action: keep
+    Last Gateway Id:
+      action: keep
+    Estimated Flag:
+      action: keep
+    Current Leak Start Date:
+      action: keep
+    Current Leak Rate Per Hour:
+      action: keep
+    Backflow (gal/30 days):
+      action: keep
+    Supply_Zone_ID:
+      action: keep
+    Demand_Zone_ID:
+      action: keep
+- match: UB Account Balances 07172026.xlsx
+  sheets: all
+  header_row: 0
+  columns:
+    'ACCOUNT #':
+      action: token_digits
+      preserve_prefix: 2
+      domain: account
+    ACCOUNT NAME:
+      action: fake_name
+    STATUS:
+      action: keep
+    BALANCE:
+      action: keep
+    SVC1:
+      action: keep
+    BAL1:
+      action: keep
+    SVC2:
+      action: keep
+    BAL2:
+      action: keep
+    SVC3:
+      action: keep
+    BAL3:
+      action: keep
+    ACCT:
+      action: token_digits
+      preserve_prefix: 2
+      domain: account
+- match: UB Deposit Listing 07172026.xlsx
+  sheets: all
+  header_row: 0
+  columns:
+    ACCOUNT:
+      action: token_digits
+      preserve_prefix: 2
+      domain: account
+    ID:
+      action: keep
+    ACCOUNT NAME:
+      action: fake_name
+    RECEIPT:
+      action: keep
+    DEPOSITCODE:
+      action: keep
+    DEPDATE:
+      action: keep
+    RECEIVED:
+      action: keep
+    UNBILLED:
+      action: keep
+    INTEREST APPLIED:
+      action: keep
+    TARGETDATE:
+      action: keep
+    REFDATE:
+      action: keep
+- match: UB Deposit Listing 07172026.xlsx
+  sheets: all
+  header_row: 0
+  columns:
+    ACCOUNT:
+      action: token_digits
+      preserve_prefix: 2
+      domain: account
+    ID:
+      action: keep
+    ACCOUNT NAME:
+      action: fake_name
+    RECEIPT:
+      action: keep
+    DEPOSITCODE:
+      action: keep
+    DEPDATE:
+      action: keep
+    RECEIVED:
+      action: keep
+    UNBILLED:
+      action: keep
+    INTEREST APPLIED:
+      action: keep
+    TARGETDATE:
+      action: keep
+    REFDATE:
+      action: keep
+- match: UB Services Report 07172026.xlsx
+  sheets: all
+  header_row: 0
+  columns:
+    'ACCOUNT #':
+      action: token_digits
+      preserve_prefix: 2
+      domain: account
+    ACCOUNT NAME:
+      action: fake_name
+    START DATE:
+      action: keep
+    DESCRIPTION:
+      action: keep
+    STATUS:
+      action: keep
+    TABLE:
+      action: keep
+    METER:
+      action: token_alnum
+      domain: meter
+    DESCRIPTION2:
+      action: keep
+    STATUS2:
+      action: keep
+    TABLE2:
+      action: keep
+    METER2:
+      action: token_alnum
+      domain: meter
+    ACCT:
+      action: token_digits
+      preserve_prefix: 2
+      domain: account
+    STDATE:
+      action: keep
+- match: UB Services Report 07172026.xlsx
+  sheets: all
+  header_row: 0
+  columns: {}

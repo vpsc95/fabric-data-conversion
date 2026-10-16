@@ -1,0 +1,55 @@
+kind: reshape
+version: 1
+client: sample
+id: sample-um-histmr
+source:
+  file: SAMPLE_UM_HistMR
+  layout: table
+  read_as_text: true
+steps:
+- filter:
+    where: Account_Full_Name NOT LIKE '%IDLE%'
+    reason: Script excludes idle historical meter reads.
+- derive:
+    Consumption1: Flow / 100
+    Consumption2: Flow / 100
+    ReadingType: '1'
+    UMEQUMULT: '100'
+    openread: '0'
+    ReadingDate: append -01 when LEN(Read_Time) = 7
+- derive:
+    Reading: Read
+    NumberOfDays: days since prior ReadingDate by LegacyAcctNo, default 1
+    PreviousReading: prior Reading by LegacyAcctNo ordered by ReadingDate, default
+      0
+target: silver.sample_um_histmr
+open_questions:
+- id: OQ-HISTMR-READ-ROUNDING
+  text: Script comment says rounding reads should be skipped on 20260709 but UPDATE
+    remains active; confirm go-live behavior.
+  owner: cogsdale
+  status: assumed
+  assumption: Reads are rounded to one decimal, as the active UPDATE does.
+  evidence: 'Count-insensitive: received, loaded and failed reads (292,269 / 288,972
+    / 3,297) match either way. Compare one meter''s read history in CSM at UAT.'
+  decided_by: Demo assumptions only; recipient review required
+  decided_on: '2026-10-06'
+- id: OQ-HISTMR-CONSUMPTION2
+  text: Script asks whether Consumption2 applies to all or just low flow; confirm
+    target behavior.
+  owner: cogsdale
+  status: assumed
+  assumption: Consumption2 = Flow / 100 on every read, as coded.
+  evidence: 'Count-insensitive: no validation rule reads Consumption2. Confirm with
+    the billing team before production use.'
+  decided_by: Demo assumptions only; recipient review required
+  decided_on: '2026-10-06'
+- id: OQ-HISTMR-ROUND-COMPONENT
+  text: Rounding Reading to one decimal requires a reshape component or downstream
+    rule because ROUND is not in the allowed expression list.
+  owner: partner
+  status: answered
+  answer: Rounding to one decimal runs in gold.usp_Build_HistMR, not as a reshape
+    component.
+  decided_by: Demo assumptions only; recipient review required
+  decided_on: '2026-10-06'

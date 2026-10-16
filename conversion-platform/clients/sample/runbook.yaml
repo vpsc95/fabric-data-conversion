@@ -1,0 +1,606 @@
+kind: runbook
+version: 1
+client: sample
+take_variables:
+- take_id
+- take_date
+- conversion_date
+- client_company
+- landing
+- work
+environment_variables:
+- company_backup_file
+- conv_backup_file
+- conversion_sql_server
+- remote_desktop_server
+- run_after_restore_script
+- staging_backup_file
+- validation_sample
+blocks:
+  A: environment prep
+  B: file prep
+  C: pre-staging
+  D: staging
+  E: address parsing
+  F: validate/review/load
+  G: post-load and publish
+steps:
+- number: 1
+  block: A
+  title: Place production company database in offline maintenance mode
+  kind: manual
+  legacy_tool: Dynamics GP Take Company Offline
+  target_executor: pipeline Script activity via gateway
+  parameters:
+    company: '{client_company}'
+    environment: production
+  prototype_mode: manual
+- number: 2
+  block: A
+  title: Place conversion company database in offline maintenance mode
+  kind: manual
+  legacy_tool: Dynamics GP Take Company Offline
+  target_executor: pipeline Script activity via gateway
+  parameters:
+    company: '{client_company}'
+    environment: conversion
+  prototype_mode: manual
+- number: 3
+  block: A
+  title: Back up company and Dynamics databases
+  kind: automated
+  legacy_tool: SQL Server backup script
+  target_executor: pipeline Script activity via gateway
+  parameters:
+    backup_set: '{take_id}-{conversion_date}-source'
+  prototype_mode: simulated
+- number: 4
+  block: A
+  title: Copy company backup to conversion SQL server
+  kind: automated
+  legacy_tool: Windows file copy
+  target_executor: gateway file-copy activity / Azure Automation
+  parameters:
+    source_backup: '{company_backup_file}'
+    destination: '{conversion_sql_server}'
+  prototype_mode: simulated
+- number: 5
+  block: A
+  title: Restore company backup to CONV
+  kind: automated
+  legacy_tool: SSMS restore database
+  target_executor: pipeline Script activity via gateway
+  parameters:
+    source_backup: '{company_backup_file}'
+    target_database: CONV
+  prototype_mode: simulated
+- number: 6
+  block: A
+  title: Run post-restore GP compatibility script on CONV
+  kind: automated
+  legacy_tool: SQL script RunAfterRestore
+  target_executor: pipeline Script activity via gateway
+  parameters:
+    database: CONV
+    script: '{run_after_restore_script}'
+  prototype_mode: simulated
+- number: 7
+  block: A
+  title: Set conversion date for the take
+  kind: automated
+  legacy_tool: COGS_STAGING.dbo.sp_SetConversionDate
+  target_executor: pipeline Script activity via gateway
+  parameters:
+    conversion_date: '{conversion_date}'
+  prototype_mode: simulated
+- number: 8
+  block: B
+  title: Review spreadsheet numeric columns and force text typing
+  kind: check
+  legacy_tool: Excel
+  target_executor: eliminated by immutable text landing and reshape engine
+  parameters:
+    files:
+    - '{files.balances}'
+    - '{files.reads}'
+  prototype_mode: eliminated
+- number: 9
+  block: B
+  title: Save meter readings extract as CSV
+  kind: manual
+  legacy_tool: Excel Save As CSV
+  target_executor: eliminated by source-file ingestion
+  parameters:
+    file: '{files.reads}'
+  prototype_mode: eliminated
+- number: 10
+  block: B
+  title: Copy submitted source files into import folder
+  kind: manual
+  legacy_tool: Windows Explorer / RDP file copy
+  target_executor: eliminated by landing zone manifest
+  parameters:
+    landing_folder: '{landing}'
+  prototype_mode: eliminated
+- number: 11
+  block: B
+  title: Repoint SmartConnect data sources to take files and preview
+  kind: check
+  legacy_tool: SmartConnect data source preview
+  target_executor: eliminated by spec-resolved file variables
+  parameters:
+    smartconnect_sources:
+    - customers
+    - reads
+    - connections
+    - balances
+    - deposits
+  prototype_mode: eliminated
+- number: 12
+  block: C
+  title: Load take source files into raw and silver staging
+  kind: automated
+  legacy_tool: SmartConnect maps 01-05
+  target_executor: reshape engine and silver loader
+  parameters:
+    maps:
+    - 01_LOAD_SAMPLE_UM_CUSTOMER
+    - 02X_LOAD_SAMPLE_UMHISTMR
+    - 03_LOAD_SAMPLE_CONNECTIONS
+    - 04_LOAD_SAMPLE_BEGBALANCES
+    - 05_LOAD_SAMPLE_UM_DEPOSITS
+  prototype_mode: implemented
+- number: 13
+  block: D
+  title: Build UM staging tables from silver data
+  kind: automated
+  legacy_tool: sp_Load_UM_* staging procedures
+  target_executor: generated SQL builder
+  parameters:
+    procedure: gold.usp_Build_All
+    modules:
+    - UMRM0101
+    - UM00600
+    - UM00400
+    - UM00300
+    - UM20400
+    - UM01900
+    - UM30300
+  prototype_mode: implemented
+- number: 14
+  block: E
+  title: Parse customer and location addresses
+  kind: automated
+  legacy_tool: SmartConnect maps 06/06A/07/07A and Smarty batch files
+  target_executor: Smarty API inside pipeline
+  parameters:
+    exports:
+    - customer_address
+    - location_address
+    service: Smarty
+  prototype_mode: simulated
+- number: 15
+  block: F
+  title: Customer validation, review and load
+  kind: check
+  legacy_tool: Customer validation SQL; SmartConnect maps 08 and 09
+  target_executor: rule library plus loader
+  parameters:
+    module: UMRM0101
+    validation: rules.usp_Validate_Customer
+    load_maps:
+    - 08_LOAD_CSM_UM_CUSTOMER
+    - 09_LOAD_CSM_UM_CUSTADDR
+  prototype_mode: implemented
+- number: 16
+  block: F
+  title: Location validation, review, load and history link
+  kind: check
+  legacy_tool: Location validation SQL; SmartConnect map 10; location-history script
+  target_executor: rule library plus loader
+  parameters:
+    module: UM00600
+    validation: rules.usp_Validate_Location
+    load_maps:
+    - 10_LOAD_CSM_UM_LOCATION
+    post_script: location_history_link
+  prototype_mode: implemented
+- number: 17
+  block: F
+  title: Equipment cleanup, validation, review and load
+  kind: check
+  legacy_tool: SQL cleanup script DEMO-40273; SmartConnect map 11
+  target_executor: rule library plus loader
+  parameters:
+    module: UM00400
+    validation: rules.usp_Validate_Equipment
+    load_maps:
+    - 11_LOAD_CSM_UM_EQUIPMENT
+    jira: DEMO-40273
+  prototype_mode: implemented
+- number: 18
+  block: F
+  title: Connection validation, review and load
+  kind: approval
+  legacy_tool: Connection validation SQL; SmartConnect map 12
+  target_executor: gate 3 triage then metadata-driven loader
+  parameters:
+    module: UM00300
+    validation: rules.usp_Validate_Connection
+    load_maps:
+    - 12_LOAD_CSM_UM_CONNECTIONS
+    gate: 3
+  prototype_mode: manual
+- number: 19
+  block: F
+  title: Beginning balance validation, review and load
+  kind: check
+  legacy_tool: Balance validation SQL; SmartConnect map 13
+  target_executor: rule library plus loader
+  parameters:
+    module: UM20400
+    validation: rules.usp_Validate_BegBalance
+    load_maps:
+    - 13_LOAD_CSM_UM_BEGBALANCES
+  prototype_mode: implemented
+- number: 20
+  block: F
+  title: Deposit validation, review and load
+  kind: check
+  legacy_tool: Deposit validation SQL; SmartConnect map 14
+  target_executor: rule library plus loader
+  parameters:
+    module: UM01900
+    validation: rules.usp_Validate_Deposit
+    load_maps:
+    - 14_LOAD_CSM_UM_DEPOSITS
+  prototype_mode: implemented
+- number: 21
+  block: F
+  title: Historical meter-read validation, review and load
+  kind: check
+  legacy_tool: Meter-read validation SQL; SmartConnect map 15
+  target_executor: rule library plus loader
+  parameters:
+    module: UM30300
+    validation: rules.usp_Validate_HistMR
+    load_maps:
+    - 15_LOAD_CSM_UM_HISTMR
+  prototype_mode: implemented
+- number: 22
+  block: F
+  title: Customer statement load
+  kind: approval
+  legacy_tool: SmartConnect map 16
+  target_executor: metadata-driven loader
+  parameters:
+    module: customer_statements
+    load_maps:
+    - 16_LOAD_CSM_CUSTSTMT
+    gate: 4
+  prototype_mode: simulated
+- number: 23
+  block: G
+  title: Update CSM accelerators for customers, locations and connections
+  kind: automated
+  legacy_tool: Dynamics GP Update Accelerators
+  target_executor: pipeline Script activity via gateway
+  parameters:
+    accelerators:
+    - customers
+    - locations
+    - connections
+    gate: 5
+  prototype_mode: simulated
+- number: 24
+  block: G
+  title: Back up CONV after load
+  kind: automated
+  legacy_tool: SQL Server backup script
+  target_executor: pipeline Script activity via gateway
+  parameters:
+    database: CONV
+  prototype_mode: simulated
+- number: 25
+  block: G
+  title: Back up COGS_STAGING after load
+  kind: automated
+  legacy_tool: SQL Server backup script
+  target_executor: pipeline Script activity via gateway
+  parameters:
+    database: COGS_STAGING
+  prototype_mode: simulated
+- number: 26
+  block: G
+  title: Back up COGS_STAGING_SNAPSHOT
+  kind: automated
+  legacy_tool: SQL Server backup script
+  target_executor: pipeline Script activity via gateway
+  parameters:
+    database: COGS_STAGING_SNAPSHOT
+  prototype_mode: simulated
+- number: 27
+  block: G
+  title: Restore COGS_STAGING backup to snapshot database
+  kind: automated
+  legacy_tool: SSMS restore database
+  target_executor: pipeline Script activity via gateway
+  parameters:
+    source_database: COGS_STAGING
+    target_database: COGS_STAGING_SNAPSHOT
+  prototype_mode: simulated
+- number: 28
+  block: G
+  title: Back up production company database before publish
+  kind: automated
+  legacy_tool: SQL Server backup script
+  target_executor: pipeline Script activity via gateway
+  parameters:
+    database: '{client_company}'
+  prototype_mode: simulated
+- number: 29
+  block: G
+  title: Restore CONV backup to production company database
+  kind: automated
+  legacy_tool: SSMS restore database
+  target_executor: pipeline Script activity via gateway
+  parameters:
+    source_database: CONV
+    target_database: '{client_company}'
+  prototype_mode: simulated
+- number: 30
+  block: G
+  title: Run post-restore GP compatibility script on production company database
+  kind: automated
+  legacy_tool: SQL script RunAfterRestore
+  target_executor: pipeline Script activity via gateway
+  parameters:
+    database: '{client_company}'
+    script: '{run_after_restore_script}'
+  prototype_mode: simulated
+- number: 31
+  block: G
+  title: Back up TEST before refresh
+  kind: automated
+  legacy_tool: SQL Server backup script
+  target_executor: pipeline Script activity via gateway
+  parameters:
+    database: TEST
+  prototype_mode: simulated
+- number: 32
+  block: G
+  title: Restore CONV backup to TEST
+  kind: automated
+  legacy_tool: SSMS restore database
+  target_executor: pipeline Script activity via gateway
+  parameters:
+    source_database: CONV
+    target_database: TEST
+  prototype_mode: simulated
+- number: 33
+  block: G
+  title: Run post-restore GP compatibility script on TEST
+  kind: automated
+  legacy_tool: SQL script RunAfterRestore
+  target_executor: pipeline Script activity via gateway
+  parameters:
+    database: TEST
+    script: '{run_after_restore_script}'
+  prototype_mode: simulated
+- number: 34
+  block: G
+  title: Back up TRAIN before refresh
+  kind: automated
+  legacy_tool: SQL Server backup script
+  target_executor: pipeline Script activity via gateway
+  parameters:
+    database: TRAIN
+  prototype_mode: simulated
+- number: 35
+  block: G
+  title: Restore CONV backup to TRAIN
+  kind: automated
+  legacy_tool: SSMS restore database
+  target_executor: pipeline Script activity via gateway
+  parameters:
+    source_database: CONV
+    target_database: TRAIN
+  prototype_mode: simulated
+- number: 36
+  block: G
+  title: Run post-restore GP compatibility script on TRAIN
+  kind: automated
+  legacy_tool: SQL script RunAfterRestore
+  target_executor: pipeline Script activity via gateway
+  parameters:
+    database: TRAIN
+    script: '{run_after_restore_script}'
+  prototype_mode: simulated
+- number: 37
+  block: G
+  title: Log in to refreshed production, TEST and TRAIN companies
+  kind: manual
+  legacy_tool: Dynamics GP client
+  target_executor: manual verification checklist
+  parameters:
+    environments:
+    - production
+    - TEST
+    - TRAIN
+  prototype_mode: manual
+- number: 38
+  block: G
+  title: Spot-check converted accounts in refreshed companies
+  kind: check
+  legacy_tool: Dynamics GP account inquiry
+  target_executor: generated validation sample plus manual review
+  parameters:
+    sample: '{validation_sample}'
+  prototype_mode: manual
+- number: 39
+  block: G
+  title: Take production company database out of offline maintenance mode
+  kind: manual
+  legacy_tool: Dynamics GP Take Company Offline
+  target_executor: pipeline Script activity via gateway
+  parameters:
+    company: '{client_company}'
+    environment: production
+  prototype_mode: manual
+- number: 40
+  block: G
+  title: Copy CONV and COGS_STAGING backups to remote desktop server
+  kind: automated
+  legacy_tool: Windows file copy
+  target_executor: gateway file-copy activity / Azure Automation
+  parameters:
+    files:
+    - '{conv_backup_file}'
+    - '{staging_backup_file}'
+    destination: '{remote_desktop_server}'
+  prototype_mode: simulated
+- number: 41
+  block: G
+  title: Log in to remote desktop server for hosted environment refresh
+  kind: manual
+  legacy_tool: Remote desktop
+  target_executor: manual verification checklist
+  parameters:
+    server: '{remote_desktop_server}'
+  prototype_mode: manual
+- number: 42
+  block: G
+  title: Restore COGS_STAGING backup to hosted snapshot database
+  kind: automated
+  legacy_tool: SSMS restore database
+  target_executor: pipeline Script activity via gateway
+  parameters:
+    source_database: COGS_STAGING
+    target_database: COGS_STAGING_SNAPSHOT
+    environment: hosted
+  prototype_mode: simulated
+- number: 43
+  block: G
+  title: Back up hosted production company database before publish
+  kind: automated
+  legacy_tool: SQL Server backup script
+  target_executor: pipeline Script activity via gateway
+  parameters:
+    database: '{client_company}'
+    environment: hosted
+  prototype_mode: simulated
+- number: 44
+  block: G
+  title: Restore CONV backup to hosted production company database
+  kind: automated
+  legacy_tool: SSMS restore database
+  target_executor: pipeline Script activity via gateway
+  parameters:
+    source_database: CONV
+    target_database: '{client_company}'
+    environment: hosted
+  prototype_mode: simulated
+- number: 45
+  block: G
+  title: Run post-restore GP compatibility script on hosted production company database
+  kind: automated
+  legacy_tool: SQL script RunAfterRestore
+  target_executor: pipeline Script activity via gateway
+  parameters:
+    database: '{client_company}'
+    environment: hosted
+  prototype_mode: simulated
+- number: 46
+  block: G
+  title: Back up hosted TEST before refresh
+  kind: automated
+  legacy_tool: SQL Server backup script
+  target_executor: pipeline Script activity via gateway
+  parameters:
+    database: TEST
+    environment: hosted
+  prototype_mode: simulated
+- number: 47
+  block: G
+  title: Restore CONV backup to hosted TEST
+  kind: automated
+  legacy_tool: SSMS restore database
+  target_executor: pipeline Script activity via gateway
+  parameters:
+    source_database: CONV
+    target_database: TEST
+    environment: hosted
+  prototype_mode: simulated
+- number: 48
+  block: G
+  title: Run post-restore GP compatibility script on hosted TEST
+  kind: automated
+  legacy_tool: SQL script RunAfterRestore
+  target_executor: pipeline Script activity via gateway
+  parameters:
+    database: TEST
+    environment: hosted
+  prototype_mode: simulated
+- number: 49
+  block: G
+  title: Back up hosted TRAIN before refresh
+  kind: automated
+  legacy_tool: SQL Server backup script
+  target_executor: pipeline Script activity via gateway
+  parameters:
+    database: TRAIN
+    environment: hosted
+  prototype_mode: simulated
+- number: 50
+  block: G
+  title: Restore CONV backup to hosted TRAIN
+  kind: automated
+  legacy_tool: SSMS restore database
+  target_executor: pipeline Script activity via gateway
+  parameters:
+    source_database: CONV
+    target_database: TRAIN
+    environment: hosted
+  prototype_mode: simulated
+- number: 51
+  block: G
+  title: Run post-restore GP compatibility script on hosted TRAIN
+  kind: automated
+  legacy_tool: SQL script RunAfterRestore
+  target_executor: pipeline Script activity via gateway
+  parameters:
+    database: TRAIN
+    environment: hosted
+  prototype_mode: simulated
+- number: 52
+  block: G
+  title: Log in to hosted production, TEST and TRAIN companies
+  kind: manual
+  legacy_tool: Dynamics GP client
+  target_executor: manual verification checklist
+  parameters:
+    environments:
+    - hosted production
+    - hosted TEST
+    - hosted TRAIN
+  prototype_mode: manual
+- number: 53
+  block: G
+  title: Spot-check converted accounts in hosted companies
+  kind: check
+  legacy_tool: Dynamics GP account inquiry
+  target_executor: generated validation sample plus manual review
+  parameters:
+    sample: '{validation_sample}'
+  prototype_mode: manual
+- number: 54
+  block: G
+  title: Take hosted production company database out of offline maintenance mode
+  kind: approval
+  legacy_tool: Dynamics GP Take Company Offline
+  target_executor: gate 6 take acceptance then pipeline Script activity
+  parameters:
+    company: '{client_company}'
+    environment: hosted production
+    gate: 6
+  prototype_mode: manual

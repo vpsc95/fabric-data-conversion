@@ -1,0 +1,86 @@
+/// Numbers each step records: reshape (rows read and kept, report artifacts removed by kind, fill-down checks) and triage (agent quality against the approved rules).
+table 'Step Metrics'
+
+	measure 'Metric Value' = SUM('Step Metrics'[Value])
+		formatString: #,##0.##
+		displayFolder: Run
+
+	/// Rows the reshape step read from the report extracts.
+	measure 'Rows Read' = CALCULATE([Metric Value], 'Step Metrics'[Step] = "reshape", 'Step Metrics'[Metric] = "rows_read")
+		formatString: #,##0
+		displayFolder: Run
+
+	/// Rows kept as data after removing page headers, separators, titles and helper rows.
+	measure 'Rows Kept' = CALCULATE([Metric Value], 'Step Metrics'[Step] = "reshape", 'Step Metrics'[Metric] = "rows_kept")
+		formatString: #,##0
+		displayFolder: Run
+
+	/// Report-layout rows the reshape step removed (page breaks, headers, separators, titles).
+	measure 'Artifacts Removed' = CALCULATE([Metric Value], 'Step Metrics'[Step] = "reshape", LEFT('Step Metrics'[Metric], 10) = "artifacts.")
+		formatString: #,##0
+		displayFolder: Run
+
+	/// Rows where a filled-down value disagreed with the value the report printed (should be 0).
+	measure 'Fill-down Mismatches' = CALCULATE([Metric Value], 'Step Metrics'[Step] = "reshape", LEFT('Step Metrics'[Metric], 19) = "fill_down_mismatch.") + 0
+		formatString: #,##0
+		displayFolder: Run
+
+	/// Reference line for the reshape tile.
+	measure 'Fill-down Context' = FORMAT([Artifacts Removed] + 0, "#,##0") & " layout rows removed · " & FORMAT([Rows Kept] + 0, "#,##0") & " data rows kept"
+		formatString: General
+		displayFolder: Run
+
+	column 'Take Key'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: TakeKey
+
+	column ClientId
+		dataType: string
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: ClientId
+
+	column TakeId
+		dataType: string
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: TakeId
+
+	column Step
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Step
+
+	column Item
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Item
+
+	column Metric
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Metric
+
+	column Value
+		dataType: double
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: sum
+		sourceColumn: Value
+
+	column 'Recorded At'
+		dataType: dateTime
+		formatString: yyyy-mm-dd hh:nn
+		summarizeBy: none
+		sourceColumn: At
+
+	partition 'Step Metrics' = entity
+		mode: directLake
+		source
+			entityName: rpt_step_metric
+			schemaName: dbo
+			expressionSource: DL_Lakehouse

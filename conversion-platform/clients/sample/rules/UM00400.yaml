@@ -1,0 +1,8 @@
+kind: rules
+version: 1
+client: sample
+module: UM00400
+overrides:
+- rule: EQUIP_STATUS_NOT_IN_CSM
+  enabled: false
+  reason: Legacy equipment-status reference check is commented out for this client.

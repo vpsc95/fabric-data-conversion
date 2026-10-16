@@ -1,0 +1,208 @@
+kind: crosswalk
+version: 1
+client: sample
+id: route_to_city
+description: LEFT(LegacyAcctNo,2) -> UM_LOCATIONS.SCity for every route 00-99, generated
+  from the CASE in SP_Load_UM_LOCATIONS.sql (00/01/03 Shady Shores, 02 JW, 04/06 Lake
+  Dallas, 05-29 Shady Shores, 30-66 Lake Dallas, 67-99 Hickory Creek).
+values:
+- legacy_code: '00'
+  target: Shady Shores
+- legacy_code: '01'
+  target: Shady Shores
+- legacy_code: '02'
+  target: JW
+- legacy_code: '03'
+  target: Shady Shores
+- legacy_code: '04'
+  target: Lake Dallas
+- legacy_code: '05'
+  target: Shady Shores
+- legacy_code: '06'
+  target: Lake Dallas
+- legacy_code: '07'
+  target: Shady Shores
+- legacy_code: 08
+  target: Shady Shores
+- legacy_code: 09
+  target: Shady Shores
+- legacy_code: '10'
+  target: Shady Shores
+- legacy_code: '11'
+  target: Shady Shores
+- legacy_code: '12'
+  target: Shady Shores
+- legacy_code: '13'
+  target: Shady Shores
+- legacy_code: '14'
+  target: Shady Shores
+- legacy_code: '15'
+  target: Shady Shores
+- legacy_code: '16'
+  target: Shady Shores
+- legacy_code: '17'
+  target: Shady Shores
+- legacy_code: '18'
+  target: Shady Shores
+- legacy_code: '19'
+  target: Shady Shores
+- legacy_code: '20'
+  target: Shady Shores
+- legacy_code: '21'
+  target: Shady Shores
+- legacy_code: '22'
+  target: Shady Shores
+- legacy_code: '23'
+  target: Shady Shores
+- legacy_code: '24'
+  target: Shady Shores
+- legacy_code: '25'
+  target: Shady Shores
+- legacy_code: '26'
+  target: Shady Shores
+- legacy_code: '27'
+  target: Shady Shores
+- legacy_code: '28'
+  target: Shady Shores
+- legacy_code: '29'
+  target: Shady Shores
+- legacy_code: '30'
+  target: Lake Dallas
+- legacy_code: '31'
+  target: Lake Dallas
+- legacy_code: '32'
+  target: Lake Dallas
+- legacy_code: '33'
+  target: Lake Dallas
+- legacy_code: '34'
+  target: Lake Dallas
+- legacy_code: '35'
+  target: Lake Dallas
+- legacy_code: '36'
+  target: Lake Dallas
+- legacy_code: '37'
+  target: Lake Dallas
+- legacy_code: '38'
+  target: Lake Dallas
+- legacy_code: '39'
+  target: Lake Dallas
+- legacy_code: '40'
+  target: Lake Dallas
+- legacy_code: '41'
+  target: Lake Dallas
+- legacy_code: '42'
+  target: Lake Dallas
+- legacy_code: '43'
+  target: Lake Dallas
+- legacy_code: '44'
+  target: Lake Dallas
+- legacy_code: '45'
+  target: Lake Dallas
+- legacy_code: '46'
+  target: Lake Dallas
+- legacy_code: '47'
+  target: Lake Dallas
+- legacy_code: '48'
+  target: Lake Dallas
+- legacy_code: '49'
+  target: Lake Dallas
+- legacy_code: '50'
+  target: Lake Dallas
+- legacy_code: '51'
+  target: Lake Dallas
+- legacy_code: '52'
+  target: Lake Dallas
+- legacy_code: '53'
+  target: Lake Dallas
+- legacy_code: '54'
+  target: Lake Dallas
+- legacy_code: '55'
+  target: Lake Dallas
+- legacy_code: '56'
+  target: Lake Dallas
+- legacy_code: '57'
+  target: Lake Dallas
+- legacy_code: '58'
+  target: Lake Dallas
+- legacy_code: '59'
+  target: Lake Dallas
+- legacy_code: '60'
+  target: Lake Dallas
+- legacy_code: '61'
+  target: Lake Dallas
+- legacy_code: '62'
+  target: Lake Dallas
+- legacy_code: '63'
+  target: Lake Dallas
+- legacy_code: '64'
+  target: Lake Dallas
+- legacy_code: '65'
+  target: Lake Dallas
+- legacy_code: '66'
+  target: Lake Dallas
+- legacy_code: '67'
+  target: Hickory Creek
+- legacy_code: '68'
+  target: Hickory Creek
+- legacy_code: '69'
+  target: Hickory Creek
+- legacy_code: '70'
+  target: Hickory Creek
+- legacy_code: '71'
+  target: Hickory Creek
+- legacy_code: '72'
+  target: Hickory Creek
+- legacy_code: '73'
+  target: Hickory Creek
+- legacy_code: '74'
+  target: Hickory Creek
+- legacy_code: '75'
+  target: Hickory Creek
+- legacy_code: '76'
+  target: Hickory Creek
+- legacy_code: '77'
+  target: Hickory Creek
+- legacy_code: '78'
+  target: Hickory Creek
+- legacy_code: '79'
+  target: Hickory Creek
+- legacy_code: '80'
+  target: Hickory Creek
+- legacy_code: '81'
+  target: Hickory Creek
+- legacy_code: '82'
+  target: Hickory Creek
+- legacy_code: '83'
+  target: Hickory Creek
+- legacy_code: '84'
+  target: Hickory Creek
+- legacy_code: '85'
+  target: Hickory Creek
+- legacy_code: '86'
+  target: Hickory Creek
+- legacy_code: '87'
+  target: Hickory Creek
+- legacy_code: '88'
+  target: Hickory Creek
+- legacy_code: '89'
+  target: Hickory Creek
+- legacy_code: '90'
+  target: Hickory Creek
+- legacy_code: '91'
+  target: Hickory Creek
+- legacy_code: '92'
+  target: Hickory Creek
+- legacy_code: '93'
+  target: Hickory Creek
+- legacy_code: '94'
+  target: Hickory Creek
+- legacy_code: '95'
+  target: Hickory Creek
+- legacy_code: '96'
+  target: Hickory Creek
+- legacy_code: '97'
+  target: Hickory Creek
+- legacy_code: '98'
+  target: Hickory Creek
+- legacy_code: '99'
+  target: Hickory Creek

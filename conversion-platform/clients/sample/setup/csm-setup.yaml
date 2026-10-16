@@ -1,0 +1,588 @@
+kind: setup
+version: 1
+client: sample
+id: csm-setup
+status: provisional
+description: 'CSM setup values the SAMPLE validation rules check. PROVISIONAL: every
+  code the mapping specs produce is assumed to exist in CSM, except where the go-live
+  integrity report shows otherwise. Replace with the CSM setup snapshot (UM41000,
+  UM41301, UM40900, UM40630, UM40600, UM40700, UM41930, TX00101) when reviewer provides
+  it. Deliberately absent: tariff GRP (grinder fixed tariff) - the integrity report
+  shows the 43 grinder connections failed ''Invalid Rate value [TariffID]'' as an
+  expected exclusion (DEMO-41068), so GRP was not set up in CSM.'
+tables:
+  UM41000:
+  - code: WATER-RES
+    source: spec
+    note: service type produced by crosswalk connection_service_code
+  - code: WATER-COM
+    source: spec
+    note: service type produced by crosswalk connection_service_code
+  - code: SWR-RES
+    source: spec
+    note: service type produced by crosswalk connection_service_code
+  - code: SWR-COM
+    source: spec
+    note: service type produced by crosswalk connection_service_code
+  - code: GRINDER-RES
+    source: spec
+    note: service type produced by crosswalk connection_service_code
+  - code: GRINDER-COM
+    source: spec
+    note: service type produced by crosswalk connection_service_code
+  - code: DRAINAGE FEES
+    source: spec
+    note: service type produced by crosswalk connection_service_code
+  UM41301:
+  - code: WR35
+    source: spec
+    note: tariff produced by crosswalks meter_size_to_water_tariff / customer_individual_to_service_class
+      / connection_service_code
+  - code: WC35
+    source: spec
+    note: tariff produced by crosswalks meter_size_to_water_tariff / customer_individual_to_service_class
+      / connection_service_code
+  - code: WR1
+    source: spec
+    note: tariff produced by crosswalks meter_size_to_water_tariff / customer_individual_to_service_class
+      / connection_service_code
+  - code: WC1
+    source: spec
+    note: tariff produced by crosswalks meter_size_to_water_tariff / customer_individual_to_service_class
+      / connection_service_code
+  - code: WR1_1/2
+    source: spec
+    note: tariff produced by crosswalks meter_size_to_water_tariff / customer_individual_to_service_class
+      / connection_service_code
+  - code: WC1_1/2
+    source: spec
+    note: tariff produced by crosswalks meter_size_to_water_tariff / customer_individual_to_service_class
+      / connection_service_code
+  - code: WR2
+    source: spec
+    note: tariff produced by crosswalks meter_size_to_water_tariff / customer_individual_to_service_class
+      / connection_service_code
+  - code: WC2
+    source: spec
+    note: tariff produced by crosswalks meter_size_to_water_tariff / customer_individual_to_service_class
+      / connection_service_code
+  - code: WR3
+    source: spec
+    note: tariff produced by crosswalks meter_size_to_water_tariff / customer_individual_to_service_class
+      / connection_service_code
+  - code: WC3
+    source: spec
+    note: tariff produced by crosswalks meter_size_to_water_tariff / customer_individual_to_service_class
+      / connection_service_code
+  - code: WR4
+    source: spec
+    note: tariff produced by crosswalks meter_size_to_water_tariff / customer_individual_to_service_class
+      / connection_service_code
+  - code: WC4
+    source: spec
+    note: tariff produced by crosswalks meter_size_to_water_tariff / customer_individual_to_service_class
+      / connection_service_code
+  - code: WR6
+    source: spec
+    note: tariff produced by crosswalks meter_size_to_water_tariff / customer_individual_to_service_class
+      / connection_service_code
+  - code: WC6
+    source: spec
+    note: tariff produced by crosswalks meter_size_to_water_tariff / customer_individual_to_service_class
+      / connection_service_code
+  - code: WR8
+    source: spec
+    note: tariff produced by crosswalks meter_size_to_water_tariff / customer_individual_to_service_class
+      / connection_service_code
+  - code: WC8
+    source: spec
+    note: tariff produced by crosswalks meter_size_to_water_tariff / customer_individual_to_service_class
+      / connection_service_code
+  - code: WR12
+    source: spec
+    note: tariff produced by crosswalks meter_size_to_water_tariff / customer_individual_to_service_class
+      / connection_service_code
+  - code: WC12
+    source: spec
+    note: tariff produced by crosswalks meter_size_to_water_tariff / customer_individual_to_service_class
+      / connection_service_code
+  - code: SWR
+    source: spec
+    note: tariff produced by crosswalks meter_size_to_water_tariff / customer_individual_to_service_class
+      / connection_service_code
+  - code: SWR-C
+    source: spec
+    note: tariff produced by crosswalks meter_size_to_water_tariff / customer_individual_to_service_class
+      / connection_service_code
+  - code: DRF
+    source: spec
+    note: tariff produced by crosswalks meter_size_to_water_tariff / customer_individual_to_service_class
+      / connection_service_code
+  UM40900:
+  - code: '00'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '01'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '02'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '03'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '04'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '05'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '06'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '07'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: 08
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: 09
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '10'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '11'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '12'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '13'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '14'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '15'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '16'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '17'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '18'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '19'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '20'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '21'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '22'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '23'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '24'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '25'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '26'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '27'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '28'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '29'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '30'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '31'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '32'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '33'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '34'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '35'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '36'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '37'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '38'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '39'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '40'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '41'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '42'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '43'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '44'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '45'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '46'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '47'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '48'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '49'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '50'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '51'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '52'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '53'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '54'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '55'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '56'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '57'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '58'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '59'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '60'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '61'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '62'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '63'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '64'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '65'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '66'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '67'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '68'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '69'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '70'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '71'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '72'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '73'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '74'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '75'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '76'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '77'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '78'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '79'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '80'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '81'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '82'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '83'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '84'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '85'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '86'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '87'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '88'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '89'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '90'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '91'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '92'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '93'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '94'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '95'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '96'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '97'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '98'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  - code: '99'
+    source: spec
+    note: route mapped by route_to_city (00-99); the go-live integrity report shows
+      no route warnings
+  UM40630:
+  - code: '2'
+    source: spec
+    note: connection status the mapping assigns (ConnStatus = 2)
+  UM40600:
+  - code: '1010'
+    source: spec
+    note: equipment class from meter_size_to_equipment_class
+  - code: '1015'
+    source: spec
+    note: equipment class from meter_size_to_equipment_class
+  - code: '1012'
+    source: spec
+    note: equipment class from meter_size_to_equipment_class
+  - code: '1020'
+    source: spec
+    note: equipment class from meter_size_to_equipment_class
+  - code: '1030'
+    source: spec
+    note: equipment class from meter_size_to_equipment_class
+  - code: '1001'
+    source: spec
+    note: equipment class from meter_size_to_equipment_class
+  - code: '1040'
+    source: spec
+    note: equipment class from meter_size_to_equipment_class
+  - code: '1060'
+    source: spec
+    note: equipment class from meter_size_to_equipment_class
+  - code: '1080'
+    source: spec
+    note: equipment class from meter_size_to_equipment_class
+  UM40700:
+  - code: Z-BEG BAL
+    source: spec
+    note: beginning-balance misc charge type (balance_gl_accounts)
+  UM41930:
+  - code: COMM-DEP
+    source: spec
+    note: deposit type (deposit_service_type_to_deposit_type)
+  - code: RESI-DEP
+    source: spec
+    note: deposit type (deposit_service_type_to_deposit_type)
+open_questions:
+- id: OQ-SETUP-SNAPSHOT
+  text: Provide the CSM setup snapshot for the go-live company (service types, tariffs,
+    routes, connection statuses, equipment classes, misc charge types, deposit types,
+    tax schedules) so the setup-dependent rules stop relying on provisional values.
+  owner: cogsdale
+  status: assumed
+  assumption: Until a CSM setup snapshot exists, the CSM setup is the set of codes
+    the specs produce, minus GRP (OQ-SETUP-GRP).
+  evidence: 'Every setup-dependent count reproduces: invalid service type 6,694, invalid
+    rate 64, invalid tariff 43, and no route, connection status, equipment class,
+    misc charge or deposit type failures, as in the report.'
+  decided_by: Demo assumptions only; recipient review required
+  decided_on: '2026-10-06'
+- id: OQ-SETUP-GRP
+  text: Confirm the grinder fixed tariff GRP stays out of CSM (grinder service not
+    converted at go-live, DEMO-41068).
+  owner: cogsdale
+  status: assumed
+  assumption: The grinder fixed tariff GRP is not set up in CSM.
+  evidence: The report's 43 grinder tariff failures (DEMO-41068) reproduce only when
+    GRP is absent.
+  decided_by: Demo assumptions only; recipient review required
+  decided_on: '2026-10-06'

@@ -1,0 +1,20 @@
+kind: crosswalk
+version: 1
+client: sample
+id: customer_individual_to_service_class
+description: 'UM_Customer.Individual controls residential vs commercial service type
+  and sewer variable tariff. Source: sp_Load_UM_CONNECTIONS.sql lines 497-547 and
+  679-689.'
+values:
+- legacy_code: '1'
+  target: residential
+  water_service_type: WATER-RES
+  sewer_service_type: SWR-RES
+  grinder_service_type: GRINDER-RES
+  sewer_variable_tariff: SWR
+- legacy_code: '0'
+  target: commercial
+  water_service_type: WATER-COM
+  sewer_service_type: SWR-COM
+  grinder_service_type: GRINDER-COM
+  sewer_variable_tariff: SWR-C

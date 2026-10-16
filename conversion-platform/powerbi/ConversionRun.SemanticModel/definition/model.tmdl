@@ -1,0 +1,5 @@
+/// One take of a Cogsdale CSM conversion: what was received (with its chain of custody and drift against the previous take), what loads, what fails and why (expected by design or actionable), the triage agent's proposals and the people's decisions at the six gates, the check against the known outcome (answer key), the load through the CSM procedures, the runbook, the client's validation sample and the take-over-take comparison. Direct Lake on the rpt_* tables that the pipeline's Publish steps write.
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	discourageImplicitMeasures

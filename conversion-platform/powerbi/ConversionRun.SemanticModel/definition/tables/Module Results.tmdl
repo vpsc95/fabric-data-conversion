@@ -1,0 +1,168 @@
+/// Received, loaded and failed records per module, in the shape of the go-live integrity report. Failed records split into expected (excluded by design) and actionable.
+table 'Module Results'
+
+	/// Rows received from the extract for this module (customers: one row per customer and account).
+	measure 'Records Received' = SUM('Module Results'[Received])
+		formatString: #,##0
+		displayFolder: Processed items
+
+	/// Records that pass validation and load into CSM.
+	measure 'Records Loaded' = SUM('Module Results'[Loaded])
+		formatString: #,##0
+		displayFolder: Processed items
+
+	/// Records skipped at load because at least one error rule failed.
+	measure 'Records Failed' = SUM('Module Results'[Failed])
+		formatString: #,##0
+		displayFolder: Processed items
+
+	/// Loaded share of the records the conversion tried to load.
+	measure 'Load %' = DIVIDE([Records Loaded], [Records Loaded] + [Records Failed])
+		formatString: 0.0%
+		displayFolder: Processed items
+
+	/// Failed records whose every error is expected by design (approved exclusion, crosswalk or triage decision).
+	measure 'Expected Failures' = SUM('Module Results'[ExpectedFailedRecords])
+		formatString: #,##0
+		displayFolder: Processed items
+
+	/// Failed records with at least one error that someone has to fix (client data, mapping or setup).
+	measure 'Actionable Failures' = SUM('Module Results'[ActionableFailedRecords])
+		formatString: #,##0
+		displayFolder: Processed items
+
+	/// Share of failed records that need a fix.
+	measure 'Actionable %' = DIVIDE([Actionable Failures], [Records Failed])
+		formatString: 0.0%
+		displayFolder: Processed items
+
+	/// Reference line for the received card: the go-live figure and the difference.
+	measure 'Received vs Go-live' = ```
+			VAR _golive = [Go-live Received]
+			RETURN
+				IF(
+					ISBLANK(_golive),
+					"no go-live figure",
+					"go-live " & FORMAT(_golive, "#,##0") & " · Δ " & FORMAT([Records Received] - _golive, "+#,##0;-#,##0;0")
+				)
+			```
+		formatString: General
+		displayFolder: Processed items
+
+	/// Reference line for the loaded card: the go-live figure and the difference.
+	measure 'Loaded vs Go-live' = ```
+			VAR _golive = [Go-live Loaded]
+			RETURN
+				IF(
+					ISBLANK(_golive),
+					"no go-live figure",
+					"go-live " & FORMAT(_golive, "#,##0") & " · Δ " & FORMAT([Records Loaded] - _golive, "+#,##0;-#,##0;0")
+				)
+			```
+		formatString: General
+		displayFolder: Processed items
+
+	/// Reference line for the failed card: the go-live figure and the difference.
+	measure 'Failed vs Go-live' = ```
+			VAR _golive = [Go-live Failed]
+			RETURN
+				IF(
+					ISBLANK(_golive),
+					"no go-live figure",
+					"go-live " & FORMAT(_golive, "#,##0") & " · Δ " & FORMAT([Records Failed] - _golive, "+#,##0;-#,##0;0")
+				)
+			```
+		formatString: General
+		displayFolder: Processed items
+
+	/// Reference line for the load % card.
+	measure 'Load Context' = FORMAT([Records Loaded] + 0, "#,##0") & " of " & FORMAT([Records Loaded] + [Records Failed] + 0, "#,##0") & " records loaded"
+		formatString: General
+		displayFolder: Processed items
+
+	/// Reference line for the actionable card.
+	measure 'Actionable Context' = IF([Records Failed] = 0, "no failed records", FORMAT(DIVIDE([Actionable Failures], [Records Failed]), "0.0%") & " of failed records need a fix")
+		formatString: General
+		displayFolder: Processed items
+
+	column 'Module Code'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: Module
+
+	column 'Take Key'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: TakeKey
+
+	column ClientId
+		dataType: string
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: ClientId
+
+	column TakeId
+		dataType: string
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: TakeId
+
+	column Received
+		dataType: int64
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: sum
+		sourceColumn: Received
+
+	column ReceivedDistinct
+		dataType: int64
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: sum
+		sourceColumn: ReceivedDistinct
+
+	column Loaded
+		dataType: int64
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: sum
+		sourceColumn: Loaded
+
+	column Failed
+		dataType: int64
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: sum
+		sourceColumn: Failed
+
+	column FailedRecords
+		dataType: int64
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: sum
+		sourceColumn: FailedRecords
+
+	column ActionableFailedRecords
+		dataType: int64
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: sum
+		sourceColumn: ActionableFailedRecords
+
+	column ExpectedFailedRecords
+		dataType: int64
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: sum
+		sourceColumn: ExpectedFailedRecords
+
+	partition 'Module Results' = entity
+		mode: directLake
+		source
+			entityName: rpt_module_summary
+			schemaName: dbo
+			expressionSource: DL_Lakehouse

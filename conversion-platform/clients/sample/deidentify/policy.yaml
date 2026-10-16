@@ -1,0 +1,383 @@
+version: 1
+defaults:
+  skip_values:
+  - ^\s*$
+  - ^[-=_*.\s]+$
+  - ^(?:[A-Z0-9#&]\s){3,}[A-Z0-9#&]?\s*$
+  - (?i)^\s*page\s*\d+
+  - (?i)\breport\b
+  - (?i)^\s*(grand\s+)?total
+  - (?i)lake cities
+  unknown_columns: stop
+files:
+- match: CUSTOMERS *.xlsx
+  sheets: all
+  header_row: 0
+  columns:
+    INCODE ACCT:
+      action: token_digits
+      preserve_prefix: 2
+      group_digits: 6
+      keep_suffix: true
+      domain: account
+    SERVICE ADDRESS:
+      action: pseudo_address
+      domain: street
+    FIRST NAME:
+      action: pseudo_name
+      domain: person
+    LAST NAME:
+      action: pseudo_name
+      domain: person
+    SOCIAL:
+      action: blank
+    DOB:
+      action: shift_date
+      mode: per_value
+      max_days: 365
+      on_unparseable: blank
+    DRIVERS LICENSE:
+      action: token_alnum
+      domain: licence
+    DL ST:
+      action: token_embedded_numbers
+      domain: licence:number
+      min_digits: 4
+    ADDRESS 1:
+      action: pseudo_address
+      domain: street
+    ADDRESS 2:
+      action: pseudo_address
+      domain: street
+    ADDRESS ATTN:
+      action: pseudo_name
+      domain: person
+    CITY:
+      action: keep
+    ST:
+      action: keep
+    ZIP:
+      action: keep
+    EMAIL:
+      action: fake_email
+    PHONE NUMBER:
+      action: fake_phone
+    CELL NUMBER:
+      action: fake_phone
+    HOME NUMBER:
+      action: fake_phone
+    PRIMARY CONTACT:
+      action: pseudo_name
+      domain: person
+    SECONDARY CONTACT:
+      action: pseudo_name
+      domain: person
+    SEC DL:
+      action: token_alnum
+      domain: licence
+    SEC DL ST:
+      action: token_embedded_numbers
+      domain: licence:number
+      min_digits: 4
+    SEC DOB:
+      action: shift_date
+      mode: per_value
+      max_days: 365
+      on_unparseable: blank
+    SEC EMAIL:
+      action: fake_email
+    SEC PHONE NUMBER:
+      action: fake_phone
+    SEC SOC:
+      action: blank
+    CUSTOMER CLASS:
+      action: keep
+    START DATE:
+      action: keep
+    CUSTOMER STATUS:
+      action: keep
+- match: Meter Asset List *.xlsx
+  sheets: all
+  header_row: 0
+  columns:
+    Asset Type:
+      action: keep
+    Device Type:
+      action: keep
+    Serial Number:
+      action: token_alnum
+      domain: device_serial
+    Manufacturer:
+      action: keep
+    Status:
+      action: keep
+    Product Name:
+      action: keep
+    Address:
+      action: pseudo_address
+      domain: street
+    Address Line 2:
+      action: pseudo_address
+      domain: street
+    Address Line 3:
+      action: pseudo_address
+      domain: street
+    Encoder Serial Number:
+      action: token_alnum
+      domain: device_serial
+- match: Meters and Readings *.csv
+  header_row: 0
+  columns:
+    Location_Name:
+      action: pseudo_name
+      domain: person
+    Register_Number:
+      action: keep
+    Endpoint_SN:
+      action: token_alnum
+      domain: device_serial
+    Meter_ID:
+      action: token_digits
+      strip_leading_zeros: true
+      nonzero_lead: true
+      domain: meter
+    Meter_SN:
+      action: token_alnum
+      domain: device_serial
+    Read_Time:
+      action: keep
+    Service_Point_Timezone:
+      action: keep
+    Read:
+      action: keep
+      long_numbers_ok: true
+    Read_Unit:
+      action: keep
+    Read_Method:
+      action: keep
+    Encoder_Read:
+      action: keep
+      long_numbers_ok: true
+    Flow_Time:
+      action: keep
+    Flow_Unit:
+      action: keep
+    Flow:
+      action: keep
+      long_numbers_ok: true
+    Account_ID:
+      action: token_digits
+      preserve_prefix: 2
+      group_digits: 6
+      keep_suffix: true
+      domain: account
+    Location_ID:
+      action: token_alnum
+      domain: location
+    Account_Full_Name:
+      action: pseudo_name
+      domain: person
+    Billing_Address_Line1:
+      action: pseudo_address
+      domain: street
+    Billing_Address_Line2:
+      action: pseudo_address
+      domain: street
+    Billing_Address_Line3:
+      action: pseudo_address
+      domain: street
+    Billing_City:
+      action: keep
+    Billing_State:
+      action: keep
+    Billing_ZIP:
+      action: keep
+    Location_Address_Line1:
+      action: pseudo_address
+      domain: street
+    Location_City:
+      action: keep
+    Location_State:
+      action: keep
+    Location_ZIP:
+      action: keep
+    Service_Point_ID:
+      action: token_alnum
+      domain: service_point
+    Service_Point_Class_Code:
+      action: keep
+    Service_Point_Route:
+      action: keep
+    Service_Point_Cycle:
+      action: keep
+    Meter_Manufacturer:
+      action: keep
+    Meter_Model:
+      action: keep
+    Register_Resolution:
+      action: keep
+    Register_Unit_Of_Measure:
+      action: keep
+    Meter_Size:
+      action: keep
+    Meter_Size_Desc:
+      action: keep
+    Dials:
+      action: keep
+    Service_Point_Latitude:
+      action: round
+      decimals: 2
+    Service_Point_Longitude:
+      action: round
+      decimals: 2
+    Endpoint_Type:
+      action: keep
+    Connector Type:
+      action: keep
+    Endpoint Status:
+      action: keep
+    Battery Level:
+      action: keep
+    Signal Strength:
+      action: keep
+    Last Comm. Time:
+      action: keep
+    Last Gateway Id:
+      action: keep
+    Estimated Flag:
+      action: keep
+    Current Leak Start Date:
+      action: keep
+    Current Leak Rate Per Hour:
+      action: keep
+    Backflow (gal/30 days):
+      action: keep
+    Supply_Zone_ID:
+      action: keep
+    Demand_Zone_ID:
+      action: keep
+- match: UB Account Balances *.xlsx
+  sheets: all
+  header_row: 0
+  columns:
+    'ACCOUNT #':
+      action: token_digits
+      preserve_prefix: 2
+      group_digits: 6
+      keep_suffix: true
+      domain: account
+    ACCOUNT NAME:
+      action: pseudo_name
+      domain: person
+    STATUS:
+      action: keep
+    BALANCE:
+      action: keep
+    SVC1:
+      action: keep
+    BAL1:
+      action: keep
+    SVC2:
+      action: keep
+    BAL2:
+      action: keep
+    SVC3:
+      action: keep
+    BAL3:
+      action: keep
+    ACCT:
+      action: token_digits
+      preserve_prefix: 2
+      group_digits: 6
+      keep_suffix: true
+      domain: account
+    (column 13):
+      action: pseudo_name
+      domain: person
+- match: UB Deposit Listing *.xlsx
+  sheets: all
+  header_row: 0
+  columns:
+    ACCOUNT:
+      action: token_digits
+      preserve_prefix: 2
+      group_digits: 6
+      keep_suffix: true
+      domain: account
+    ID:
+      action: keep
+      long_numbers_ok: true
+    ACCOUNT NAME:
+      action: pseudo_name
+      domain: person
+    RECEIPT:
+      action: token_embedded_numbers
+      domain: receipt
+      min_digits: 5
+    DEPOSITCODE:
+      action: keep
+    DEPDATE:
+      action: keep
+    RECEIVED:
+      action: keep
+    UNBILLED:
+      action: token_embedded_numbers
+      domain: deposit:header
+      min_digits: 7
+    INTEREST APPLIED:
+      action: token_embedded_numbers
+      domain: deposit:header
+      min_digits: 7
+    TARGETDATE:
+      action: keep
+    REFDATE:
+      action: keep
+- match: UB Services Report *.xlsx
+  sheets: all
+  header_row: 0
+  columns:
+    'ACCOUNT #':
+      action: token_digits
+      preserve_prefix: 2
+      group_digits: 6
+      keep_suffix: true
+      domain: account
+    ACCOUNT NAME:
+      action: pseudo_name
+      domain: person
+    START DATE:
+      action: keep
+    DESCRIPTION:
+      action: keep
+    STATUS:
+      action: keep
+    TABLE:
+      action: keep
+    METER:
+      action: token_digits
+      strip_leading_zeros: true
+      nonzero_lead: true
+      domain: meter
+    DESCRIPTION2:
+      action: keep
+    STATUS2:
+      action: keep
+    TABLE2:
+      action: token_embedded_numbers
+      domain: meter
+      min_digits: 5
+      strip_leading_zeros: true
+      nonzero_lead: true
+    METER2:
+      action: token_digits
+      strip_leading_zeros: true
+      nonzero_lead: true
+      domain: meter
+    ACCT:
+      action: token_digits
+      preserve_prefix: 2
+      group_digits: 6
+      keep_suffix: true
+      domain: account
+    STDATE:
+      action: keep

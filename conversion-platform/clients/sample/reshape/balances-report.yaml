@@ -1,0 +1,27 @@
+kind: reshape
+version: 1
+client: sample
+id: balances-report
+source:
+  file: UB Account Balances {take_date}.xlsx
+  sheet: Sheet3
+  layout: report
+  header_row: 0
+  read_as_text: true
+steps:
+- strip_artifacts:
+    keep_when:
+      columns:
+      - ACCOUNTNUM
+      - ACCT
+      pattern: ^\d{2}-\d{4}-\d{2}$
+- fill_down:
+    columns:
+    - ACCOUNTNUM
+    as:
+    - ACCT_FILL
+    check_against:
+    - ACCT
+target: silver.balances
+expect:
+  min_rows: 1

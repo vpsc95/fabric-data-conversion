@@ -1,0 +1,63 @@
+/// Money that loads, by beginning-balance charge type and deposit type, as the legacy validation queries reported it.
+table 'Control Totals'
+
+	measure 'Control Amount' = SUM('Control Totals'[Amount])
+		formatString: \$#,##0.00
+		displayFolder: Control totals
+
+	measure 'Control Records' = SUM('Control Totals'[Records])
+		formatString: #,##0
+		displayFolder: Control totals
+
+	column 'Module Code'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: Module
+
+	column 'Take Key'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: TakeKey
+
+	column ClientId
+		dataType: string
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: ClientId
+
+	column TakeId
+		dataType: string
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: TakeId
+
+	/// Charge type (beginning balances) or deposit type (deposits).
+	column Type
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Name
+
+	column Records
+		dataType: int64
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: sum
+		sourceColumn: Records
+
+	column Amount
+		dataType: double
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: sum
+		sourceColumn: Amount
+
+	partition 'Control Totals' = entity
+		mode: directLake
+		source
+			entityName: rpt_control_total
+			schemaName: dbo
+			expressionSource: DL_Lakehouse

@@ -1,0 +1,105 @@
+/// The six human gates of the take: who decides, the state, who decided and when. Auto-approved means an unattended run's pipeline parameter, never a person.
+table Gates
+
+	/// Gates the run has opened for this take.
+	measure 'Gates Opened' = COUNTROWS(Gates) + 0
+		formatString: #,##0
+		displayFolder: Gates
+
+	/// Gates approved, auto-approved or not needed.
+	measure 'Gates Passed' = CALCULATE(COUNTROWS(Gates), Gates[Is Passed] = 1) + 0
+		formatString: #,##0
+		displayFolder: Gates
+
+	/// Gates waiting for a person's decision.
+	measure 'Gates Waiting' = CALCULATE(COUNTROWS(Gates), Gates[Status] = "pending") + 0
+		formatString: #,##0
+		displayFolder: Gates
+
+	/// Gates passed by an unattended run's auto_approve parameter (demo and CI runs only).
+	measure 'Gates Auto-Approved' = CALCULATE(COUNTROWS(Gates), Gates[Status] = "auto_approved") + 0
+		formatString: #,##0
+		displayFolder: Gates
+
+	column 'Take Key'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: TakeKey
+
+	column ClientId
+		dataType: string
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: ClientId
+
+	column TakeId
+		dataType: string
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: TakeId
+
+	/// 1 spec change, 2 low-confidence fixes, 3 triage, 4 load go or no-go, 5 publish, 6 take acceptance.
+	column Gate
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: Gate
+
+	column 'Gate Label'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: GateLabel
+		sortByColumn: Gate
+
+	column 'Gate Name'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: GateName
+
+	column 'Decided By Role'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: DecidedByRole
+
+	/// pending, approved, rejected, auto_approved or not_needed.
+	column Status
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Status
+
+	column 'Opened At'
+		dataType: dateTime
+		formatString: yyyy-mm-dd hh:nn
+		summarizeBy: none
+		sourceColumn: OpenedAt
+
+	column 'Decided By'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: DecidedBy
+
+	column 'Decided At'
+		dataType: dateTime
+		formatString: yyyy-mm-dd hh:nn
+		summarizeBy: none
+		sourceColumn: DecidedAt
+
+	column Note
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Note
+
+	column 'Is Passed'
+		dataType: int64
+		isHidden
+		summarizeBy: none
+		sourceColumn: IsPassed
+
+	partition Gates = entity
+		mode: directLake
+		source
+			entityName: rpt_gate
+			schemaName: dbo
+			expressionSource: DL_Lakehouse

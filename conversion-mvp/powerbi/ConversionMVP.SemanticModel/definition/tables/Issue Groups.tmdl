@@ -1,0 +1,132 @@
+/// Issues grouped by rule and code, with the AI agent's proposal: expected by design or needs action, who fixes it, and the message for the client.
+table 'Issue Groups'
+
+	/// Context line for the issues card.
+	measure 'Groups Context' = FORMAT([Issue Group Count], "#,##0") & " groups of rule and code, reviewed by the AI"
+		formatString: General
+		displayFolder: Context
+
+	/// Context line for the expected card.
+	measure 'Expected Context' = FORMAT(DIVIDE([Expected by Design], [Issues]), "0.0%") & " of the issues: nothing to fix"
+		formatString: General
+		displayFolder: Context
+
+	/// Context line for the needs-action card.
+	measure 'Needs Action Context' = FORMAT([Needs Action Share], "0.0%") & " of the issues: a fix before go-live"
+		formatString: General
+		displayFolder: Context
+
+	/// Context line for the client card.
+	measure 'Client Fixes Context' = VAR g = CALCULATE([Issue Group Count], 'Issue Groups'[AI Owner] = "Client") RETURN IF(g = 0, "Nothing for the client in this take", FORMAT(g, "0") & IF(g = 1, " group", " groups") & " · the AI drafted the message")
+		formatString: General
+		displayFolder: Context
+
+	/// Context line for the Cogsdale card.
+	measure 'Cogsdale Fixes Context' = VAR g = CALCULATE([Issue Group Count], 'Issue Groups'[AI Owner] = "Cogsdale") RETURN IF(g = 0, "Nothing for Cogsdale in this take", FORMAT(g, "0") & IF(g = 1, " group", " groups") & " · a mapping or setup change")
+		formatString: General
+		displayFolder: Context
+
+	/// Records that broke a rule.
+	measure Issues = SUM('Issue Groups'[Records]) + 0
+		formatString: #,##0
+		displayFolder: Issues
+
+	/// Issues the AI agent explains with an approved go-live decision: nothing to fix.
+	measure 'Expected by Design' = CALCULATE(SUM('Issue Groups'[Records]), 'Issue Groups'[AI Verdict] = "Expected") + 0
+		formatString: #,##0
+		displayFolder: Issues
+
+	/// Issues that need a fix before go-live.
+	measure 'Needs Action' = CALCULATE(SUM('Issue Groups'[Records]), 'Issue Groups'[AI Verdict] = "Needs action") + 0
+		formatString: #,##0
+		displayFolder: Issues
+
+	/// Records the client corrects in its source system.
+	measure 'Client Fixes' = CALCULATE(SUM('Issue Groups'[Records]), 'Issue Groups'[AI Owner] = "Client") + 0
+		formatString: #,##0
+		displayFolder: Issues
+
+	/// Records Cogsdale fixes in the mapping or CSM setup.
+	measure 'Cogsdale Fixes' = CALCULATE(SUM('Issue Groups'[Records]), 'Issue Groups'[AI Owner] = "Cogsdale") + 0
+		formatString: #,##0
+		displayFolder: Issues
+
+	/// Issue groups (rule and code).
+	measure 'Issue Group Count' = COUNTROWS('Issue Groups') + 0
+		formatString: #,##0
+		displayFolder: Issues
+
+	/// Share of the issues that need a fix.
+	measure 'Needs Action Share' = DIVIDE([Needs Action], [Issues])
+		formatString: 0.0%
+		displayFolder: Issues
+
+	column 'Take Id'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: TakeId
+
+	column 'Rule Id'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: RuleId
+
+	/// The code the issues share, e.g. a service code.
+	column Group
+		dataType: string
+		summarizeBy: none
+		sourceColumn: GroupValue
+
+	column Module
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: Module
+
+	column Rule
+		dataType: string
+		summarizeBy: none
+		sourceColumn: RuleText
+
+	column Records
+		dataType: int64
+		summarizeBy: sum
+		sourceColumn: Records
+
+	column 'AI Verdict'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: AiVerdict
+
+	column 'AI Owner'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: AiOwner
+
+	column 'AI Action'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: AiAction
+
+	column 'Message to Client'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: AiClientMessage
+
+	column 'AI Reason'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: AiReason
+
+	column 'AI Model'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: AiModel
+
+	partition 'Issue Groups' = entity
+		mode: directLake
+		source
+			entityName: IssueGroup
+			schemaName: mvp
+			expressionSource: DL_ConversionDB

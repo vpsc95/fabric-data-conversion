@@ -1,0 +1,54 @@
+kind: mapping
+version: 1
+client: sample
+module: UM01900
+source: silver.sample_um_deposits
+target: gold.UM_DEPOSITS
+fields:
+- target: LegacyAcctNo
+  from: LegacyAcctNo
+- target: Legacy_Loc_ID
+  from: Legacy_Loc_ID
+- target: UserID
+  from: UserID
+- target: UserDate
+  from: UserDate
+- target: CustomerID
+  from: CustomerID
+- target: LocationID
+  from: LocationID
+- target: DepositAmount
+  from: DepositAmount
+- target: DepositDate
+  from: DepositDate
+- target: DebitAccount
+  from: DebitAccount
+- target: CreditAccount
+  from: CreditAccount
+- target: DepositID
+  from: DepositID
+  note: Translated through deposit_service_type_to_deposit_type.
+- target: Category
+  from: Category
+  note: Translated through connection_service_code or deposit_service_type_to_deposit_type
+    where applicable.
+- target: DepositPaid
+  from: DepositPaid
+- target: DepositPaymentDate
+  from: DepositPaymentDate
+- target: DepositAmtPaid
+  from: DepositAmtPaid
+- target: isvalid
+  from: isvalid
+- target: message
+  from: message
+open_questions:
+- id: OQ-UM01900-COMPLEX
+  text: Review sp_Load_UM_DEPOSITS.sql for complex CASE/update logic represented in
+    the reshape spec before generating SQL for gold.UM_DEPOSITS.
+  owner: partner
+  status: answered
+  answer: Ported to gold.usp_Build_Deposit. The replay reproduces 1,008 received,
+    989 loaded and both deposit control totals.
+  decided_by: Demo assumptions only; recipient review required
+  decided_on: '2026-10-06'

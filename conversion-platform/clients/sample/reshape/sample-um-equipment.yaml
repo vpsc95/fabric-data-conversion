@@ -1,0 +1,37 @@
+kind: reshape
+version: 1
+client: sample
+id: sample-um-equipment
+source:
+  file: SAMPLE_UM_HistMR
+  layout: table
+  read_as_text: true
+steps:
+- derive:
+    EquClassID: xref(meter_size_to_equipment_class, Meter_Size_Desc)
+    ServiceCategory: '2'
+    Installed: '1'
+    EquipmentStatus: '1'
+    InstallableStatus: '0'
+    EqMult: '100'
+    RemoteType: RF
+    NetMeterType: '2'
+- dedupe:
+    keys:
+    - Meter_ID
+    keep: first
+    order_by:
+    - Account_ID
+target: silver.sample_um_equipment
+open_questions:
+- id: OQ-EQ-DIALS
+  text: The script uses TRY_CONVERT(INT, NULLIF(LTRIM(RTRIM('Dials')), '')) for DifferenceReadingDials;
+    confirm whether this should reference the Dials column.
+  owner: cogsdale
+  status: assumed
+  assumption: Keep the legacy result (DifferenceReadingDials blank) for the replay,
+    and review using the Dials column for future client implementations.
+  evidence: No validation rule reads DifferenceReadingDials, so the replay counts
+    don't depend on it; converting the literal text 'Dials' looks like a typo.
+  decided_by: Demo assumptions only; recipient review required
+  decided_on: '2026-10-06'

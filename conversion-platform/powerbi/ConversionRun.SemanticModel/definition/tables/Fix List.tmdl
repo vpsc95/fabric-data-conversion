@@ -1,0 +1,141 @@
+/// Every record that still needs action, with who fixes it and the wording for the client. Expected-by-design records are left out.
+table 'Fix List'
+
+	/// Records that still need a fix.
+	measure 'Records on Fix List' = COUNTROWS('Fix List') + 0
+		formatString: #,##0
+		displayFolder: Fix list
+
+	/// Accounts with at least one record to fix.
+	measure 'Accounts on Fix List' = DISTINCTCOUNT('Fix List'[Account]) + 0
+		formatString: #,##0
+		displayFolder: Fix list
+
+	/// Records the client fixes in the source system.
+	measure 'Client Fixes' = CALCULATE([Records on Fix List], 'Fix List'[Owner] = "client") + 0
+		formatString: #,##0
+		displayFolder: Fix list
+
+	/// Records Cogsdale fixes in the mapping or the CSM setup.
+	measure 'Cogsdale Fixes' = CALCULATE([Records on Fix List], 'Fix List'[Owner] = "cogsdale") + 0
+		formatString: #,##0
+		displayFolder: Fix list
+
+	/// Reference line for the client-fixes card.
+	measure 'Client Share Context' = FORMAT(DIVIDE([Client Fixes], [Records on Fix List]) + 0, "0%") & " of the fix list · source system"
+		formatString: General
+		displayFolder: Fix list
+
+	/// Reference line for the Cogsdale-fixes card.
+	measure 'Cogsdale Share Context' = FORMAT(DIVIDE([Cogsdale Fixes], [Records on Fix List]) + 0, "0%") & " of the fix list · mapping or setup"
+		formatString: General
+		displayFolder: Fix list
+
+	column 'Module Code'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: Module
+
+	column 'Take Key'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: TakeKey
+
+	column ClientId
+		dataType: string
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: ClientId
+
+	column TakeId
+		dataType: string
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: TakeId
+
+	column Account
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Account
+
+	column 'Row Id'
+		dataType: int64
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: RowId
+
+	column 'Severity Code'
+		dataType: string
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: Severity
+
+	column Severity
+		dataType: string
+		summarizeBy: none
+		sourceColumn: SeverityName
+
+	column 'Rule Set'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: RuleSet
+
+	column Messages
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Messages
+
+	column 'Group Key'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: GroupKey
+
+	column 'Group Id'
+		dataType: string
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: GroupId
+
+	column Title
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Title
+
+	column 'Client Message'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: ClientMessage
+
+	column Label
+		dataType: string
+		summarizeBy: none
+		sourceColumn: FinalLabel
+
+	column Owner
+		dataType: string
+		summarizeBy: none
+		sourceColumn: FinalOwner
+
+	column Category
+		dataType: string
+		summarizeBy: none
+		sourceColumn: FinalCategory
+
+	column 'Decision Status'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: DecisionStatus
+
+	partition 'Fix List' = entity
+		mode: directLake
+		source
+			entityName: rpt_fix_list
+			schemaName: dbo
+			expressionSource: DL_Lakehouse

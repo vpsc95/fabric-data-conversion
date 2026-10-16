@@ -1,0 +1,20 @@
+kind: reshape
+version: 1
+client: sample
+id: customers
+source:
+  file: CUSTOMERS {take_date}.xlsx
+  sheet: USEXTF
+  layout: table
+  header_row: 0
+  read_as_text: true
+steps:
+- strip_artifacts:
+    blank_rows: true
+    header_repeats: true
+- parse_address:
+    column: SERVICEADDRESS
+    prefix: SA_
+target: silver.customers
+expect:
+  min_rows: 1

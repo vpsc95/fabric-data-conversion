@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Notebook",
+    "displayName": "nb_load_csm",
+    "description": "Synthetic-data conversion reference component."
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "1c7bd0f7-a0d0-5ba9-8df9-84042e29f0a6"
+  }
+}

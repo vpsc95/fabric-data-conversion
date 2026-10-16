@@ -1,0 +1,31 @@
+kind: reshape
+version: 1
+client: sample
+id: sample-um-begbalances
+source:
+  file: SAMPLE_UM_BEGBALANCES
+  layout: table
+  read_as_text: true
+steps:
+- filter:
+    where: BALANCE <> '' AND BALANCE <> '0'
+    reason: Script drops blank and zero beginning balances.
+- derive:
+    BBMisType: xref(balance_gl_accounts, 'BBMisType')
+    BBCreditAccount: xref(balance_gl_accounts, 'BBCreditAccount')
+    BBDebitAccount: xref(balance_gl_accounts, 'BBDebitAccount')
+    BBDate: ConversionDate.DateOfConversion
+    BBDDate: ConversionDate.DateOfConversion
+target: silver.sample_um_begbalances
+open_questions:
+- id: OQ-BB-SCI-NOTATION
+  text: Confirm whether scientific-notation balance cleanup should be active; script
+    contains it only in a commented block.
+  owner: cogsdale
+  status: assumed
+  assumption: The scientific-notation cleanup isn't needed.
+  evidence: The platform reads balances as displayed text, so the two -7.0000000000000007E-2
+    artifacts of the legacy Excel import don't occur (0 rows), and Z-BEG BAL $1,034,873.77
+    matches to the cent.
+  decided_by: Demo assumptions only; recipient review required
+  decided_on: '2026-10-06'

@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "DataPipeline",
+    "displayName": "pl_take_replay",
+    "description": "Synthetic-data conversion reference component."
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "abe2e9f6-4745-5de2-9608-982a361db946"
+  }
+}

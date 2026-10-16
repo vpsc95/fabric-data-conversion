@@ -1,0 +1,104 @@
+/// Every record received in the take, with its status: Ready, Held back (broke a rule) or Loaded (after approval).
+table Records
+
+	/// Records that pass every rule: ready to load, or already loaded.
+	measure 'Passes Rules' = [Ready to Load] + [Loaded]
+		formatString: #,##0
+		displayFolder: Records
+
+	/// Context line for the passes card.
+	measure 'Pass Rate Context' = FORMAT([Pass Rate], "0.0%") & " of the records pass every rule"
+		formatString: General
+		displayFolder: Context
+
+	/// Context line for the held-back card: the AI's split.
+	measure 'Held Back Context' = FORMAT([Expected by Design], "#,##0") & " expected by design · " & FORMAT([Needs Action], "#,##0") & " need action"
+		formatString: General
+		displayFolder: Context
+
+	/// Context line for the balance card.
+	measure 'Balance Context' = IF([Loaded] = 0, "ready to load " & FORMAT([Balance Received] - [Balance Held Back], "$#,##0.00"), "loaded " & FORMAT([Balance Loaded], "$#,##0.00")) & " · held back " & FORMAT([Balance Held Back], "$#,##0.00")
+		formatString: General
+		displayFolder: Context
+
+	/// Records received in the take.
+	measure 'Records Received' = COUNTROWS(Records) + 0
+		formatString: #,##0
+		displayFolder: Records
+
+	/// Records that pass every rule and wait for approval.
+	measure 'Ready to Load' = CALCULATE(COUNTROWS(Records), Records[Status] = "Ready") + 0
+		formatString: #,##0
+		displayFolder: Records
+
+	/// Records that broke a rule and are not loaded.
+	measure 'Held Back' = CALCULATE(COUNTROWS(Records), Records[Status] = "Held back") + 0
+		formatString: #,##0
+		displayFolder: Records
+
+	/// Records loaded into CSM after a person approved.
+	measure Loaded = CALCULATE(COUNTROWS(Records), Records[Status] = "Loaded") + 0
+		formatString: #,##0
+		displayFolder: Records
+
+	/// Share of the received records that pass every rule.
+	measure 'Pass Rate' = DIVIDE([Records Received] - [Held Back], [Records Received])
+		formatString: 0.0%
+		displayFolder: Records
+
+	/// Total balance in the extract (control total).
+	measure 'Balance Received' = SUM(Records[Amount]) + 0
+		formatString: \$#,##0.00
+		displayFolder: Control total
+
+	/// Balance loaded into CSM.
+	measure 'Balance Loaded' = CALCULATE(SUM(Records[Amount]), Records[Status] = "Loaded") + 0
+		formatString: \$#,##0.00
+		displayFolder: Control total
+
+	/// Balance on records held back.
+	measure 'Balance Held Back' = CALCULATE(SUM(Records[Amount]), Records[Status] = "Held back") + 0
+		formatString: \$#,##0.00
+		displayFolder: Control total
+
+	/// Records received = loaded (or ready) + held back.
+	measure Reconciliation = VAR r = [Records Received] VAR l = [Loaded] VAR h = [Held Back] VAR rd = [Ready to Load] RETURN IF(l > 0, FORMAT(r, "#,##0") & " received = " & FORMAT(l, "#,##0") & " loaded + " & FORMAT(h, "#,##0") & " held back", FORMAT(r, "#,##0") & " received = " & FORMAT(rd, "#,##0") & " ready + " & FORMAT(h, "#,##0") & " held back")
+		formatString: General
+		displayFolder: Control total
+
+	column 'Take Id'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: TakeId
+
+	column Module
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: Module
+
+	column 'Record Key'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: RecordKey
+
+	column Status
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Status
+
+	column Amount
+		dataType: double
+		isHidden
+		formatString: \$#,##0.00
+		summarizeBy: sum
+		sourceColumn: Amount
+
+	partition Records = entity
+		mode: directLake
+		source
+			entityName: Record
+			schemaName: mvp
+			expressionSource: DL_ConversionDB

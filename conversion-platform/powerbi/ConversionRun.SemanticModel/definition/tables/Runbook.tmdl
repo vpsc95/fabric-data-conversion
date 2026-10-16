@@ -1,0 +1,100 @@
+/// The 54-step take runbook as data: what the platform did (with evidence), what it simulated because it needs GP or SQL Server infrastructure, what it made unnecessary, and what waits for a person.
+table Runbook
+
+	/// Runbook steps recorded for the take.
+	measure 'Runbook Steps' = COUNTROWS(Runbook) + 0
+		formatString: #,##0
+		displayFolder: Runbook
+
+	/// Steps the platform ran, with evidence.
+	measure 'Runbook Done' = CALCULATE(COUNTROWS(Runbook), Runbook[Status] = "done") + 0
+		formatString: #,##0
+		displayFolder: Runbook
+
+	/// Steps that need GP or SQL Server infrastructure the prototype doesn't have.
+	measure 'Runbook Simulated' = CALCULATE(COUNTROWS(Runbook), Runbook[Status] = "simulated") + 0
+		formatString: #,##0
+		displayFolder: Runbook
+
+	/// Legacy steps the platform made unnecessary.
+	measure 'Runbook Eliminated' = CALCULATE(COUNTROWS(Runbook), Runbook[Status] = "eliminated") + 0
+		formatString: #,##0
+		displayFolder: Runbook
+
+	/// Steps waiting for a gate or a person.
+	measure 'Runbook Waiting' = CALCULATE(COUNTROWS(Runbook), Runbook[Status] = "waiting") + 0
+		formatString: #,##0
+		displayFolder: Runbook
+
+	column 'Take Key'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: TakeKey
+
+	column ClientId
+		dataType: string
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: ClientId
+
+	column TakeId
+		dataType: string
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: TakeId
+
+	column 'Step No'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: StepNo
+
+	column Block
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Block
+
+	column Title
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Title
+		sortByColumn: 'Step No'
+
+	column Kind
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Kind
+
+	column Executor
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Executor
+
+	column 'Prototype Mode'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: PrototypeMode
+
+	column Status
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Status
+
+	column Evidence
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Evidence
+
+	column Message
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Message
+
+	partition Runbook = entity
+		mode: directLake
+		source
+			entityName: rpt_runbook
+			schemaName: dbo
+			expressionSource: DL_Lakehouse

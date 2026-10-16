@@ -1,0 +1,65 @@
+/// One row per client take (a test conversion or the go-live), with when the pipeline last published it.
+table Take
+
+	/// When the pipeline last published this take's report tables (UTC).
+	measure 'Last Published' = MAX(Take[Published At])
+		formatString: yyyy-mm-dd hh:nn "UTC"
+
+	/// One line for the footer: when the take was last published and where the report reads from.
+	measure Freshness = "Last published " & FORMAT([Last Published], "yyyy-mm-dd hh:nn") & " UTC  ·  source: lh_conversion rpt_* tables"
+		formatString: General
+
+	column 'Take Key'
+		dataType: string
+		isHidden
+		isKey
+		summarizeBy: none
+		sourceColumn: TakeKey
+
+	column 'Client Id'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: ClientId
+
+	column 'Take Id'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: TakeId
+
+	column Client
+		dataType: string
+		summarizeBy: none
+		sourceColumn: ClientName
+
+	column 'Conversion Date'
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		summarizeBy: none
+		sourceColumn: ConversionDate
+
+	/// The take's date (its extracts' date); takes are compared in this order.
+	column 'Take Date'
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		summarizeBy: none
+		sourceColumn: TakeDate
+
+	/// True for a synthetic take built by tooling (never a client delivery).
+	column Simulated
+		dataType: boolean
+		formatString: """Simulated"";""Simulated"";""Client take"""
+		summarizeBy: none
+		sourceColumn: Simulated
+
+	column 'Published At'
+		dataType: dateTime
+		formatString: yyyy-mm-dd hh:nn
+		summarizeBy: none
+		sourceColumn: PublishedAt
+
+	partition Take = entity
+		mode: directLake
+		source
+			entityName: rpt_run
+			schemaName: dbo
+			expressionSource: DL_Lakehouse

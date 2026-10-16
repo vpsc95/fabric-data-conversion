@@ -1,0 +1,28 @@
+kind: crosswalk
+version: 1
+client: sample
+id: deposit_service_type_to_deposit_type
+description: 'Water connection ServiceType -> UM_DEPOSITS.DepositID. Source: sp_Load_UM_DEPOSITS.sql
+  lines 113-119 and 145-151.'
+values:
+- legacy_code: WATER-COM
+  target: COMM-DEP
+  category: '2'
+- legacy_code: WATER-RES
+  target: RESI-DEP
+  category: '2'
+- legacy_code: <not found or other WAT%>
+  target: RESI-DEP
+  category: '2'
+  reason: ELSE RESI-DEP added as default when service not found.
+open_questions:
+- id: OQ-DEP-DEFAULT
+  text: Confirm defaulting deposits to RESI-DEP when no matching WATER-COM or WATER-RES
+    connection is found.
+  owner: cogsdale
+  status: assumed
+  assumption: A deposit on an account with no water connection defaults to RESI-DEP.
+  evidence: 129 deposits take the default, and RESI-DEP $158,690.00 and COMM-DEP $102,910.00
+    both reproduce to the cent.
+  decided_by: Demo assumptions only; recipient review required
+  decided_on: '2026-10-06'

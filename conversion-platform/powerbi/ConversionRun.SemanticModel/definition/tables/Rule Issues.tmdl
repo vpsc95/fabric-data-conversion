@@ -1,0 +1,122 @@
+/// Records per validation rule: how many failed it, and how many of those are expected by design or actionable.
+table 'Rule Issues'
+
+	/// Records flagged by the rule (a record can be flagged by several rules).
+	measure 'Issue Records' = SUM('Rule Issues'[Records])
+		formatString: #,##0
+		displayFolder: Exceptions
+
+	/// Flagged records that are expected by design.
+	measure 'Expected Issue Records' = SUM('Rule Issues'[Expected])
+		formatString: #,##0
+		displayFolder: Exceptions
+
+	/// Flagged records that need a fix.
+	measure 'Actionable Issue Records' = SUM('Rule Issues'[Actionable])
+		formatString: #,##0
+		displayFolder: Exceptions
+
+	/// Validation rules that flagged at least one record.
+	measure 'Rules Fired' = DISTINCTCOUNT('Rule Issues'[Rule])
+		formatString: #,##0
+		displayFolder: Exceptions
+
+	column 'Module Code'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: Module
+
+	column 'Take Key'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: TakeKey
+
+	column ClientId
+		dataType: string
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: ClientId
+
+	column TakeId
+		dataType: string
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: TakeId
+
+	column Rule
+		dataType: string
+		summarizeBy: none
+		sourceColumn: RuleId
+
+	column 'Severity Code'
+		dataType: string
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: Severity
+
+	/// Error = the record is skipped at load; Warning = it loads and goes on the fix list.
+	column Severity
+		dataType: string
+		summarizeBy: none
+		sourceColumn: SeverityName
+
+	column Records
+		dataType: int64
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: sum
+		sourceColumn: Records
+
+	column Expected
+		dataType: int64
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: sum
+		sourceColumn: Expected
+
+	column Actionable
+		dataType: int64
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: sum
+		sourceColumn: Actionable
+
+	/// The line of the go-live integrity report this rule reconciles to.
+	column 'Answer Key Rule'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: AnswerKeyRule
+
+	/// The message the legacy validation scripts wrote for this rule.
+	column 'Legacy Message'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: LegacyText
+
+	column Description
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Description
+
+	/// The approved by-design exclusion for this client, in plain English.
+	column 'Expected When'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: ExpectedWhen
+
+	column 'Expected Reason'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: ExpectedReason
+
+	partition 'Rule Issues' = entity
+		mode: directLake
+		source
+			entityName: rpt_issue_summary
+			schemaName: dbo
+			expressionSource: DL_Lakehouse

@@ -1,0 +1,33 @@
+kind: reshape
+version: 1
+client: sample
+id: sample-um-deposits
+source:
+  file: SAMPLE_UM_DEPOSITS
+  layout: table
+  read_as_text: true
+steps:
+- filter:
+    where: REFDATE = ''
+    reason: Only unrefunded deposits are converted.
+- derive:
+    DepositAmount: RECEIVED + UNBILLED
+    DepositID: xref(deposit_service_type_to_deposit_type, ServiceType)
+    Category: '2'
+    DepositPaymentDate: DEPDATE when RECEIVED > 0 else 1900-01-01
+    DepositAmtPaid: RECEIVED
+- filter:
+    where: DepositAmount > 0
+    reason: Script drops deposits whose received plus unbilled amount is not positive.
+target: silver.sample_um_deposits
+open_questions:
+- id: OQ-DEP-NUMERIC
+  text: Deposit amount uses CAST(... AS NUMERIC(19,5)); confirm handling for non-numeric
+    source values.
+  owner: partner
+  status: answered
+  answer: gold.usp_Build_Deposit uses TRY_CONVERT, so a non-numeric amount leaves
+    that deposit out instead of stopping the whole load as the legacy CAST would.
+    The go-live take has no non-numeric amounts.
+  decided_by: Demo assumptions only; recipient review required
+  decided_on: '2026-10-06'

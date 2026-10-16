@@ -1,0 +1,40 @@
+kind: crosswalk
+version: 1
+client: sample
+id: meter_size_to_equipment_class
+description: 'Meter_Size_Desc -> UM_EQUIPMENT.EquClassID. Source: sp_Load_UM_EQUIPMENT.sql
+  lines 281-297.'
+values:
+- legacy_code: 1"
+  target: '1010'
+- legacy_code: 1.5"
+  target: '1015'
+- legacy_code: 12"
+  target: '1012'
+  reason: Script has question-mark comment on 12 inch mapping.
+- legacy_code: 2"
+  target: '1020'
+- legacy_code: 3"
+  target: '1030'
+- legacy_code: 3/4"
+  target: '1001'
+- legacy_code: 5/8"
+  target: '1001'
+- legacy_code: 4"
+  target: '1040'
+- legacy_code: 6"
+  target: '1060'
+- legacy_code: 8"
+  target: '1080'
+open_questions:
+- id: OQ-EQ-12IN-CLASS
+  text: Confirm 12 inch meter class 1012; script comment contains a question mark.
+  owner: cogsdale
+  status: assumed
+  assumption: 12-inch meters use equipment class 1012, and the 12-inch rates WR12/WC12
+    exist in CSM.
+  evidence: The take has one 12-inch meter. It loads (the only equipment failures
+    are the 2 duplicates) and its connection isn't among the 64 invalid rates, as
+    in the report. The 12-inch rate was added under DEMO-40266, the invalid-rate ticket.
+  decided_by: Demo assumptions only; recipient review required
+  decided_on: '2026-10-06'

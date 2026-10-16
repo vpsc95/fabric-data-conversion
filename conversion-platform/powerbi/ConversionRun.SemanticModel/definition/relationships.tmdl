@@ -1,0 +1,134 @@
+relationship 'Module Results to Module'
+	relyOnReferentialIntegrity
+	fromColumn: 'Module Results'.'Module Code'
+	toColumn: Module.'Module Code'
+
+relationship 'Rule Issues to Module'
+	relyOnReferentialIntegrity
+	fromColumn: 'Rule Issues'.'Module Code'
+	toColumn: Module.'Module Code'
+
+relationship 'Triage to Module'
+	relyOnReferentialIntegrity
+	fromColumn: Triage.'Module Code'
+	toColumn: Module.'Module Code'
+
+relationship 'Answer Key to Module'
+	relyOnReferentialIntegrity
+	fromColumn: 'Answer Key'.'Module Code'
+	toColumn: Module.'Module Code'
+
+relationship 'Control Totals to Module'
+	relyOnReferentialIntegrity
+	fromColumn: 'Control Totals'.'Module Code'
+	toColumn: Module.'Module Code'
+
+relationship 'Module Results to Take'
+	relyOnReferentialIntegrity
+	fromColumn: 'Module Results'.'Take Key'
+	toColumn: Take.'Take Key'
+
+relationship 'Rule Issues to Take'
+	relyOnReferentialIntegrity
+	fromColumn: 'Rule Issues'.'Take Key'
+	toColumn: Take.'Take Key'
+
+relationship 'Triage to Take'
+	relyOnReferentialIntegrity
+	fromColumn: Triage.'Take Key'
+	toColumn: Take.'Take Key'
+
+relationship 'Answer Key to Take'
+	relyOnReferentialIntegrity
+	fromColumn: 'Answer Key'.'Take Key'
+	toColumn: Take.'Take Key'
+
+relationship 'Control Totals to Take'
+	relyOnReferentialIntegrity
+	fromColumn: 'Control Totals'.'Take Key'
+	toColumn: Take.'Take Key'
+
+relationship 'Step Metrics to Take'
+	relyOnReferentialIntegrity
+	fromColumn: 'Step Metrics'.'Take Key'
+	toColumn: Take.'Take Key'
+
+relationship 'Run Steps to Take'
+	relyOnReferentialIntegrity
+	fromColumn: 'Run Steps'.'Take Key'
+	toColumn: Take.'Take Key'
+
+relationship 'AI Calls to Take'
+	relyOnReferentialIntegrity
+	fromColumn: 'AI Calls'.'Take Key'
+	toColumn: Take.'Take Key'
+
+relationship 'Fix List to Triage'
+	relyOnReferentialIntegrity
+	fromColumn: 'Fix List'.'Group Id'
+	toColumn: Triage.'Group Id'
+
+relationship 'Gates to Take'
+	relyOnReferentialIntegrity
+	fromColumn: Gates.'Take Key'
+	toColumn: Take.'Take Key'
+
+relationship 'Landing Files to Take'
+	relyOnReferentialIntegrity
+	fromColumn: 'Landing Files'.'Take Key'
+	toColumn: Take.'Take Key'
+
+relationship 'Drift Findings to Take'
+	relyOnReferentialIntegrity
+	fromColumn: 'Drift Findings'.'Take Key'
+	toColumn: Take.'Take Key'
+
+relationship 'CSM Load to Take'
+	relyOnReferentialIntegrity
+	fromColumn: 'CSM Load'.'Take Key'
+	toColumn: Take.'Take Key'
+
+relationship 'Runbook to Take'
+	relyOnReferentialIntegrity
+	fromColumn: Runbook.'Take Key'
+	toColumn: Take.'Take Key'
+
+relationship 'Validation Sample to Take'
+	relyOnReferentialIntegrity
+	fromColumn: 'Validation Sample'.'Take Key'
+	toColumn: Take.'Take Key'
+
+relationship 'Take over Take to Take'
+	relyOnReferentialIntegrity
+	fromColumn: 'Take over Take'.'Take Key'
+	toColumn: Take.'Take Key'
+
+relationship 'Take over Take Records to Take'
+	relyOnReferentialIntegrity
+	fromColumn: 'Take over Take Records'.'Take Key'
+	toColumn: Take.'Take Key'
+
+relationship 'Cleansing to Take'
+	relyOnReferentialIntegrity
+	fromColumn: Cleansing.'Take Key'
+	toColumn: Take.'Take Key'
+
+relationship 'CSM Load to Module'
+	relyOnReferentialIntegrity
+	fromColumn: 'CSM Load'.'Module Code'
+	toColumn: Module.'Module Code'
+
+relationship 'Take over Take to Module'
+	relyOnReferentialIntegrity
+	fromColumn: 'Take over Take'.'Module Code'
+	toColumn: Module.'Module Code'
+
+relationship 'Take over Take Records to Module'
+	relyOnReferentialIntegrity
+	fromColumn: 'Take over Take Records'.'Module Code'
+	toColumn: Module.'Module Code'
+
+relationship 'Cleansing to Module'
+	relyOnReferentialIntegrity
+	fromColumn: Cleansing.'Module Code'
+	toColumn: Module.'Module Code'

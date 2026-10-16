@@ -1,0 +1,173 @@
+kind: mapping
+version: 1
+client: sample
+module: UM00600
+source: silver.sample_um_locations
+target: gold.UM_LOCATIONS
+fields:
+- target: Legacy_Loc_ID
+  from: Legacy_Loc_ID
+- target: Legacy_Cust_ID
+  from: Legacy_Cust_ID
+- target: LocationID
+  from: LocationID
+- target: CustomerID
+  from: CustomerID
+- target: Category
+  from: Category
+  note: Translated through connection_service_code or deposit_service_type_to_deposit_type
+    where applicable.
+- target: SStreetNumber
+  from: SStreetNumber
+- target: SStreetName
+  from: SStreetName
+- target: SStreetDirPF
+  from: SStreetDirPF
+- target: SStreetDirSF
+  from: SStreetDirSF
+- target: SStreetType
+  from: SStreetType
+- target: SStreetNoSuffix
+  from: SStreetNoSuffix
+- target: SUnitDesignator
+  from: SUnitDesignator
+- target: SAptNo
+  from: SAptNo
+- target: SAptDesc
+  from: SAptDesc
+- target: SCity
+  from: SCity
+  note: Translated through route_to_city.
+- target: SState
+  from: SState
+- target: SCountry
+  from: SCountry
+- target: SZip
+  from: SZip
+- target: AdrCategory
+  from: AdrCategory
+- target: ADRSCODE
+  from: ADRSCODE
+- target: LocationClass
+  from: LocationClass
+  note: Translated through customer_class_to_location_class.
+- target: PenaltyID
+  from: PenaltyID
+- target: AccRecIDx
+  from: AccRecIDx
+- target: LocUDF1
+  from: LocUDF1
+- target: LocUDF2
+  from: LocUDF2
+- target: ThirdPartyDesc
+  from: ThirdPartyDesc
+- target: ABMasterID
+  from: ABMasterID
+- target: ABType
+  from: ABType
+- target: ActiveBudget
+  from: ActiveBudget
+- target: BudgetType
+  from: BudgetType
+- target: AllowMaxBill
+  from: AllowMaxBill
+- target: AllowMinBill
+  from: AllowMinBill
+- target: AssessorID
+  from: AssessorID
+- target: KeyNumber
+  from: KeyNumber
+- target: LastBill
+  from: LastBill
+- target: ElectricalTaxSchedule
+  from: ElectricalTaxSchedule
+- target: WaterTaxSchedule
+  from: WaterTaxSchedule
+- target: SewerTaxSchedule
+  from: SewerTaxSchedule
+- target: GasTaxSchedule
+  from: GasTaxSchedule
+- target: PhoneTaxSchedule
+  from: PhoneTaxSchedule
+- target: OtherTaxSchedule
+  from: OtherTaxSchedule
+- target: PropertyTaxTaxSchedule
+  from: PropertyTaxTaxSchedule
+- target: CableTaxSchedule
+  from: CableTaxSchedule
+- target: InternetTaxSchedule
+  from: InternetTaxSchedule
+- target: FireProtectionTaxSchedule
+  from: FireProtectionTaxSchedule
+- target: SanitationTaxSchedule
+  from: SanitationTaxSchedule
+- target: PropaneTaxSchedule
+  from: PropaneTaxSchedule
+- target: LotNumber
+  from: LotNumber
+- target: NoResUnits
+  from: NoResUnits
+- target: Owner
+  from: Owner
+- target: Resident
+  from: Resident
+- target: Landlord
+  from: Landlord
+- target: ParcelID
+  from: ParcelID
+- target: PlanNumber
+  from: PlanNumber
+- target: SICCode
+  from: SICCode
+- target: ZoneID
+  from: ZoneID
+  note: Translated through route_to_zone.
+- target: RouteID
+  from: RouteID
+- target: BBAmount
+  from: BBAmount
+- target: PreviousState
+  from: PreviousState
+- target: ServiceDate
+  from: ServiceDate
+- target: SAptNoPlus
+  from: SAptNoPlus
+- target: SAddress1
+  from: SAddress1
+- target: SAddress2
+  from: SAddress2
+- target: SAddress3
+  from: SAddress3
+- target: CustomerType
+  from: CustomerType
+- target: LocationType
+  from: LocationType
+- target: RevenueDistrict
+  from: RevenueDistrict
+- target: DefaultMoveIn
+  from: DefaultMoveIn
+- target: UUDF1
+  from: UUDF1
+- target: UUDF2
+  from: UUDF2
+- target: UUDF3
+  from: UUDF3
+- target: UUDF4
+  from: UUDF4
+- target: UUDF5
+  from: UUDF5
+- target: ID
+  from: ID
+- target: isvalid
+  from: isvalid
+- target: message
+  from: message
+open_questions:
+- id: OQ-UM00600-COMPLEX
+  text: Review SP_Load_UM_LOCATIONS.sql for complex CASE/update logic represented
+    in the reshape spec before generating SQL for gold.UM_LOCATIONS.
+  owner: partner
+  status: answered
+  answer: Ported to gold.usp_Build_Location. The replay reproduces all 6,449 locations.
+  decided_by: Demo assumptions only; recipient review required
+  decided_on: '2026-10-06'

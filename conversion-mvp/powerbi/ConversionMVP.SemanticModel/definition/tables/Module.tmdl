@@ -1,0 +1,28 @@
+/// The three CSM areas the MVP converts: Customers, Services, Balances.
+table Module
+
+	column Module
+		dataType: string
+		isKey
+		summarizeBy: none
+		sourceColumn: Module
+		sortByColumn: 'Sort Order'
+
+	/// The Cogsdale UM staging layout the module feeds.
+	column 'CSM Template'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: CsmTemplate
+
+	column 'Sort Order'
+		dataType: int64
+		isHidden
+		summarizeBy: none
+		sourceColumn: SortOrder
+
+	partition Module = entity
+		mode: directLake
+		source
+			entityName: Module
+			schemaName: mvp
+			expressionSource: DL_ConversionDB

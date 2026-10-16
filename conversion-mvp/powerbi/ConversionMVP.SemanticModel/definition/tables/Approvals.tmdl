@@ -1,0 +1,65 @@
+/// Who approved each load, when, and the reconciliation at that moment.
+table Approvals
+
+	/// The person who approved the latest load.
+	measure 'Approved By' = VAR last = MAX(Approvals[Approved At]) RETURN CALCULATE(MAX(Approvals[Approver]), Approvals[Approved At] = last)
+		formatString: General
+		displayFolder: Approval
+
+	/// Waiting for approval, or who approved the load and when.
+	measure 'Approval Status' = IF([Loaded] = 0, "Waiting for approval", "Approved by " & [Approved By] & " on " & FORMAT(MAX(Approvals[Approved At]), "yyyy-mm-dd hh:nn") & " UTC")
+		formatString: General
+		displayFolder: Approval
+
+	column 'Approval Id'
+		dataType: int64
+		isHidden
+		isKey
+		summarizeBy: none
+		sourceColumn: ApprovalId
+
+	column 'Take Id'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: TakeId
+
+	column Approver
+		dataType: string
+		summarizeBy: none
+		sourceColumn: ApprovedBy
+
+	column 'Approved At'
+		dataType: dateTime
+		formatString: yyyy-mm-dd hh:nn
+		summarizeBy: none
+		sourceColumn: ApprovedAt
+
+	column 'Records Loaded'
+		dataType: int64
+		summarizeBy: sum
+		sourceColumn: RecordsLoaded
+
+	column 'Records Held Back'
+		dataType: int64
+		summarizeBy: sum
+		sourceColumn: RecordsHeldBack
+
+	column 'Balance Received at Approval'
+		dataType: double
+		formatString: \$#,##0.00
+		summarizeBy: sum
+		sourceColumn: BalanceReceived
+
+	column 'Balance Loaded at Approval'
+		dataType: double
+		formatString: \$#,##0.00
+		summarizeBy: sum
+		sourceColumn: BalanceLoaded
+
+	partition Approvals = entity
+		mode: directLake
+		source
+			entityName: ApprovalLog
+			schemaName: mvp
+			expressionSource: DL_ConversionDB

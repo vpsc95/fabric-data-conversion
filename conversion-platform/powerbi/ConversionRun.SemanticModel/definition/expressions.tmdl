@@ -1,0 +1,6 @@
+/// The conversion lakehouse (rpt_* tables). Workspace and lakehouse IDs are filled in by powerbi/deploy_model.py.
+expression DL_Lakehouse =
+	let
+		Source = AzureStorage.DataLake("https://onelake.dfs.fabric.microsoft.com/{{workspace_id}}/{{lakehouse_id}}", [HierarchicalNavigation=true])
+	in
+		Source

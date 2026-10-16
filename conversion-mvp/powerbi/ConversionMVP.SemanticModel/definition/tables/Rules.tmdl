@@ -1,0 +1,47 @@
+/// The validation rules, as rows of a table: add a row to add a check.
+table Rules
+
+	/// Rules switched on.
+	measure 'Active Rules' = CALCULATE(COUNTROWS(Rules), Rules[Active] = TRUE()) + 0
+		formatString: #,##0
+		displayFolder: Rules
+
+	column 'Rule Id'
+		dataType: string
+		isKey
+		summarizeBy: none
+		sourceColumn: RuleId
+
+	column Module
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: Module
+
+	column Rule
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Description
+
+	column 'Go-live Ticket'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Ticket
+
+	/// The condition, in SQL, that marks a record as failing.
+	column 'Check (SQL)'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: FailsWhen
+
+	column Active
+		dataType: boolean
+		summarizeBy: none
+		sourceColumn: IsActive
+
+	partition Rules = entity
+		mode: directLake
+		source
+			entityName: ValidationRule
+			schemaName: mvp
+			expressionSource: DL_ConversionDB

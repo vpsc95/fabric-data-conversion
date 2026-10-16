@@ -1,0 +1,17 @@
+kind: rules
+version: 1
+client: sample
+module: UMRM0111
+overrides:
+- rule: ADDR_ADDRESS1_TOO_LONG
+  enabled: false
+  reason: Legacy customer-address validation block is commented out for this client.
+- rule: ADDR_ADDRESS2_TOO_LONG
+  enabled: false
+  reason: Legacy customer-address validation block is commented out for this client.
+- rule: ADDR_ADDRESS3_TOO_LONG
+  enabled: false
+  reason: Legacy customer-address validation block is commented out for this client.
+- rule: ADDR_INCOMPLETE
+  enabled: false
+  reason: Legacy address-incomplete validation block is commented out for this client.

@@ -1,0 +1,6 @@
+/// The Fabric SQL database Conversion_DB, as mirrored to OneLake by Fabric (no copy step). IDs are filled in by deploy_model.py.
+expression DL_ConversionDB =
+	let
+		Source = AzureStorage.DataLake("https://onelake.dfs.fabric.microsoft.com/{{workspace_id}}/{{sql_database_id}}", [HierarchicalNavigation=true])
+	in
+		Source

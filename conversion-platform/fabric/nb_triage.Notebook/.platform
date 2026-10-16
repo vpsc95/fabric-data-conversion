@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Notebook",
+    "displayName": "nb_triage",
+    "description": "Synthetic-data conversion reference component."
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "0ff46b3e-7676-55a7-a1ce-171384493393"
+  }
+}

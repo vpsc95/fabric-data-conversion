@@ -1,0 +1,564 @@
+{
+  "properties": {
+    "description": "One take end to end, with the six human gates: profile and drift (gate 1), reshape, stage/build/validate and cleansing proposals (gate 2), pre-load reconciliation, triage (gate 3), publish for the workbench, load go/no-go (gate 4), metadata-driven loader into the CONV emulator and post-load reconciliation, publish approval (gate 5), runbook, client validation sample and integrity report (gate 6 opens), publish again. Notebook IDs and the workspace ID are filled in by fabric/deploy.py.",
+    "activities": [
+      {
+        "name": "0 Profile and drift",
+        "type": "TridentNotebook",
+        "dependsOn": [],
+        "policy": {
+          "timeout": "0.01:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "notebookId": "{{nb_profile}}",
+          "workspaceId": "{{workspace_id}}",
+          "parameters": {
+            "client": {
+              "value": {
+                "value": "@pipeline().parameters.client",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "take_id": {
+              "value": {
+                "value": "@pipeline().parameters.take_id",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "deploy_sql": {
+              "value": {
+                "value": "@pipeline().parameters.deploy_sql",
+                "type": "Expression"
+              },
+              "type": "bool"
+            }
+          }
+        },
+        "description": "Chain of custody (SHA-256 per received file), column profile, conformance with the approved specs and drift; gate 1 stops the run when a spec change is needed."
+      },
+      {
+        "name": "1 Reshape take",
+        "type": "TridentNotebook",
+        "dependsOn": [
+          {
+            "activity": "0 Profile and drift",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ],
+        "policy": {
+          "timeout": "0.02:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "notebookId": "{{nb_reshape}}",
+          "workspaceId": "{{workspace_id}}",
+          "parameters": {
+            "client": {
+              "value": {
+                "value": "@pipeline().parameters.client",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "take_id": {
+              "value": {
+                "value": "@pipeline().parameters.take_id",
+                "type": "Expression"
+              },
+              "type": "string"
+            }
+          }
+        }
+      },
+      {
+        "name": "2 Stage build validate",
+        "type": "TridentNotebook",
+        "dependsOn": [
+          {
+            "activity": "1 Reshape take",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ],
+        "policy": {
+          "timeout": "0.02:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "notebookId": "{{nb_sql_steps}}",
+          "workspaceId": "{{workspace_id}}",
+          "parameters": {
+            "client": {
+              "value": {
+                "value": "@pipeline().parameters.client",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "take_id": {
+              "value": {
+                "value": "@pipeline().parameters.take_id",
+                "type": "Expression"
+              },
+              "type": "string"
+            }
+          }
+        },
+        "description": "slv copy, gold UM staging, rule library, cleansing proposals (gate 2)."
+      },
+      {
+        "name": "3 Reconcile",
+        "type": "TridentNotebook",
+        "dependsOn": [
+          {
+            "activity": "2 Stage build validate",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ],
+        "policy": {
+          "timeout": "0.01:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "notebookId": "{{nb_reconcile}}",
+          "workspaceId": "{{workspace_id}}",
+          "parameters": {
+            "client": {
+              "value": {
+                "value": "@pipeline().parameters.client",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "take_id": {
+              "value": {
+                "value": "@pipeline().parameters.take_id",
+                "type": "Expression"
+              },
+              "type": "string"
+            }
+          }
+        },
+        "description": "Pre-load reconciliation; answer-key check when the take has one; opens gate 4."
+      },
+      {
+        "name": "4 Triage proposals",
+        "type": "TridentNotebook",
+        "dependsOn": [
+          {
+            "activity": "3 Reconcile",
+            "dependencyConditions": [
+              "Completed"
+            ]
+          }
+        ],
+        "policy": {
+          "timeout": "0.00:30:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "notebookId": "{{nb_triage}}",
+          "workspaceId": "{{workspace_id}}",
+          "parameters": {
+            "client": {
+              "value": {
+                "value": "@pipeline().parameters.client",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "take_id": {
+              "value": {
+                "value": "@pipeline().parameters.take_id",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "require_ai": {
+              "value": {
+                "value": "@pipeline().parameters.require_ai",
+                "type": "Expression"
+              },
+              "type": "bool"
+            }
+          }
+        },
+        "description": "Runs even when the answer-key check fails, so the report shows what to fix. Opens gate 3."
+      },
+      {
+        "name": "5 Publish report tables",
+        "type": "TridentNotebook",
+        "dependsOn": [
+          {
+            "activity": "4 Triage proposals",
+            "dependencyConditions": [
+              "Completed"
+            ]
+          }
+        ],
+        "policy": {
+          "timeout": "0.00:30:00",
+          "retry": 1,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "notebookId": "{{nb_publish}}",
+          "workspaceId": "{{workspace_id}}",
+          "parameters": {
+            "client": {
+              "value": {
+                "value": "@pipeline().parameters.client",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "take_id": {
+              "value": {
+                "value": "@pipeline().parameters.take_id",
+                "type": "Expression"
+              },
+              "type": "string"
+            }
+          }
+        },
+        "description": "Before the gate-4 wait, so the approver sees the pre-load reconciliation and triage in Power BI."
+      },
+      {
+        "name": "6 Gate 4 load go or no-go",
+        "type": "TridentNotebook",
+        "dependsOn": [
+          {
+            "activity": "3 Reconcile",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          },
+          {
+            "activity": "5 Publish report tables",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ],
+        "policy": {
+          "timeout": "0.02:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "notebookId": "{{nb_gate}}",
+          "workspaceId": "{{workspace_id}}",
+          "parameters": {
+            "client": {
+              "value": {
+                "value": "@pipeline().parameters.client",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "take_id": {
+              "value": {
+                "value": "@pipeline().parameters.take_id",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "gate": {
+              "value": 4,
+              "type": "int"
+            },
+            "auto_approve": {
+              "value": {
+                "value": "@pipeline().parameters.auto_approve",
+                "type": "Expression"
+              },
+              "type": "bool"
+            },
+            "timeout_minutes": {
+              "value": {
+                "value": "@pipeline().parameters.gate_timeout_minutes",
+                "type": "Expression"
+              },
+              "type": "int"
+            }
+          }
+        },
+        "description": "Holds the run until a person approves the load (or a demo run auto-approves, recorded as such)."
+      },
+      {
+        "name": "7 Load to CSM",
+        "type": "TridentNotebook",
+        "dependsOn": [
+          {
+            "activity": "6 Gate 4 load go or no-go",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ],
+        "policy": {
+          "timeout": "0.02:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "notebookId": "{{nb_load_csm}}",
+          "workspaceId": "{{workspace_id}}",
+          "parameters": {
+            "client": {
+              "value": {
+                "value": "@pipeline().parameters.client",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "take_id": {
+              "value": {
+                "value": "@pipeline().parameters.take_id",
+                "type": "Expression"
+              },
+              "type": "string"
+            }
+          }
+        },
+        "description": "Metadata-driven loader into the CONV emulator (shadow mode), post-load reconciliation; opens gate 5."
+      },
+      {
+        "name": "8 Gate 5 publish",
+        "type": "TridentNotebook",
+        "dependsOn": [
+          {
+            "activity": "7 Load to CSM",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ],
+        "policy": {
+          "timeout": "0.02:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "notebookId": "{{nb_gate}}",
+          "workspaceId": "{{workspace_id}}",
+          "parameters": {
+            "client": {
+              "value": {
+                "value": "@pipeline().parameters.client",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "take_id": {
+              "value": {
+                "value": "@pipeline().parameters.take_id",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "gate": {
+              "value": 5,
+              "type": "int"
+            },
+            "auto_approve": {
+              "value": {
+                "value": "@pipeline().parameters.auto_approve",
+                "type": "Expression"
+              },
+              "type": "bool"
+            },
+            "timeout_minutes": {
+              "value": {
+                "value": "@pipeline().parameters.gate_timeout_minutes",
+                "type": "Expression"
+              },
+              "type": "int"
+            }
+          }
+        }
+      },
+      {
+        "name": "9 Publish take",
+        "type": "TridentNotebook",
+        "dependsOn": [
+          {
+            "activity": "8 Gate 5 publish",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ],
+        "policy": {
+          "timeout": "0.01:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "notebookId": "{{nb_publish_take}}",
+          "workspaceId": "{{workspace_id}}",
+          "parameters": {
+            "client": {
+              "value": {
+                "value": "@pipeline().parameters.client",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "take_id": {
+              "value": {
+                "value": "@pipeline().parameters.take_id",
+                "type": "Expression"
+              },
+              "type": "string"
+            }
+          }
+        },
+        "description": "Runbook steps with evidence, client validation sample, generated integrity report; opens gate 6."
+      },
+      {
+        "name": "10 Publish report tables (after load)",
+        "type": "TridentNotebook",
+        "dependsOn": [
+          {
+            "activity": "9 Publish take",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ],
+        "policy": {
+          "timeout": "0.00:30:00",
+          "retry": 1,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "notebookId": "{{nb_publish}}",
+          "workspaceId": "{{workspace_id}}",
+          "parameters": {
+            "client": {
+              "value": {
+                "value": "@pipeline().parameters.client",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "take_id": {
+              "value": {
+                "value": "@pipeline().parameters.take_id",
+                "type": "Expression"
+              },
+              "type": "string"
+            }
+          }
+        }
+      },
+      {
+        "name": "Fail if answer key failed",
+        "description": "The report is published first, then the run fails, so a regression is visible and explained.",
+        "type": "Fail",
+        "dependsOn": [
+          {
+            "activity": "3 Reconcile",
+            "dependencyConditions": [
+              "Failed"
+            ]
+          },
+          {
+            "activity": "5 Publish report tables",
+            "dependencyConditions": [
+              "Completed"
+            ]
+          }
+        ],
+        "typeProperties": {
+          "message": "The answer-key check failed (a FAIL or NEW result). See the Reconciliation page and Files/runs/<client>/<take>/answer-key-check.json.",
+          "errorCode": "ANSWER_KEY_FAILED"
+        }
+      },
+      {
+        "name": "Fail if triage failed",
+        "type": "Fail",
+        "dependsOn": [
+          {
+            "activity": "4 Triage proposals",
+            "dependencyConditions": [
+              "Failed"
+            ]
+          },
+          {
+            "activity": "5 Publish report tables",
+            "dependencyConditions": [
+              "Completed"
+            ]
+          }
+        ],
+        "typeProperties": {
+          "message": "The triage step failed (PII gate or model call). See run.AiCall and Files/runs/_errors/nb_triage.txt.",
+          "errorCode": "TRIAGE_FAILED"
+        }
+      }
+    ],
+    "parameters": {
+      "client": {
+        "type": "string",
+        "defaultValue": "sample"
+      },
+      "take_id": {
+        "type": "string",
+        "defaultValue": "go-live"
+      },
+      "deploy_sql": {
+        "type": "bool",
+        "defaultValue": false
+      },
+      "require_ai": {
+        "type": "bool",
+        "defaultValue": false
+      },
+      "auto_approve": {
+        "type": "bool",
+        "defaultValue": false
+      },
+      "gate_timeout_minutes": {
+        "type": "int",
+        "defaultValue": 60
+      }
+    }
+  }
+}

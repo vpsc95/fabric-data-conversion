@@ -1,0 +1,29 @@
+relationship 'Records to Take'
+	relyOnReferentialIntegrity
+	fromColumn: Records.'Take Id'
+	toColumn: Take.'Take Id'
+
+relationship 'Issue Groups to Take'
+	relyOnReferentialIntegrity
+	fromColumn: 'Issue Groups'.'Take Id'
+	toColumn: Take.'Take Id'
+
+relationship 'Approvals to Take'
+	relyOnReferentialIntegrity
+	fromColumn: Approvals.'Take Id'
+	toColumn: Take.'Take Id'
+
+relationship 'Records to Module'
+	relyOnReferentialIntegrity
+	fromColumn: Records.Module
+	toColumn: Module.Module
+
+relationship 'Issue Groups to Module'
+	relyOnReferentialIntegrity
+	fromColumn: 'Issue Groups'.Module
+	toColumn: Module.Module
+
+relationship 'Rules to Module'
+	relyOnReferentialIntegrity
+	fromColumn: Rules.Module
+	toColumn: Module.Module

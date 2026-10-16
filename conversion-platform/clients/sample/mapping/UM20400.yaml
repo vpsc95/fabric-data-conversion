@@ -1,0 +1,75 @@
+kind: mapping
+version: 1
+client: sample
+module: UM20400
+source: silver.sample_um_begbalances
+target: gold.UM_BEGBALANCES
+fields:
+- target: LegacyAcctNo
+  from: LegacyAcctNo
+- target: Legacy_Loc_ID
+  from: Legacy_Loc_ID
+- target: CustomerID
+  from: CustomerID
+- target: LocationID
+  from: LocationID
+- target: BBAmount
+  from: BBAmount
+- target: BBMisType
+  from: BBMisType
+  note: Constant from balance_gl_accounts.
+- target: BBServiceType
+  from: BBServiceType
+- target: BBTransDesc
+  from: BBTransDesc
+- target: BBPenaltyDone
+  from: BBPenaltyDone
+- target: BBPaymentType
+  from: BBPaymentType
+- target: BBDate
+  from: BBDate
+- target: BBDDate
+  from: BBDDate
+- target: BBCreditAccount
+  from: BBCreditAccount
+  note: Constant from balance_gl_accounts.
+- target: BBDebitAccount
+  from: BBDebitAccount
+  note: Constant from balance_gl_accounts.
+- target: BBMisTaxSchedule
+  from: BBMisTaxSchedule
+- target: PaymentOriginID
+  from: PaymentOriginID
+- target: PaidBy
+  from: PaidBy
+- target: PaidByID
+  from: PaidByID
+- target: ServiceCategory
+  from: ServiceCategory
+- target: CollAgency
+  from: CollAgency
+- target: isvalid
+  from: isvalid
+- target: message
+  from: message
+open_questions:
+- id: OQ-UM20400-COMPLEX
+  text: Review sp_Load_UM_BEGBALANCES.sql for complex CASE/update logic represented
+    in the reshape spec before generating SQL for gold.UM_BEGBALANCES.
+  owner: partner
+  status: answered
+  answer: Ported to gold.usp_Build_BegBalance. The replay reproduces 5,500 received,
+    5,494 loaded and Z-BEG BAL $1,034,873.77.
+  decided_by: Demo assumptions only; recipient review required
+  decided_on: '2026-10-06'
+- id: OQ-LOCHIST-1
+  owner: cogsdale
+  text: How was the location history (UM00600H, 568 records) built at go-live? The
+    staging scripts don't include this step.
+  status: assumed
+  assumption: One move-in history record per legacy account that has a beginning balance
+    or deposit at a known location where it isn't the current bill-to (gold.usp_Build_LocationHistory).
+  evidence: This rule produces exactly 568 records, and with them the balance (6)
+    and deposit (19) customer|location failures reproduce.
+  decided_by: Demo assumptions only; recipient review required
+  decided_on: '2026-10-06'

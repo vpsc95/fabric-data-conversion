@@ -1,0 +1,94 @@
+/// What changed in the take's files against the approved specs and the client's previous take (metadata only). A blocking finding stops the run at gate 1.
+table 'Drift Findings'
+
+	/// Drift and conformance findings.
+	measure Findings = COUNTROWS('Drift Findings') + 0
+		formatString: #,##0
+		displayFolder: Drift
+
+	/// Findings that need a spec change (gate 1) before the take can run.
+	measure 'Blocking Findings' = CALCULATE(COUNTROWS('Drift Findings'), 'Drift Findings'[Severity] = "blocking") + 0
+		formatString: #,##0
+		displayFolder: Drift
+
+	/// Changes to check, such as new code values a crosswalk doesn't know.
+	measure 'Drift Warnings' = CALCULATE(COUNTROWS('Drift Findings'), 'Drift Findings'[Severity] = "warning") + 0
+		formatString: #,##0
+		displayFolder: Drift
+
+	column 'Take Key'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: TakeKey
+
+	column ClientId
+		dataType: string
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: ClientId
+
+	column TakeId
+		dataType: string
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: TakeId
+
+	column 'Finding Id'
+		dataType: int64
+		isHidden
+		summarizeBy: none
+		sourceColumn: FindingId
+
+	column Kind
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Kind
+
+	column Severity
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Severity
+		sortByColumn: 'Severity Order'
+
+	column 'Severity Order'
+		dataType: int64
+		isHidden
+		summarizeBy: none
+		sourceColumn: SeverityOrder
+
+	column 'File Name'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: FileName
+
+	column 'Column Name'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: ColumnName
+
+	column Detail
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Detail
+
+	/// The previous take; blank for the first take, which is checked against the specs only.
+	column 'Compared To'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: ComparedTo
+
+	column 'Created At'
+		dataType: dateTime
+		formatString: yyyy-mm-dd hh:nn
+		summarizeBy: none
+		sourceColumn: CreatedAt
+
+	partition 'Drift Findings' = entity
+		mode: directLake
+		source
+			entityName: rpt_drift
+			schemaName: dbo
+			expressionSource: DL_Lakehouse

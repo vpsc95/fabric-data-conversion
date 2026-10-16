@@ -1,0 +1,1328 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cogsdale.example/conversion-spec.schema.json",
+  "title": "Cogsdale conversion spec document",
+  "description": "One YAML document per file. The 'kind' field selects the shape.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/take"
+    },
+    {
+      "$ref": "#/$defs/reshape"
+    },
+    {
+      "$ref": "#/$defs/mapping"
+    },
+    {
+      "$ref": "#/$defs/crosswalk"
+    },
+    {
+      "$ref": "#/$defs/rules"
+    },
+    {
+      "$ref": "#/$defs/load"
+    },
+    {
+      "$ref": "#/$defs/setup"
+    },
+    {
+      "$ref": "#/$defs/triage_decisions"
+    },
+    {
+      "$ref": "#/$defs/runbook"
+    },
+    {
+      "$ref": "#/$defs/jira_refs"
+    },
+    {
+      "$ref": "#/$defs/mapping_hints"
+    }
+  ],
+  "$defs": {
+    "client": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "module": {
+      "type": "string",
+      "pattern": "^[A-Z]{2,}[A-Z0-9]*$",
+      "description": "Cogsdale object, e.g. UM00300, UMRM0101"
+    },
+    "identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z_][A-Za-z0-9_#]*$"
+    },
+    "openQuestion": {
+      "type": "object",
+      "required": [
+        "id",
+        "text",
+        "owner"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string",
+          "minLength": 5
+        },
+        "owner": {
+          "enum": [
+            "client",
+            "cogsdale",
+            "partner",
+            "microsoft"
+          ]
+        },
+        "status": {
+          "enum": [
+            "open",
+            "answered",
+            "assumed"
+          ],
+          "default": "open",
+          "description": "assumed = no answer is available yet, so the spec proceeds on a recorded assumption with evidence; confirm it when the owner can."
+        },
+        "answer": {
+          "type": "string"
+        },
+        "assumption": {
+          "type": "string",
+          "minLength": 5
+        },
+        "evidence": {
+          "type": "string",
+          "minLength": 5
+        },
+        "decided_by": {
+          "type": "string"
+        },
+        "decided_on": {
+          "type": "string"
+        }
+      }
+    },
+    "openQuestions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/openQuestion"
+      }
+    },
+    "take": {
+      "type": "object",
+      "required": [
+        "kind",
+        "version",
+        "client",
+        "take_id",
+        "take_date"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "take"
+        },
+        "version": {
+          "const": 1
+        },
+        "client": {
+          "$ref": "#/$defs/client"
+        },
+        "take_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "take_date": {
+          "type": "string",
+          "minLength": 1,
+          "description": "As it appears in file names, e.g. 07172026"
+        },
+        "conversion_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "files": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "modules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/module"
+          },
+          "uniqueItems": true
+        },
+        "notes": {
+          "type": "string"
+        },
+        "answer_key": {
+          "type": "string",
+          "minLength": 1,
+          "description": "File name of the take's golden-master answer key (golden-master-test skill references), e.g. the go-live integrity report as JSON. Omit when no accepted outcome exists for the take."
+        },
+        "simulated": {
+          "type": "boolean",
+          "description": "True for a synthetic take built by tooling (never a client delivery); reports label it SIMULATED."
+        }
+      },
+      "description": "A take: one delivery of extracts. clients/<client>/take.yaml is the default take; further takes live in clients/<client>/takes/<take_id>.yaml. Take ids are unique per client."
+    },
+    "reshapeStep": {
+      "type": "object",
+      "minProperties": 1,
+      "maxProperties": 1,
+      "additionalProperties": false,
+      "properties": {
+        "strip_artifacts": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "blank_rows": {
+              "type": "boolean"
+            },
+            "header_repeats": {
+              "type": "boolean"
+            },
+            "keep_when": {
+              "type": "object",
+              "required": [
+                "columns",
+                "pattern"
+              ],
+              "additionalProperties": false,
+              "description": "A row is a data row when any of these columns matches the pattern; every other row is a report artifact and is classified (blank, separator, page break, header repeat, title, footer) for the run report.",
+              "properties": {
+                "columns": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "minItems": 1
+                },
+                "pattern": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "fill_down": {
+          "type": "object",
+          "required": [
+            "columns"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "columns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1
+            },
+            "as": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "reset_on": {
+              "type": "string"
+            },
+            "check_against": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Existing columns (for example a helper column the client built by hand in Excel) to compare with the filled-down values; mismatches are reported, never silently overwritten."
+            }
+          }
+        },
+        "stitch_pages": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "header_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "footer_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "unpivot": {
+          "type": "object",
+          "required": [
+            "groups",
+            "as"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "groups": {
+              "type": "array",
+              "minItems": 2,
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1
+              }
+            },
+            "as": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1
+            },
+            "index_as": {
+              "type": "string"
+            },
+            "drop_empty": {
+              "type": "boolean"
+            }
+          }
+        },
+        "derive": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "filter": {
+          "type": "object",
+          "required": [
+            "where",
+            "reason"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "where": {
+              "type": "string"
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 5
+            }
+          }
+        },
+        "dedupe": {
+          "type": "object",
+          "required": [
+            "keys"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "keys": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1
+            },
+            "keep": {
+              "enum": [
+                "first",
+                "last"
+              ]
+            },
+            "order_by": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "split": {
+          "type": "object",
+          "required": [
+            "column",
+            "by",
+            "into"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "column": {
+              "type": "string"
+            },
+            "by": {
+              "type": "string"
+            },
+            "into": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 2
+            }
+          }
+        },
+        "concat_limited": {
+          "type": "object",
+          "required": [
+            "columns",
+            "as",
+            "max_length"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "columns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 2
+            },
+            "sep": {
+              "type": "string"
+            },
+            "max_length": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "as": {
+              "type": "string"
+            }
+          }
+        },
+        "cast": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "enum": [
+                  "text",
+                  "date",
+                  "number",
+                  "int",
+                  "flag"
+                ]
+              },
+              "format": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "rename": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "select": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "parse_address": {
+          "type": "object",
+          "required": [
+            "column"
+          ],
+          "additionalProperties": false,
+          "description": "Deterministic US street-address parse into <prefix>NUMBER, PREDIR, NAME, SUFFIX (USPS abbreviation), POSTDIR, UNIT. First pass before an address service (Azure Maps / Smarty).",
+          "properties": {
+            "column": {
+              "type": "string"
+            },
+            "prefix": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "reshape": {
+      "type": "object",
+      "required": [
+        "kind",
+        "version",
+        "client",
+        "id",
+        "source",
+        "steps",
+        "target"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "reshape"
+        },
+        "version": {
+          "const": 1
+        },
+        "client": {
+          "$ref": "#/$defs/client"
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "source": {
+          "type": "object",
+          "required": [
+            "file"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "file": {
+              "type": "string"
+            },
+            "sheet": {
+              "type": [
+                "integer",
+                "string"
+              ]
+            },
+            "layout": {
+              "enum": [
+                "report",
+                "table"
+              ]
+            },
+            "header_row": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "read_as_text": {
+              "type": "boolean",
+              "default": true
+            },
+            "delimiter": {
+              "type": "string"
+            },
+            "encoding": {
+              "type": "string"
+            }
+          }
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/reshapeStep"
+          },
+          "minItems": 1
+        },
+        "target": {
+          "type": "string",
+          "pattern": "^silver\\.[a-z0-9_]+$"
+        },
+        "expect": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "min_rows": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "max_rows": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "row_count_tolerance_pct": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        },
+        "open_questions": {
+          "$ref": "#/$defs/openQuestions"
+        }
+      }
+    },
+    "field": {
+      "type": "object",
+      "required": [
+        "target"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "target": {
+          "$ref": "#/$defs/identifier"
+        },
+        "from": {
+          "type": "string"
+        },
+        "expr": {
+          "type": "string"
+        },
+        "const": {
+          "type": [
+            "string",
+            "number",
+            "integer",
+            "boolean"
+          ]
+        },
+        "default_from_class": {
+          "const": true
+        },
+        "type": {
+          "enum": [
+            "text",
+            "date",
+            "number",
+            "int",
+            "flag"
+          ]
+        },
+        "format": {
+          "type": "string"
+        },
+        "note": {
+          "type": "string"
+        },
+        "open_question": {
+          "type": "string"
+        }
+      },
+      "oneOf": [
+        {
+          "required": [
+            "from"
+          ],
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "expr"
+                ]
+              },
+              {
+                "required": [
+                  "const"
+                ]
+              },
+              {
+                "required": [
+                  "default_from_class"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "required": [
+            "expr"
+          ],
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "from"
+                ]
+              },
+              {
+                "required": [
+                  "const"
+                ]
+              },
+              {
+                "required": [
+                  "default_from_class"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "required": [
+            "const"
+          ],
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "from"
+                ]
+              },
+              {
+                "required": [
+                  "expr"
+                ]
+              },
+              {
+                "required": [
+                  "default_from_class"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "required": [
+            "default_from_class"
+          ],
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "from"
+                ]
+              },
+              {
+                "required": [
+                  "expr"
+                ]
+              },
+              {
+                "required": [
+                  "const"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "mapping": {
+      "type": "object",
+      "required": [
+        "kind",
+        "version",
+        "client",
+        "module",
+        "source",
+        "target",
+        "fields"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "mapping"
+        },
+        "version": {
+          "const": 1
+        },
+        "client": {
+          "$ref": "#/$defs/client"
+        },
+        "module": {
+          "$ref": "#/$defs/module"
+        },
+        "source": {
+          "type": "string",
+          "pattern": "^silver\\.[a-z0-9_]+$"
+        },
+        "target": {
+          "type": "string",
+          "pattern": "^gold\\.[A-Za-z0-9_]+$"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/field"
+          },
+          "minItems": 1
+        },
+        "open_questions": {
+          "$ref": "#/$defs/openQuestions"
+        }
+      }
+    },
+    "crosswalk": {
+      "type": "object",
+      "required": [
+        "kind",
+        "version",
+        "client",
+        "id",
+        "values"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "crosswalk"
+        },
+        "version": {
+          "const": 1
+        },
+        "client": {
+          "$ref": "#/$defs/client"
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "description": {
+          "type": "string"
+        },
+        "values": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": [
+              "legacy_code",
+              "target"
+            ],
+            "properties": {
+              "legacy_code": {
+                "type": "string"
+              },
+              "target": {
+                "type": "string"
+              },
+              "include": {
+                "type": "boolean",
+                "default": true
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "if": {
+              "properties": {
+                "include": {
+                  "const": false
+                }
+              },
+              "required": [
+                "include"
+              ]
+            },
+            "then": {
+              "required": [
+                "reason"
+              ]
+            }
+          }
+        },
+        "open_questions": {
+          "$ref": "#/$defs/openQuestions"
+        }
+      }
+    },
+    "rules": {
+      "type": "object",
+      "required": [
+        "kind",
+        "version",
+        "client",
+        "module",
+        "overrides"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "rules"
+        },
+        "version": {
+          "const": 1
+        },
+        "client": {
+          "$ref": "#/$defs/client"
+        },
+        "module": {
+          "$ref": "#/$defs/module"
+        },
+        "overrides": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "rule",
+              "reason"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "rule": {
+                "type": "string",
+                "pattern": "^[A-Z][A-Z0-9_]+$"
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "severity": {
+                "enum": [
+                  "E",
+                  "W"
+                ]
+              },
+              "params": {
+                "type": "object"
+              },
+              "expected_exclusion": {
+                "type": "object",
+                "required": [
+                  "when",
+                  "reason"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "when": {
+                    "type": "string"
+                  },
+                  "reason": {
+                    "type": "string"
+                  },
+                  "applies_to": {
+                    "type": "string",
+                    "minLength": 10,
+                    "description": "The condition in plain English, for people and the triage agent (when holds the SQL)."
+                  }
+                }
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 5
+              }
+            }
+          }
+        }
+      }
+    },
+    "load": {
+      "type": "object",
+      "required": [
+        "kind",
+        "version",
+        "client",
+        "module",
+        "procedure",
+        "source",
+        "order_by",
+        "parameters"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "load"
+        },
+        "version": {
+          "const": 1
+        },
+        "client": {
+          "$ref": "#/$defs/client"
+        },
+        "module": {
+          "$ref": "#/$defs/module"
+        },
+        "procedure": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        },
+        "filter": {
+          "enum": [
+            "errors_skip",
+            "all"
+          ],
+          "default": "errors_skip"
+        },
+        "order_by": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "partition_by": {
+          "type": "string"
+        },
+        "partitions": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1
+        },
+        "parameters": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "outputs": {
+          "type": "object",
+          "required": [
+            "error_value",
+            "error_message"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "error_value": {
+              "type": "string"
+            },
+            "error_message": {
+              "type": "string"
+            }
+          }
+        },
+        "gp_version_overrides": {
+          "type": "object"
+        },
+        "open_questions": {
+          "$ref": "#/$defs/openQuestions"
+        }
+      }
+    },
+    "setup": {
+      "type": "object",
+      "required": [
+        "kind",
+        "version",
+        "client",
+        "id",
+        "status",
+        "tables"
+      ],
+      "additionalProperties": false,
+      "description": "CSM setup values the validation rules check against (service types, tariffs, routes, statuses, classes). 'provisional' = assembled from the specs and the integrity report until the client's CSM setup snapshot is loaded.",
+      "properties": {
+        "kind": {
+          "const": "setup"
+        },
+        "version": {
+          "const": 1
+        },
+        "client": {
+          "$ref": "#/$defs/client"
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "status": {
+          "enum": [
+            "provisional",
+            "snapshot"
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "tables": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "code",
+                "source"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "source": {
+                  "enum": [
+                    "spec",
+                    "integrity-report",
+                    "csm-snapshot"
+                  ]
+                },
+                "note": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "open_questions": {
+          "$ref": "#/$defs/openQuestions"
+        }
+      }
+    },
+    "triage_decisions": {
+      "type": "object",
+      "required": [
+        "kind",
+        "version",
+        "client",
+        "decisions"
+      ],
+      "additionalProperties": false,
+      "description": "Gate 3: a person's decisions on triage-agent proposals, keyed by the issue group's signature hash.",
+      "properties": {
+        "kind": {
+          "const": "triage_decisions"
+        },
+        "version": {
+          "const": 1
+        },
+        "client": {
+          "$ref": "#/$defs/client"
+        },
+        "decisions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "group_key",
+              "module",
+              "decision",
+              "label",
+              "owner",
+              "category",
+              "decided_by",
+              "decided_on"
+            ],
+            "properties": {
+              "group_key": {
+                "type": "string",
+                "pattern": "^[0-9A-F]{16}$"
+              },
+              "module": {
+                "$ref": "#/$defs/module"
+              },
+              "signature": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "decision": {
+                "enum": [
+                  "approved",
+                  "changed",
+                  "rejected"
+                ]
+              },
+              "label": {
+                "enum": [
+                  "expected",
+                  "actionable",
+                  "investigate"
+                ]
+              },
+              "owner": {
+                "enum": [
+                  "client",
+                  "cogsdale",
+                  "none"
+                ]
+              },
+              "category": {
+                "enum": [
+                  "expected_by_design",
+                  "fix_in_source",
+                  "fix_in_mapping",
+                  "fix_in_setup",
+                  "needs_decision"
+                ]
+              },
+              "note": {
+                "type": "string"
+              },
+              "decided_by": {
+                "type": "string",
+                "minLength": 2
+              },
+              "decided_on": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "runbook": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "version",
+        "client",
+        "steps"
+      ],
+      "description": "The take runbook as data: every legacy step, what replaces it and how the prototype executes it.",
+      "properties": {
+        "kind": {
+          "const": "runbook"
+        },
+        "version": {
+          "const": 1
+        },
+        "client": {
+          "$ref": "#/$defs/client"
+        },
+        "take_variables": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "uniqueItems": true
+        },
+        "blocks": {
+          "type": "object",
+          "propertyNames": {
+            "pattern": "^[A-Z]$"
+          },
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "steps": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "number",
+              "block",
+              "title",
+              "kind",
+              "target_executor",
+              "prototype_mode"
+            ],
+            "properties": {
+              "number": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "block": {
+                "type": "string",
+                "pattern": "^[A-Z]$"
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1
+              },
+              "kind": {
+                "enum": [
+                  "manual",
+                  "automated",
+                  "check",
+                  "approval"
+                ]
+              },
+              "legacy_tool": {
+                "type": "string"
+              },
+              "target_executor": {
+                "type": "string",
+                "minLength": 1
+              },
+              "parameters": {
+                "type": "object"
+              },
+              "prototype_mode": {
+                "enum": [
+                  "implemented",
+                  "simulated",
+                  "eliminated",
+                  "manual"
+                ],
+                "description": "implemented: the prototype runs it; simulated: needs GP/CSM infrastructure the prototype doesn't have; eliminated: the target design removes the step; manual: a person does it."
+              }
+            }
+          }
+        },
+        "environment_variables": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "uniqueItems": true,
+          "description": "Placeholders resolved from the environment settings (servers, backup files, scripts) at run time."
+        }
+      }
+    },
+    "jira_refs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "version",
+        "client",
+        "refs"
+      ],
+      "description": "Issue code -> the client's support tickets, cited in the generated integrity report.",
+      "properties": {
+        "kind": {
+          "const": "jira_refs"
+        },
+        "version": {
+          "const": 1
+        },
+        "client": {
+          "$ref": "#/$defs/client"
+        },
+        "refs": {
+          "type": "object",
+          "propertyNames": {
+            "pattern": "^[A-Z][A-Z0-9_]*$"
+          },
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Z][A-Z0-9]*-[0-9]+$"
+            },
+            "uniqueItems": true
+          }
+        }
+      }
+    },
+    "mapping_hints": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "version",
+        "client",
+        "tuned_on_answer_key",
+        "hints"
+      ],
+      "description": "Opt-in guidance for the mapping agent (P1). tuned_on_answer_key must be true when the hints were written after seeing this client's hand mapping: a score obtained with them is then not an accuracy measure.",
+      "properties": {
+        "kind": {
+          "const": "mapping_hints"
+        },
+        "version": {
+          "const": 1
+        },
+        "client": {
+          "$ref": "#/$defs/client"
+        },
+        "tuned_on_answer_key": {
+          "type": "boolean"
+        },
+        "hints": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}

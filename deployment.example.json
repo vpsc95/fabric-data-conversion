@@ -1,0 +1,35 @@
+{
+  "tenant_id": "<your-Entra-tenant-GUID>",
+  "foundry": {
+    "endpoint": "https://<your-resource>.cognitiveservices.azure.com/",
+    "deployment": "gpt-4.1-mini",
+    "region": "<your-regional-deployment-location>",
+    "deployment_type": "Standard",
+    "api_version": "2024-10-21",
+    "auth": "entra"
+  },
+  "mvp": {
+    "workspace": "Conversion Demo",
+    "workspace_id": "<your-MVP-workspace-GUID>",
+    "lakehouse": "Conversion_Files",
+    "lakehouse_id": "<your-MVP-lakehouse-GUID>",
+    "sql_database": "Conversion_DB",
+    "sql_database_id": "<your-MVP-SQL-database-item-GUID>",
+    "sql_server": "<your-SQL-host>.database.fabric.microsoft.com",
+    "sql_database_name": "<database-name-from-connection-string>",
+    "semantic_model": "Conversion MVP",
+    "report": "Conversion MVP"
+  },
+  "full": {
+    "workspace": "Conversion Platform",
+    "workspace_id": "<your-full-workspace-GUID>",
+    "lakehouse": "lh_conversion",
+    "lakehouse_id": "<your-full-lakehouse-GUID>",
+    "sql_database": "Conversion_DB",
+    "sql_database_id": "<your-full-SQL-database-item-GUID>",
+    "sql_server": "<your-SQL-host>.database.fabric.microsoft.com",
+    "sql_database_name": "<database-name-from-connection-string>",
+    "semantic_model": "Conversion Run",
+    "report": "Conversion Run"
+  }
+}

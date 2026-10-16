@@ -1,0 +1,40 @@
+kind: reshape
+version: 1
+client: sample
+id: sample-um-customer
+source:
+  file: SAMPLE_UM_Customer
+  layout: table
+  read_as_text: true
+steps:
+- derive:
+    LegacyAcctNo: INCODEACCT
+    CustomerID: CustomerIDX + 100000
+    LocationID: CustomerIDX + 500000
+    SecCustIDX: SecCustIDX + 10000
+    SIN: REPLACE(REPLACE(SOCIAL, '-', ''), ' ', '')
+    Zip: REPLACE(ZIP, '-', '')
+    New_Existing: CUSTOMERSTATUS
+- derive:
+    Phone1: normalized PHONENUMBER before first space or comma
+    Phone2: normalized HOMENUMBER before first space or comma
+    Phone3: normalized CELLNUMBER before first space or comma
+    AlternateID: CONCAT(DRIVERSLICENSE, ' ', DLST)
+- dedupe:
+    keys:
+    - CustomerID
+    keep: first
+    order_by:
+    - CustomerIDX
+target: silver.sample_um_customer
+open_questions:
+- id: OQ-CUST-COMPLEX-DERIVE
+  text: CustomerID duplicate handling, DOB normalization, phone parsing, and finaled-location
+    reassignment need engine components or rule steps to reproduce exactly.
+  owner: partner
+  status: answered
+  answer: 'Implemented in gold.usp_Build_Customer: duplicate LastName+ADDRESS1 handling,
+    DOB, phone cleanup (gold.fn_CleanPhone) and finaled-location reassignment. Counts
+    reproduce.'
+  decided_by: Demo assumptions only; recipient review required
+  decided_on: '2026-10-06'

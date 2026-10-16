@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Notebook",
+    "displayName": "nb_sql_steps",
+    "description": "Synthetic-data conversion reference component."
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "50dfe5a7-1fc0-5eee-98c5-a1e11485b2f9"
+  }
+}

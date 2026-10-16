@@ -1,0 +1,32 @@
+kind: reshape
+version: 1
+client: sample
+id: deposits-report
+source:
+  file: UB Deposit Listing {take_date}.xlsx
+  sheet: Sheet1
+  layout: report
+  header_row: 0
+  read_as_text: true
+steps:
+- strip_artifacts:
+    keep_when:
+      columns:
+      - ACCOUNT
+      pattern: ^\d{2}-\d{4}-\d{2}$
+- rename:
+    ACCOUNT: ACCOUNTNUM
+target: silver.deposits
+expect:
+  min_rows: 1
+open_questions:
+- id: OQ-DEP-SHEET
+  text: Confirm which sheet of the deposit listing was imported for go-live (US Deposit
+    Listing or Sheet1).
+  owner: cogsdale
+  status: assumed
+  assumption: The go-live deposit import used sheet 'Sheet1'.
+  evidence: With Sheet1, received 1,008, loaded 989, failed 19 and both deposit control
+    totals match.
+  decided_by: Demo assumptions only; recipient review required
+  decided_on: '2026-10-06'

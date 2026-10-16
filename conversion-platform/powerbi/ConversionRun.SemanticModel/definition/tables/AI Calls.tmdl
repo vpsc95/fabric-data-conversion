@@ -1,0 +1,143 @@
+/// Audit of every AI call: endpoint, deployment, region, prompt hash and size, PII gate result, tokens and latency. Metadata only; prompts and answers aren't stored here.
+table 'AI Calls'
+
+	measure '# AI Calls' = COUNTROWS('AI Calls') + 0
+		formatString: #,##0
+		displayFolder: AI audit
+
+	/// Calls the PII gate stopped before anything left the platform.
+	measure 'Calls Blocked by PII Gate' = CALCULATE(COUNTROWS('AI Calls'), 'AI Calls'[PII Check] = "blocked") + 0
+		formatString: #,##0
+		displayFolder: AI audit
+
+	measure 'Input Tokens' = SUM('AI Calls'[Input Token Count])
+		formatString: #,##0
+		displayFolder: AI audit
+
+	measure 'Output Tokens' = SUM('AI Calls'[Output Token Count])
+		formatString: #,##0
+		displayFolder: AI audit
+
+	measure 'Avg Latency (s)' = DIVIDE(AVERAGE('AI Calls'[Latency Ms]), 1000)
+		formatString: #,##0.0
+		displayFolder: AI audit
+
+	/// Amber when the PII gate stopped a call: the context builder needs a fix before the next run.
+	measure 'PII Gate Color' = IF([Calls Blocked by PII Gate] > 0, "#B45309", "#0F766E")
+		formatString: General
+		displayFolder: AI audit
+
+	/// Reference line for the PII-gate tile.
+	measure 'PII Context' = FORMAT([# AI Calls], "#,##0") & " calls checked before sending"
+		formatString: General
+		displayFolder: AI audit
+
+	/// Reference line for the tokens tile.
+	measure 'Token Context' = FORMAT([Output Tokens] + 0, "#,##0") & " output tokens · " & FORMAT([Avg Latency (s)] + 0, "0.0") & " s per call"
+		formatString: General
+		displayFolder: AI audit
+
+	column 'Take Key'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: TakeKey
+
+	column ClientId
+		dataType: string
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: ClientId
+
+	column TakeId
+		dataType: string
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: TakeId
+
+	column 'Call Id'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: CallId
+
+	column Agent
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Agent
+
+	column Deployment
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Deployment
+
+	column Region
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Region
+
+	/// SHA-256 of the exact prompt that was sent (or blocked).
+	column 'Prompt Hash'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: PromptSha256
+
+	column 'Prompt Chars'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: PromptChars
+
+	column 'Items Sent'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: ItemsSent
+
+	column 'PII Check'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: PiiCheck
+
+	column Status
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Status
+
+	column 'Input Token Count'
+		dataType: int64
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: sum
+		sourceColumn: InputTokens
+
+	column 'Output Token Count'
+		dataType: int64
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: sum
+		sourceColumn: OutputTokens
+
+	column 'Latency Ms'
+		dataType: int64
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: LatencyMs
+
+	column Message
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Message
+
+	column 'Created At'
+		dataType: dateTime
+		formatString: yyyy-mm-dd hh:nn:ss
+		summarizeBy: none
+		sourceColumn: CreatedAt
+
+	partition 'AI Calls' = entity
+		mode: directLake
+		source
+			entityName: rpt_ai_call
+			schemaName: dbo
+			expressionSource: DL_Lakehouse

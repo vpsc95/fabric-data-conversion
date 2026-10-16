@@ -1,0 +1,90 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
+  "name": "97be98628b5675c346c5",
+  "displayName": "Reconciliation",
+  "displayOption": "FitToPage",
+  "height": 1080,
+  "width": 1920,
+  "objects": {
+    "background": [
+      {
+        "properties": {
+          "color": {
+            "solid": {
+              "color": {
+                "expr": {
+                  "Literal": {
+                    "Value": "'#F1F5F9'"
+                  }
+                }
+              }
+            }
+          },
+          "transparency": {
+            "expr": {
+              "Literal": {
+                "Value": "0D"
+              }
+            }
+          }
+        }
+      }
+    ],
+    "outspace": [
+      {
+        "properties": {
+          "color": {
+            "solid": {
+              "color": {
+                "expr": {
+                  "Literal": {
+                    "Value": "'#E2E8F0'"
+                  }
+                }
+              }
+            }
+          },
+          "transparency": {
+            "expr": {
+              "Literal": {
+                "Value": "0D"
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "visualInteractions": [
+    {
+      "source": "642576c90ffd5e292246",
+      "target": "bec37d5d1873db1f80d0",
+      "type": "NoFilter"
+    },
+    {
+      "source": "642576c90ffd5e292246",
+      "target": "fc63ef787e2ec339498a",
+      "type": "NoFilter"
+    },
+    {
+      "source": "642576c90ffd5e292246",
+      "target": "dd136b57ae29fdbe2525",
+      "type": "NoFilter"
+    },
+    {
+      "source": "642576c90ffd5e292246",
+      "target": "45c2701d1c9275d51218",
+      "type": "NoFilter"
+    },
+    {
+      "source": "642576c90ffd5e292246",
+      "target": "d354d1cf9b1d999d7db0",
+      "type": "NoFilter"
+    },
+    {
+      "source": "642576c90ffd5e292246",
+      "target": "615c225d4493335227d4",
+      "type": "NoFilter"
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+kind: mapping
+version: 1
+client: sample
+module: UM30300
+source: silver.sample_um_histmr
+target: gold.UM_HistMR
+fields:
+- target: LegacyAcctNo
+  from: LegacyAcctNo
+- target: Legacy_Loc_ID
+  from: Legacy_Loc_ID
+- target: LocationID
+  from: LocationID
+- target: CustomerID
+  from: CustomerID
+- target: EquipmentID
+  from: EquipmentID
+- target: ReadingDate
+  from: ReadingDate
+- target: ReadingType
+  from: ReadingType
+- target: NumberOfDays
+  from: NumberOfDays
+- target: Reading
+  from: Reading
+- target: PreviousReading
+  from: PreviousReading
+- target: Consumption1
+  from: Consumption1
+- target: Consumption3
+  from: Consumption3
+- target: Reading2
+  from: Reading2
+- target: PreviousReading2
+  from: PreviousReading2
+- target: Consumption2
+  from: Consumption2
+- target: Consumption12
+  from: Consumption12
+- target: Consumption22
+  from: Consumption22
+- target: UMEQUMULT
+  from: UMEQUMULT
+- target: openread
+  from: openread
+- target: Raw_ID
+  from: Raw_ID
+- target: RowNum
+  from: RowNum
+- target: isvalid
+  from: isvalid
+- target: message
+  from: message
+open_questions:
+- id: OQ-UM30300-COMPLEX
+  text: Review sp_Load_UM_HistMR.sql for complex CASE/update logic represented in
+    the reshape spec before generating SQL for gold.UM_HistMR.
+  owner: partner
+  status: answered
+  answer: Ported to gold.usp_Build_HistMR; window functions replace the correlated
+    updates. The replay reproduces 292,269 received and 288,972 loaded.
+  decided_by: Demo assumptions only; recipient review required
+  decided_on: '2026-10-06'

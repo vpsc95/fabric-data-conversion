@@ -1,0 +1,13 @@
+kind: crosswalk
+version: 1
+client: sample
+id: balance_gl_accounts
+description: 'Beginning balance constants. Source: sp_Load_UM_BEGBALANCES.sql lines
+  111-121.'
+values:
+- legacy_code: BBCreditAccount
+  target: '24'
+- legacy_code: BBDebitAccount
+  target: '1'
+- legacy_code: BBMisType
+  target: Z-BEG BAL

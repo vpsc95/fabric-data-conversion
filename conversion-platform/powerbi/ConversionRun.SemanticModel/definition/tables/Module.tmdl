@@ -1,0 +1,32 @@
+/// CSM import modules (UM staging tables), in load order.
+table Module
+
+	column 'Module Code'
+		dataType: string
+		isKey
+		summarizeBy: none
+		sourceColumn: Module
+
+	column 'Module Name'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: ModuleName
+		sortByColumn: 'Sort Order'
+
+	column Area
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Area
+
+	column 'Sort Order'
+		dataType: int64
+		isHidden
+		summarizeBy: none
+		sourceColumn: SortOrder
+
+	partition Module = entity
+		mode: directLake
+		source
+			entityName: rpt_module
+			schemaName: dbo
+			expressionSource: DL_Lakehouse

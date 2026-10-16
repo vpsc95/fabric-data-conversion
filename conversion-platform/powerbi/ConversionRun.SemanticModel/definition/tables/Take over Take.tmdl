@@ -1,0 +1,107 @@
+/// Issue groups compared with the client's previous take: new, grown, shrunk, resolved or unchanged.
+table 'Take over Take'
+
+	/// Issue groups that weren't in the previous take.
+	measure 'Groups New' = CALCULATE(COUNTROWS('Take over Take'), 'Take over Take'[Status] = "new") + 0
+		formatString: #,##0
+		displayFolder: Take over take
+
+	/// Issue groups of the previous take that are gone.
+	measure 'Groups Resolved' = CALCULATE(COUNTROWS('Take over Take'), 'Take over Take'[Status] = "resolved") + 0
+		formatString: #,##0
+		displayFolder: Take over take
+
+	/// Issue groups with more records than in the previous take.
+	measure 'Groups Grown' = CALCULATE(COUNTROWS('Take over Take'), 'Take over Take'[Status] = "grown") + 0
+		formatString: #,##0
+		displayFolder: Take over take
+
+	/// Issue groups with fewer records than in the previous take.
+	measure 'Groups Shrunk' = CALCULATE(COUNTROWS('Take over Take'), 'Take over Take'[Status] = "shrunk") + 0
+		formatString: #,##0
+		displayFolder: Take over take
+
+	column 'Module Code'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: Module
+
+	column 'Take Key'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: TakeKey
+
+	column ClientId
+		dataType: string
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: ClientId
+
+	column TakeId
+		dataType: string
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: TakeId
+
+	column 'Prev Take Id'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: PrevTakeId
+
+	column 'Group Key'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: GroupKey
+
+	column 'Rule Set'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: RuleSet
+
+	column Features
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Features
+
+	column 'Rule Class'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: RuleClass
+
+	column 'Prev Records'
+		dataType: int64
+		summarizeBy: sum
+		sourceColumn: PrevRecords
+
+	column Records
+		dataType: int64
+		summarizeBy: sum
+		sourceColumn: Records
+
+	column Change
+		dataType: int64
+		summarizeBy: sum
+		sourceColumn: Change
+
+	column Status
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Status
+		sortByColumn: 'Status Order'
+
+	column 'Status Order'
+		dataType: int64
+		isHidden
+		summarizeBy: none
+		sourceColumn: StatusOrder
+
+	partition 'Take over Take' = entity
+		mode: directLake
+		source
+			entityName: rpt_take_diff
+			schemaName: dbo
+			expressionSource: DL_Lakehouse

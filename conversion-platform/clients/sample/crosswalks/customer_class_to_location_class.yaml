@@ -1,0 +1,60 @@
+kind: crosswalk
+version: 1
+client: sample
+id: customer_class_to_location_class
+description: 'SAMPLE_UM_Customer.CUSTOMERCLASS -> UM_LOCATIONS.LocationClass. Source:
+  SP_Load_UM_LOCATIONS.sql lines 275-304.'
+values:
+- legacy_code: API
+  target: APT
+- legacy_code: CIR
+  target: APT-IRR
+- legacy_code: COM
+  target: COM
+- legacy_code: BLD
+  target: COM-IRR
+- legacy_code: INS
+  target: DRF
+- legacy_code: RIR
+  target: FHY
+- legacy_code: APH
+  target: INSTIT
+- legacy_code: REH
+  target: INSTIT-IRR
+- legacy_code: REL
+  target: LCM
+- legacy_code: RES
+  target: RES
+- legacy_code: INI
+  target: INSTIT-IRR
+  reason: Script comment says left blank until confirmed.
+- legacy_code: DRF
+  target: DRF
+- legacy_code: LCM
+  target: LCM
+- legacy_code: SEN
+  target: RES
+  reason: Script comment says no clear match.
+- legacy_code: FHY
+  target: FHY
+open_questions:
+- id: OQ-LOC-CLASS-INI
+  text: Confirm INI -> INSTIT-IRR; script says left blank until confirmed.
+  owner: cogsdale
+  status: assumed
+  assumption: Customer class INI maps to location class INSTIT-IRR, as coded.
+  evidence: 23 locations carry INI. No validation rule checks location class, so the
+    replay can't confirm it; go-live loaded all 6,449 locations with this mapping.
+    Check one INI location in CSM at UAT.
+  decided_by: Demo assumptions only; recipient review required
+  decided_on: '2026-10-06'
+- id: OQ-LOC-CLASS-SEN
+  text: Confirm SEN -> RES; script says no clear match.
+  owner: cogsdale
+  status: assumed
+  assumption: Customer class SEN maps to location class RES, as coded.
+  evidence: 607 locations carry SEN. No validation rule checks location class; go-live
+    loaded all 6,449 locations with this mapping. Check one SEN location in CSM at
+    UAT.
+  decided_by: Demo assumptions only; recipient review required
+  decided_on: '2026-10-06'

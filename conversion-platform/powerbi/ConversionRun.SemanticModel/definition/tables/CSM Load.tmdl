@@ -1,0 +1,92 @@
+/// Post-load reconciliation: rows expected to load per module, rows the loader loaded through the CSM procedures (the CONV emulator in the prototype), failures, and the variance of the money control totals.
+table 'CSM Load'
+
+	/// Rows the loader loaded through the CSM business-logic procedures.
+	measure 'Loaded to CSM' = CALCULATE(SUM('CSM Load'[Loaded]), 'CSM Load'[Control Name] = BLANK()) + 0
+		formatString: #,##0
+		displayFolder: CSM load
+
+	/// Rows expected to load that didn't, plus rows that failed: 0 means the load reconciles.
+	measure 'Load Variance' = SUMX('CSM Load', ABS('CSM Load'[Variance]) + 'CSM Load'[Failed]) + 0
+		formatString: #,##0
+		displayFolder: CSM load
+
+	/// Absolute difference between the money control totals before and after the load.
+	measure 'Control Amount Variance' = SUMX(FILTER('CSM Load', NOT ('CSM Load'[Control Name] = BLANK())), ABS('CSM Load'[Amount Variance])) + 0
+		formatString: \$#,##0.00
+		displayFolder: CSM load
+
+	column 'Module Code'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: Module
+
+	column 'Take Key'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: TakeKey
+
+	column ClientId
+		dataType: string
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: ClientId
+
+	column TakeId
+		dataType: string
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: TakeId
+
+	column 'Module Name'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: ModuleName
+
+	column 'Expected To Load'
+		dataType: int64
+		summarizeBy: sum
+		sourceColumn: ExpectedToLoad
+
+	column Loaded
+		dataType: int64
+		summarizeBy: sum
+		sourceColumn: Loaded
+
+	column Failed
+		dataType: int64
+		summarizeBy: sum
+		sourceColumn: Failed
+
+	column 'Emulator Rows'
+		dataType: int64
+		summarizeBy: sum
+		sourceColumn: EmulatorRows
+
+	column Variance
+		dataType: int64
+		summarizeBy: sum
+		sourceColumn: Variance
+
+	/// Money control total (Z-BEG BAL, RESI-DEP, COMM-DEP); blank on module rows.
+	column 'Control Name'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: ControlName
+
+	column 'Amount Variance'
+		dataType: double
+		formatString: \$#,##0.00
+		summarizeBy: sum
+		sourceColumn: AmountVariance
+
+	partition 'CSM Load' = entity
+		mode: directLake
+		source
+			entityName: rpt_post_load
+			schemaName: dbo
+			expressionSource: DL_Lakehouse

@@ -1,0 +1,41 @@
+kind: reshape
+version: 1
+client: sample
+id: services-report
+source:
+  file: UB Services Report {take_date}.xlsx
+  sheet: US Services Report
+  layout: report
+  header_row: 0
+  read_as_text: true
+steps:
+- strip_artifacts:
+    keep_when:
+      columns:
+      - ACCOUNTNUM
+      - ACCT
+      pattern: ^\d{2}-\d{4}-\d{2}$
+- fill_down:
+    columns:
+    - ACCOUNTNUM
+    - STARTDATE
+    as:
+    - ACCT_FILL
+    - STDATE_FILL
+    check_against:
+    - ACCT
+    - STDATE
+target: silver.services
+expect:
+  min_rows: 1
+open_questions:
+- id: OQ-SVC-1
+  text: Get the original report file from before the client's Excel steps, so the
+    hand-built ACCT/STDATE columns are no longer needed.
+  owner: client
+  status: answered
+  answer: Not needed. The platform fills ACCT/STDATE down itself and matches the client's
+    hand-built columns on all 11,986 service lines and 10,797 balance lines (0 mismatches).
+    From the next take the client can send the report as exported.
+  decided_by: Demo assumptions only; recipient review required
+  decided_on: '2026-10-06'

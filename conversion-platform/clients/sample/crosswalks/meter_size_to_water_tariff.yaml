@@ -1,0 +1,47 @@
+kind: crosswalk
+version: 1
+client: sample
+id: meter_size_to_water_tariff
+description: 'Meter_Size_Desc -> water CTAR11. Target depends on UM_Customer.Individual.
+  Source: sp_Load_UM_CONNECTIONS.sql lines 613-671.'
+values:
+- legacy_code: 3/4"
+  target: WR35
+  residential_tariff: WR35
+  commercial_tariff: WC35
+- legacy_code: 5/8"
+  target: WR35
+  residential_tariff: WR35
+  commercial_tariff: WC35
+- legacy_code: 1"
+  target: WR1
+  residential_tariff: WR1
+  commercial_tariff: WC1
+- legacy_code: 1.5"
+  target: WR1_1/2
+  residential_tariff: WR1_1/2
+  commercial_tariff: WC1_1/2
+- legacy_code: 2"
+  target: WR2
+  residential_tariff: WR2
+  commercial_tariff: WC2
+- legacy_code: 3"
+  target: WR3
+  residential_tariff: WR3
+  commercial_tariff: WC3
+- legacy_code: 4"
+  target: WR4
+  residential_tariff: WR4
+  commercial_tariff: WC4
+- legacy_code: 6"
+  target: WR6
+  residential_tariff: WR6
+  commercial_tariff: WC6
+- legacy_code: 8"
+  target: WR8
+  residential_tariff: WR8
+  commercial_tariff: WC8
+- legacy_code: 12"
+  target: WR12
+  residential_tariff: WR12
+  commercial_tariff: WC12

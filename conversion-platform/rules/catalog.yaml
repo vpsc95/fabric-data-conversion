@@ -1,0 +1,1724 @@
+version: 1
+source: legacy-sql-redacted Validation Scripts, analyzed 2026-10-05
+rules:
+- id: CUST_ALTERNATEID_TOO_LONG
+  module: UMRM0101
+  legacy_issue_text: AlternateID (Drivers License) too long (MAX 15) ** WARNING **
+  severity: W
+  severity_evidence: Update sets isvalid to 2 or preserves existing error; loader treats 2 as warning/loadable.
+  description: Flags records whose field value exceeds the target field length.
+  condition_sql: LEN(AlternateID) > 15
+  reference_data: []
+  parameters:
+    max_length: from catalog
+  cross_entity: false
+  legacy_status: active
+  source: UM_Customer Validation.sql:192-200
+  answer_key_rule: CUST_ALTERNATEID_TOO_LONG
+  expected_exclusion_hint: null
+- id: CUST_CITY_TOO_LONG
+  module: UMRM0101
+  legacy_issue_text: City too long (MAX 31)
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose field value exceeds the target field length.
+  condition_sql: LEN(City) > 31
+  reference_data: []
+  parameters:
+    max_length: from catalog
+  cross_entity: false
+  legacy_status: active
+  source: UM_Customer Validation.sql:102-110
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: CUST_CONTACT_PERSON_TOO_LONG
+  module: UMRM0101
+  legacy_issue_text: ContactPerson too long (MAX 31) ** WARNING **
+  severity: W
+  severity_evidence: Update sets isvalid to 2 or preserves existing error; loader treats 2 as warning/loadable.
+  description: Flags records whose field value exceeds the target field length.
+  condition_sql: LEN(ContactPerson) > 31
+  reference_data: []
+  parameters:
+    max_length: from catalog
+  cross_entity: false
+  legacy_status: active
+  source: UM_Customer Validation.sql:182-190
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: CUST_DUPLICATE_CUSTOMER_CSM
+  module: UMRM0101
+  legacy_issue_text: Duplicate Customer Code in CSM
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags duplicate keys that would collide in staging or CSM.
+  condition_sql: CustomerID IN (SELECT custnmbr FROM ref.UMRM0101)
+  reference_data:
+  - CSM customers UMRM0101
+  parameters: {}
+  cross_entity: true
+  legacy_status: active
+  source: UM_Customer Validation.sql:22-30
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: CUST_DUPLICATE_CUSTOMER_STAGE
+  module: UMRM0101
+  legacy_issue_text: Duplicate Customer Code in Staging
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags duplicate keys that would collide in staging or CSM.
+  condition_sql: LegacyAcctNo IN (SELECT LegacyAcctNo FROM stage.UM_Customer GROUP BY LegacyAcctNo HAVING count(*) > 1)
+  reference_data:
+  - customer staging
+  parameters: {}
+  cross_entity: true
+  legacy_status: active
+  source: UM_Customer Validation.sql:12-20
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: CUST_EMAIL_TOO_LONG
+  module: UMRM0101
+  legacy_issue_text: Email too long (MAX 60)
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose field value exceeds the target field length.
+  condition_sql: LEN(Email) > 60
+  reference_data: []
+  parameters:
+    max_length: from catalog
+  cross_entity: false
+  legacy_status: active
+  source: UM_Customer Validation.sql:172-180
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: CUST_FAX_TOO_LONG
+  module: UMRM0101
+  legacy_issue_text: Fax too long (MAX 21)
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose field value exceeds the target field length.
+  condition_sql: LEN(Fax) > 21
+  reference_data: []
+  parameters:
+    max_length: from catalog
+  cross_entity: false
+  legacy_status: active
+  source: UM_Customer Validation.sql:162-170
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: CUST_FIRST_NAME_TOO_LONG
+  module: UMRM0101
+  legacy_issue_text: FirstName too long (MAX 30)
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose field value exceeds the target field length.
+  condition_sql: LEN(FirstName) > 30
+  reference_data: []
+  parameters:
+    max_length: from catalog
+  cross_entity: false
+  legacy_status: active
+  source: UM_Customer Validation.sql:32-40
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: CUST_LAST_NAME_TOO_LONG
+  module: UMRM0101
+  legacy_issue_text: LastName too long (MAX 30) ** WARNING **
+  severity: W
+  severity_evidence: Update sets isvalid to 2 or preserves existing error; loader treats 2 as warning/loadable.
+  description: Flags records whose field value exceeds the target field length.
+  condition_sql: LEN(LastName) > 30
+  reference_data: []
+  parameters:
+    max_length: from catalog
+  cross_entity: false
+  legacy_status: active
+  source: UM_Customer Validation.sql:52-60
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: CUST_MIDDLE_NAME_TOO_LONG
+  module: UMRM0101
+  legacy_issue_text: MiddleName too long (MAX 15)
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose field value exceeds the target field length.
+  condition_sql: LEN(MiddleName) > 15
+  reference_data: []
+  parameters:
+    max_length: from catalog
+  cross_entity: false
+  legacy_status: active
+  source: UM_Customer Validation.sql:42-50
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: CUST_PHONE1_TOO_LONG
+  module: UMRM0101
+  legacy_issue_text: Phone1 too long (MAX 21)
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose field value exceeds the target field length.
+  condition_sql: LEN(Phone1) > 21
+  reference_data: []
+  parameters:
+    max_length: from catalog
+  cross_entity: false
+  legacy_status: active
+  source: UM_Customer Validation.sql:132-140
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: CUST_PHONE2_TOO_LONG
+  module: UMRM0101
+  legacy_issue_text: Phone2 too long (MAX 21)
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose field value exceeds the target field length.
+  condition_sql: LEN(Phone2) > 21
+  reference_data: []
+  parameters:
+    max_length: from catalog
+  cross_entity: false
+  legacy_status: active
+  source: UM_Customer Validation.sql:142-150
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: CUST_PHONE3_TOO_LONG
+  module: UMRM0101
+  legacy_issue_text: Phone3 too long (MAX 21)
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose field value exceeds the target field length.
+  condition_sql: LEN(Phone3) > 21
+  reference_data: []
+  parameters:
+    max_length: from catalog
+  cross_entity: false
+  legacy_status: active
+  source: UM_Customer Validation.sql:152-160
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: CUST_PLACE_OF_WORK_TOO_LONG
+  module: UMRM0101
+  legacy_issue_text: PlaceOfWork too long (MAX 41)
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose field value exceeds the target field length.
+  condition_sql: LEN(PlaceOfWork) > 41
+  reference_data: []
+  parameters:
+    max_length: from catalog
+  cross_entity: false
+  legacy_status: active
+  source: UM_Customer Validation.sql:62-70
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: CUST_STATE_TOO_LONG
+  module: UMRM0101
+  legacy_issue_text: State too long (MAX 29)
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose field value exceeds the target field length.
+  condition_sql: LEN(State) > 29
+  reference_data: []
+  parameters:
+    max_length: from catalog
+  cross_entity: false
+  legacy_status: active
+  source: UM_Customer Validation.sql:112-120
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: CUST_ZIP_TOO_LONG
+  module: UMRM0101
+  legacy_issue_text: Zip too long (MAX 10)
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose field value exceeds the target field length.
+  condition_sql: LEN(Zip) > 10
+  reference_data: []
+  parameters:
+    max_length: from catalog
+  cross_entity: false
+  legacy_status: active
+  source: UM_Customer Validation.sql:122-130
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: ADDR_ADDRESS1_TOO_LONG
+  module: UMRM0111
+  legacy_issue_text: ADDRESS1 too long (MAX 61)
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose field value exceeds the target field length.
+  condition_sql: LEN(ADDRESS1) > 61
+  reference_data: []
+  parameters:
+    max_length: from catalog
+  cross_entity: false
+  legacy_status:
+    status: commented_out
+    reason: Legacy block is inside a /* ... */ comment; keep disabled until reviewer confirms it is required.
+  source: UM_Customer Validation.sql:72-80
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: ADDR_ADDRESS2_TOO_LONG
+  module: UMRM0111
+  legacy_issue_text: ADDRESS2 too long (MAX 61)
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose field value exceeds the target field length.
+  condition_sql: LEN(ADDRESS2) > 61
+  reference_data: []
+  parameters:
+    max_length: from catalog
+  cross_entity: false
+  legacy_status:
+    status: commented_out
+    reason: Legacy block is inside a /* ... */ comment; keep disabled until reviewer confirms it is required.
+  source: UM_Customer Validation.sql:82-90
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: ADDR_ADDRESS3_TOO_LONG
+  module: UMRM0111
+  legacy_issue_text: ADDRESS3 too long (MAX 61)
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose field value exceeds the target field length.
+  condition_sql: LEN(ADDRESS3) > 61
+  reference_data: []
+  parameters:
+    max_length: from catalog
+  cross_entity: false
+  legacy_status:
+    status: commented_out
+    reason: Legacy block is inside a /* ... */ comment; keep disabled until reviewer confirms it is required.
+  source: UM_Customer Validation.sql:92-100
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: ADDR_INCOMPLETE
+  module: UMRM0111
+  legacy_issue_text: Address Incomplete
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Address Incomplete.
+  condition_sql: (StreetNumber = '' AND AdrCategory = 1)
+  reference_data: []
+  parameters:
+    allowed_values:
+    - ''
+  cross_entity: false
+  legacy_status:
+    status: commented_out
+    reason: Legacy block is inside a /* ... */ comment; keep disabled until reviewer confirms it is required.
+  source: UM_Customer Validation.sql:214-222
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: ADDR_SMARTY_NO_MATCH
+  module: UMRM0111
+  legacy_issue_text: SmartyStreets Address Match Not Found (' + SmartyStatusSummary + ') ** WARNING **
+  severity: W
+  severity_evidence: Update sets isvalid to 2 or preserves existing error; loader treats 2 as warning/loadable.
+  description: Flags records whose code or key is missing from required staging or CSM reference data.
+  condition_sql: p.SmartyStatusSummary NOT IN ('Match-Mailable', 'Match-Inactive', 'Match-Vacant')
+  reference_data: []
+  parameters:
+    allowed_values:
+    - Match-Mailable
+    - Match-Inactive
+    - Match-Vacant
+  cross_entity: false
+  legacy_status: active
+  source: UM_Customer Validation.sql:202-211
+  answer_key_rule: ADDR_SMARTY_NO_MATCH
+  expected_exclusion_hint: null
+- id: LOC_CITY_TOO_LONG
+  module: UM00600
+  legacy_issue_text: SCity too long (MAX 31)
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose field value exceeds the target field length.
+  condition_sql: LEN(SCity) > 31
+  reference_data: []
+  parameters:
+    max_length: from catalog
+  cross_entity: false
+  legacy_status: active
+  source: UM_Locations Validation.sql:64-72
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: LOC_CUSTOMER_NOT_FOUND
+  module: UM00600
+  legacy_issue_text: Customer Does not Exist in STAGE or CONV ** WARNING **
+  severity: W
+  severity_evidence: Update sets isvalid to 2 or preserves existing error; loader treats 2 as warning/loadable.
+  description: Customer Does not Exist (STAGE or CSM).
+  condition_sql: CustomerID NOT IN (SELECT CustomerID FROM ref.UMRM0101) AND CustomerID NOT IN (SELECT CustomerID FROM stage.UM_Customer)
+    AND CustomerID <> 'VACANT'
+  reference_data:
+  - customer staging
+  - CSM customers UMRM0101
+  parameters:
+    allowed_values:
+    - VACANT
+  cross_entity: true
+  legacy_status: active
+  source: UM_Locations Validation.sql:22-32
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: LOC_DUPLICATE_LOCATION
+  module: UM00600
+  legacy_issue_text: Duplicate Location Code
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags duplicate keys that would collide in staging or CSM.
+  condition_sql: Legacy_Loc_ID IN (SELECT Legacy_Loc_ID FROM stage.UM_Locations GROUP BY Legacy_Loc_ID HAVING count(*) > 1)
+  reference_data:
+  - location staging
+  parameters: {}
+  cross_entity: true
+  legacy_status: active
+  source: UM_Locations Validation.sql:12-20
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: LOC_NO_RES_UNITS_NUMERIC
+  module: UM00600
+  legacy_issue_text: NoResUnits must be numeric
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records where the field must convert to a numeric value.
+  condition_sql: ISNUMERIC(NoResUnits) <> 1
+  reference_data: []
+  parameters: {}
+  cross_entity: false
+  legacy_status: active
+  source: UM_Locations Validation.sql:134-142
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: LOC_ROUTE_ID_TOO_LONG
+  module: UM00600
+  legacy_issue_text: RouteID too long (MAX 15)
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose field value exceeds the target field length.
+  condition_sql: LEN(RouteID) > 15
+  reference_data: []
+  parameters:
+    max_length: from catalog
+  cross_entity: false
+  legacy_status: active
+  source: UM_Locations Validation.sql:94-102
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: LOC_ROUTE_NOT_FOUND
+  module: UM00600
+  legacy_issue_text: RouteID not found in CONV Setup ** WARNING **
+  severity: W
+  severity_evidence: Update sets isvalid to 2 or preserves existing error; loader treats 2 as warning/loadable.
+  description: Flags records whose code or key is missing from required staging or CSM reference data.
+  condition_sql: RouteID NOT IN (SELECT RouteID FROM ref.UM40900)
+  reference_data:
+  - CSM routes UM40900
+  parameters: {}
+  cross_entity: true
+  legacy_status: active
+  source: UM_Locations Validation.sql:104-112
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: LOC_STATE_TOO_LONG
+  module: UM00600
+  legacy_issue_text: SState too long (MAX 29)
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose field value exceeds the target field length.
+  condition_sql: LEN(SState) > 29
+  reference_data: []
+  parameters:
+    max_length: from catalog
+  cross_entity: false
+  legacy_status: active
+  source: UM_Locations Validation.sql:74-82
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: LOC_STREET_DIRPF_TOO_LONG
+  module: UM00600
+  legacy_issue_text: SStreetDirPF too long (MAX 3)
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose field value exceeds the target field length.
+  condition_sql: LEN(SStreetDirPF) > 31
+  reference_data: []
+  parameters:
+    max_length: from catalog
+  cross_entity: false
+  legacy_status: active
+  source: UM_Locations Validation.sql:54-62
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: LOC_STREET_NAME_TOO_LONG
+  module: UM00600
+  legacy_issue_text: SStreetName too long (MAX 31) ** WARNING **
+  severity: W
+  severity_evidence: Update sets isvalid to 2 or preserves existing error; loader treats 2 as warning/loadable.
+  description: Flags records whose field value exceeds the target field length.
+  condition_sql: LEN(SStreetName) > 31
+  reference_data: []
+  parameters:
+    max_length: from catalog
+  cross_entity: false
+  legacy_status: active
+  source: UM_Locations Validation.sql:44-52
+  answer_key_rule: LOC_STREET_NAME_TOO_LONG
+  expected_exclusion_hint: null
+- id: LOC_STREET_NUMBER_TOO_LONG
+  module: UM00600
+  legacy_issue_text: SStreetNumber too long (MAX 7)
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose field value exceeds the target field length.
+  condition_sql: LEN(SStreetNumber) > 7
+  reference_data: []
+  parameters:
+    max_length: from catalog
+  cross_entity: false
+  legacy_status: active
+  source: UM_Locations Validation.sql:34-42
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: LOC_UUDF1_TOO_LONG
+  module: UM00600
+  legacy_issue_text: UUDF1 too long (MAX 101)
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose field value exceeds the target field length.
+  condition_sql: LEN(UUDF1) > 101
+  reference_data: []
+  parameters:
+    max_length: from catalog
+  cross_entity: false
+  legacy_status: active
+  source: UM_Locations Validation.sql:114-122
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: LOC_UUDF2_TOO_LONG
+  module: UM00600
+  legacy_issue_text: UUDF2 too long (MAX 101)
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose field value exceeds the target field length.
+  condition_sql: LEN(UUDF1) > 101
+  reference_data: []
+  parameters:
+    max_length: from catalog
+  cross_entity: false
+  legacy_status: active
+  source: UM_Locations Validation.sql:124-132
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: LOC_ZIP_TOO_LONG
+  module: UM00600
+  legacy_issue_text: SZip too long (MAX 11)
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose field value exceeds the target field length.
+  condition_sql: LEN(SZip) > 11
+  reference_data: []
+  parameters:
+    max_length: from catalog
+  cross_entity: false
+  legacy_status: active
+  source: UM_Locations Validation.sql:84-92
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: EQUIP_CLASS_NOT_IN_CSM
+  module: UM00400
+  legacy_issue_text: UMEQUCLSS not in CSM
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose code or key is missing from required staging or CSM reference data.
+  condition_sql: EquClassID NOT IN (SELECT UMEQUCLSS FROM ref.UM40600)
+  reference_data:
+  - CSM equipment classes UM40600
+  parameters: {}
+  cross_entity: true
+  legacy_status: active
+  source: UM_Equipment Validation.sql:72-80
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: EQUIP_DESCRIPTION_TOO_LONG
+  module: UM00400
+  legacy_issue_text: EqDescription too long (MAX 65)
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose field value exceeds the target field length.
+  condition_sql: LEN(EqDescription) > 65
+  reference_data: []
+  parameters:
+    max_length: from catalog
+  cross_entity: false
+  legacy_status: active
+  source: UM_Equipment Validation.sql:144-152
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: EQUIP_DIFF_DIAL_DECIMALS_NUMERIC
+  module: UM00400
+  legacy_issue_text: DifferenceDialDecimals must be numeric
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records where the field must convert to a numeric value.
+  condition_sql: ISNUMERIC(DifferenceDialDecimals) <> 1 AND DifferenceDialDecimals <> ''
+  reference_data: []
+  parameters:
+    allowed_values:
+    - ''
+  cross_entity: false
+  legacy_status: active
+  source: UM_Equipment Validation.sql:205-214
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: EQUIP_DIFF_READING_DIAL_DIGITS_NUMERIC
+  module: UM00400
+  legacy_issue_text: DifferenceReadingsDialDigits must be numeric
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records where the field must convert to a numeric value.
+  condition_sql: ISNUMERIC(DifferenceReadingsDialDigits) <> 1
+  reference_data: []
+  parameters: {}
+  cross_entity: false
+  legacy_status: active
+  source: UM_Equipment Validation.sql:185-193
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: EQUIP_DIFF_READING_DIAL_MULT_NUMERIC
+  module: UM00400
+  legacy_issue_text: DifferenceReadingDialMultiplier must be numeric
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records where the field must convert to a numeric value.
+  condition_sql: ISNUMERIC(DifferenceReadingDialMultiplier) <> 1
+  reference_data: []
+  parameters: {}
+  cross_entity: false
+  legacy_status: active
+  source: UM_Equipment Validation.sql:226-234
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: EQUIP_DUPLICATE_ID
+  module: UM00400
+  legacy_issue_text: Duplicate Equipment ID
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags duplicate keys that would collide in staging or CSM.
+  condition_sql: EquipmentID IN (SELECT EquipmentID FROM stage.UM_EQUIPMENT GROUP BY EquipmentID HAVING count(*) > 1)
+  reference_data: []
+  parameters: {}
+  cross_entity: true
+  legacy_status: active
+  source: UM_Equipment Validation.sql:22-30
+  answer_key_rule: EQUIP_DUPLICATE_ID
+  expected_exclusion_hint: null
+- id: EQUIP_DUPLICATE_REMOTE_ID_STAGE
+  module: UM00400
+  legacy_issue_text: Duplicate Remote ID IN Staging ** WARNING **
+  severity: W
+  severity_evidence: Update sets isvalid to 2 or preserves existing error; loader treats 2 as warning/loadable.
+  description: Flags duplicate keys that would collide in staging or CSM.
+  condition_sql: RemoteID IN (SELECT RemoteID FROM stage.UM_EQUIPMENT GROUP BY RemoteID HAVING count(*) > 1) AND ISNULL(RemoteID,
+    '') <> ''
+  reference_data: []
+  parameters:
+    allowed_values:
+    - ''
+    - ''
+  cross_entity: true
+  legacy_status: active
+  source: UM_Equipment Validation.sql:164-173
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: EQUIP_EQUIPMENT_ID_TOO_LONG
+  module: UM00400
+  legacy_issue_text: EquipmentID too long (MAX 15)
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose field value exceeds the target field length.
+  condition_sql: LEN(EquipmentID) > 15
+  reference_data: []
+  parameters:
+    max_length: from catalog
+  cross_entity: false
+  legacy_status: active
+  source: UM_Equipment Validation.sql:42-50
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: EQUIP_ID_ALREADY_IN_CSM
+  module: UM00400
+  legacy_issue_text: umEquipmentID already in CSM
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Equipment ID already in CSM.
+  condition_sql: EquipmentID IN (SELECT umEquipmentID FROM ref.UM00400)
+  reference_data:
+  - CSM equipment UM00400
+  parameters: {}
+  cross_entity: true
+  legacy_status: active
+  source: UM_Equipment Validation.sql:62-70
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: EQUIP_INSTALLABLE_STATUS_INVALID
+  module: UM00400
+  legacy_issue_text: InstallableStatus value invalid
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records with invalid date, status, code, or type values.
+  condition_sql: InstallableStatus NOT IN ('0', '1')
+  reference_data: []
+  parameters:
+    allowed_values:
+    - '0'
+    - '1'
+  cross_entity: false
+  legacy_status: active
+  source: UM_Equipment Validation.sql:124-132
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: EQUIP_INSTALL_DATE_INVALID
+  module: UM00400
+  legacy_issue_text: Install Date invalid ** WARNING **
+  severity: W
+  severity_evidence: Update sets isvalid to 2 or preserves existing error; loader treats 2 as warning/loadable.
+  description: Flags records with invalid date, status, code, or type values.
+  condition_sql: ISDATE(InstallDate) = 0
+  reference_data: []
+  parameters: {}
+  cross_entity: false
+  legacy_status: active
+  source: UM_Equipment Validation.sql:102-110
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: EQUIP_INVALID_INSTALLATION_STATUS
+  module: UM00400
+  legacy_issue_text: Invalid Installation Status value
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records with invalid date, status, code, or type values.
+  condition_sql: Installed NOT IN ('0', '1')
+  reference_data: []
+  parameters:
+    allowed_values:
+    - '0'
+    - '1'
+  cross_entity: false
+  legacy_status: active
+  source: UM_Equipment Validation.sql:92-100
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: EQUIP_INVALID_SERVICE_CATEGORY
+  module: UM00400
+  legacy_issue_text: Invalid ServiceCategory value
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records with invalid date, status, code, or type values.
+  condition_sql: ServiceCategory NOT IN ('1', '2', '3', '4')
+  reference_data: []
+  parameters:
+    allowed_values:
+    - '1'
+    - '2'
+    - '3'
+    - '4'
+  cross_entity: false
+  legacy_status: active
+  source: UM_Equipment Validation.sql:82-90
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: EQUIP_KW_DIAL_DECIMALS_NUMERIC
+  module: UM00400
+  legacy_issue_text: KWDialDecimals must be numeric
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records where the field must convert to a numeric value.
+  condition_sql: ISNUMERIC(KWDialDecimals) <> 1
+  reference_data: []
+  parameters: {}
+  cross_entity: false
+  legacy_status: active
+  source: UM_Equipment Validation.sql:216-224
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: EQUIP_KW_DIAL_DIGITS_NUMERIC
+  module: UM00400
+  legacy_issue_text: KWDialDigits must be numeric
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records where the field must convert to a numeric value.
+  condition_sql: ISNUMERIC(KWDialDigits) <> 1
+  reference_data: []
+  parameters: {}
+  cross_entity: false
+  legacy_status: active
+  source: UM_Equipment Validation.sql:195-203
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: EQUIP_KW_DIAL_MULT_NUMERIC
+  module: UM00400
+  legacy_issue_text: KWDialMultiplier must be numeric
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records where the field must convert to a numeric value.
+  condition_sql: ISNUMERIC(KWDialMultiplier) <> 1
+  reference_data: []
+  parameters: {}
+  cross_entity: false
+  legacy_status: active
+  source: UM_Equipment Validation.sql:236-244
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: EQUIP_MANUFACTURER_TOO_LONG
+  module: UM00400
+  legacy_issue_text: Manufacturer too long (MAX 31)
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose field value exceeds the target field length.
+  condition_sql: LEN(Manufacturer) > 31
+  reference_data: []
+  parameters:
+    max_length: from catalog
+  cross_entity: false
+  legacy_status: active
+  source: UM_Equipment Validation.sql:134-142
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: EQUIP_MODEL_TOO_LONG
+  module: UM00400
+  legacy_issue_text: MODEL too long (MAX 15) ** WARNING **
+  severity: W
+  severity_evidence: Update sets isvalid to 2 or preserves existing error; loader treats 2 as warning/loadable.
+  description: Flags records whose field value exceeds the target field length.
+  condition_sql: LEN(MODEL) > 15
+  reference_data: []
+  parameters:
+    max_length: from catalog
+  cross_entity: false
+  legacy_status: active
+  source: UM_Equipment Validation.sql:256-264
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: EQUIP_PF_DIAL_MULT_NUMERIC
+  module: UM00400
+  legacy_issue_text: PFDialMultiplier must be numeric
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records where the field must convert to a numeric value.
+  condition_sql: ISNUMERIC(PFDialMultiplier) <> 1
+  reference_data: []
+  parameters: {}
+  cross_entity: false
+  legacy_status: active
+  source: UM_Equipment Validation.sql:246-254
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: EQUIP_PHYSICAL_LOCATION_TOO_LONG
+  module: UM00400
+  legacy_issue_text: PhysicalLocation too long (MAX 65)
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose field value exceeds the target field length.
+  condition_sql: LEN(PhysicalLocation) > 65
+  reference_data: []
+  parameters:
+    max_length: from catalog
+  cross_entity: false
+  legacy_status: active
+  source: UM_Equipment Validation.sql:154-162
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: EQUIP_REMOTE_ID_TOO_LONG
+  module: UM00400
+  legacy_issue_text: Remote ID too long (MAX 15)
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose field value exceeds the target field length.
+  condition_sql: LEN(RemoteID) > 15
+  reference_data: []
+  parameters:
+    max_length: from catalog
+  cross_entity: false
+  legacy_status: active
+  source: UM_Equipment Validation.sql:175-183
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: EQUIP_SERIAL_NO_TOO_LONG
+  module: UM00400
+  legacy_issue_text: SerialNo too long (MAX 31)
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose field value exceeds the target field length.
+  condition_sql: LEN(SerialNo) > 31
+  reference_data: []
+  parameters:
+    max_length: from catalog
+  cross_entity: false
+  legacy_status: active
+  source: UM_Equipment Validation.sql:52-60
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: EQUIP_STATUS_NOT_IN_CSM
+  module: UM00400
+  legacy_issue_text: EquipmentStatus not in CSM
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose code or key is missing from required staging or CSM reference data.
+  condition_sql: convert(smallint, EquipmentStatus) NOT IN (SELECT umEquipStatusID FROM ref.UM00404)
+  reference_data:
+  - CSM equipment statuses UM00404
+  parameters: {}
+  cross_entity: true
+  legacy_status:
+    status: commented_out
+    reason: Legacy block is inside a /* ... */ comment; keep disabled until reviewer confirms it is required.
+  source: UM_Equipment Validation.sql:113-121
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: EQUIP_UM_EQUIPMENT_ID_TOO_LONG
+  module: UM00400
+  legacy_issue_text: umEquipmentID too long (MAX 15)
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose field value exceeds the target field length.
+  condition_sql: LEN(EquipmentID) > 15
+  reference_data: []
+  parameters:
+    max_length: from catalog
+  cross_entity: false
+  legacy_status: active
+  source: UM_Equipment Validation.sql:12-20
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: CONN_DATE_INVALID
+  module: UM00300
+  legacy_issue_text: Conn Date invalid ** WARNING **
+  severity: W
+  severity_evidence: Update sets isvalid to 2 or preserves existing error; loader treats 2 as warning/loadable.
+  description: Flags records with invalid date, status, code, or type values.
+  condition_sql: ISDATE(ConnDate) = 0
+  reference_data: []
+  parameters: {}
+  cross_entity: false
+  legacy_status: active
+  source: UM_Connections Validation.sql:102-110
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: CONN_DISCONN_DATE_INVALID
+  module: UM00300
+  legacy_issue_text: Disconn Date invalid ** WARNING **
+  severity: W
+  severity_evidence: Update sets isvalid to 2 or preserves existing error; loader treats 2 as warning/loadable.
+  description: Flags records with invalid date, status, code, or type values.
+  condition_sql: ISDATE(DisconnDate) = 0 AND DisconnDate IS NOT NULL
+  reference_data: []
+  parameters: {}
+  cross_entity: false
+  legacy_status: active
+  source: UM_Connections Validation.sql:112-121
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: CONN_DUPLICATE
+  module: UM00300
+  legacy_issue_text: Duplicate Connection [Locaiton, Equipment, Alternate, ServiceType]
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags duplicate keys that would collide in staging or CSM.
+  condition_sql: dupe.cnt > 1
+  reference_data: []
+  parameters: {}
+  cross_entity: false
+  legacy_status: active
+  source: UM_Connections Validation.sql:66-80
+  answer_key_rule: CONN_DUPLICATE
+  expected_exclusion_hint: null
+- id: CONN_EQUIPMENT_NOT_FOUND
+  module: UM00300
+  legacy_issue_text: Equipment ID not in Stage or CSM
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose code or key is missing from required staging or CSM reference data.
+  condition_sql: ISNULL(EquipmentID, '') NOT IN (SELECT EquipmentID FROM stage.UM_Equipment WHERE isvalid <> 0) AND ISNULL(EquipmentID,
+    '') NOT IN (SELECT umEquipmentID FROM ref.UM00400) AND ServiceType NOT IN ('DRAINAGE FEES')
+  reference_data:
+  - equipment staging
+  - CSM equipment UM00400
+  parameters:
+    allowed_values:
+    - ''
+    - ''
+    - DRAINAGE FEES
+  cross_entity: true
+  legacy_status: active
+  source: UM_Connections Validation.sql:54-64
+  answer_key_rule: CONN_EQUIPMENT_NOT_FOUND
+  expected_exclusion_hint: null
+- id: CONN_INVALID_CATEGORY
+  module: UM00300
+  legacy_issue_text: Invalid Category value
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records with invalid date, status, code, or type values.
+  condition_sql: Category NOT IN ('1', '2', '3', '6', '11')
+  reference_data: []
+  parameters:
+    allowed_values:
+    - '1'
+    - '2'
+    - '3'
+    - '6'
+    - '11'
+  cross_entity: false
+  legacy_status: active
+  source: UM_Connections Validation.sql:34-42
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: CONN_INVALID_RATE
+  module: UM00300
+  legacy_issue_text: Invalid Rate value [CTAR11]
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records with invalid date, status, code, or type values.
+  condition_sql: CTAR11 NOT IN (select umTariffID from ref.UM41301) AND CTAR11 <> ''
+  reference_data:
+  - CSM tariff/rate setup UM41301
+  parameters:
+    allowed_values:
+    - ''
+  cross_entity: true
+  legacy_status: active
+  source: UM_Connections Validation.sql:133-142
+  answer_key_rule: CONN_INVALID_RATE
+  expected_exclusion_hint: null
+- id: CONN_INVALID_RATE_CTAR12
+  module: UM00300
+  legacy_issue_text: Invalid Rate value [CTAR12]
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records with invalid date, status, code, or type values.
+  condition_sql: CTAR12 NOT IN (select umTariffID from ref.UM41301)
+  reference_data:
+  - CSM tariff/rate setup UM41301
+  parameters: {}
+  cross_entity: true
+  legacy_status:
+    status: commented_out
+    reason: Legacy block is commented with "NOT REQUIRED".
+  source: UM_Connections Validation.sql:144-152
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: CONN_INVALID_SERVICE_TYPE
+  module: UM00300
+  legacy_issue_text: Invalid ServiceType value
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records with invalid date, status, code, or type values.
+  condition_sql: ServiceType NOT IN (select umServiceType from ref.UM41000)
+  reference_data:
+  - CSM service types UM41000
+  parameters: {}
+  cross_entity: true
+  legacy_status: active
+  source: UM_Connections Validation.sql:44-52
+  answer_key_rule: CONN_INVALID_SERVICE_TYPE
+  expected_exclusion_hint: SAMPLE integrity report treats invalid service types as a by-design exclusion (DEMO-41065).
+- id: CONN_INVALID_STATUS
+  module: UM00300
+  legacy_issue_text: Invalid ConnStatus value
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records with invalid date, status, code, or type values.
+  condition_sql: ConnStatus NOT IN (SELECT umBaseConnectionStatus FROM ref.UM40630)
+  reference_data:
+  - CSM connection statuses UM40630
+  parameters: {}
+  cross_entity: true
+  legacy_status: active
+  source: UM_Connections Validation.sql:92-100
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: CONN_INVALID_TARIFF
+  module: UM00300
+  legacy_issue_text: Invalid Rate value [TariffID]
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records with invalid date, status, code, or type values.
+  condition_sql: TariffID NOT IN (select umTariffID from ref.UM41301) AND TariffID <> ''
+  reference_data:
+  - CSM tariff/rate setup UM41301
+  parameters:
+    allowed_values:
+    - ''
+  cross_entity: true
+  legacy_status: active
+  source: UM_Connections Validation.sql:155-164
+  answer_key_rule: CONN_INVALID_TARIFF
+  expected_exclusion_hint: SAMPLE integrity report treats TariffID GRINDER as a by-design exclusion (DEMO-41068).
+- id: CONN_LOCATION_NOT_FOUND
+  module: UM00300
+  legacy_issue_text: Location Code not in Staging or CSM
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose code or key is missing from required staging or CSM reference data.
+  condition_sql: LocationID NOT IN (SELECT LocationID FROM stage.UM_Locations) AND LocationID NOT IN (SELECT umLocationID
+    FROM ref.UM00600)
+  reference_data:
+  - location staging
+  - CSM active locations UM00600
+  parameters: {}
+  cross_entity: true
+  legacy_status: active
+  source: UM_Connections Validation.sql:22-32
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: CONN_LOCATION_NULL
+  module: UM00300
+  legacy_issue_text: Location Code IS NULL
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records where a required key is NULL.
+  condition_sql: LocationID IS NULL
+  reference_data: []
+  parameters: {}
+  cross_entity: false
+  legacy_status: active
+  source: UM_Connections Validation.sql:12-20
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: CONN_ROUTE_NOT_FOUND
+  module: UM00300
+  legacy_issue_text: RouteID not found in CSM ** WARNING **
+  severity: W
+  severity_evidence: Update sets isvalid to 2 or preserves existing error; loader treats 2 as warning/loadable.
+  description: Flags records whose code or key is missing from required staging or CSM reference data.
+  condition_sql: RouteID NOT IN (SELECT RouteID FROM ref.UM40900)
+  reference_data:
+  - CSM routes UM40900
+  parameters: {}
+  cross_entity: true
+  legacy_status: active
+  source: UM_Connections Validation.sql:82-90
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: CONN_SEQNO_NUMERIC
+  module: UM00300
+  legacy_issue_text: SeqNo must be numeric
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records where the field must convert to a numeric value.
+  condition_sql: ISNUMERIC(SEQNO) <> 1
+  reference_data: []
+  parameters: {}
+  cross_entity: false
+  legacy_status: active
+  source: UM_Connections Validation.sql:123-131
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: BAL_AMOUNT_NUMERIC
+  module: UM20400
+  legacy_issue_text: Balance Amount must be numeric
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records where the field must convert to a numeric value.
+  condition_sql: ISNUMERIC(BBAmount) <> 1 WHERE TRY_CAST(BBAmount as numeric(19,5)) IS NULL
+  reference_data: []
+  parameters: {}
+  cross_entity: false
+  legacy_status: active
+  source: UM_BEGBALANCES Validation.sql:48-57
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: BAL_BILL_DATE_INVALID
+  module: UM20400
+  legacy_issue_text: Bill Date invalid
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records with invalid date, status, code, or type values.
+  condition_sql: ISDATE(BBDate) = 0
+  reference_data: []
+  parameters: {}
+  cross_entity: false
+  legacy_status: active
+  source: UM_BEGBALANCES Validation.sql:111-119
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: BAL_BILL_DUE_DATE_INVALID
+  module: UM20400
+  legacy_issue_text: Bill Due Date invalid
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records with invalid date, status, code, or type values.
+  condition_sql: ISDATE(BBDDate) = 0
+  reference_data: []
+  parameters: {}
+  cross_entity: false
+  legacy_status: active
+  source: UM_BEGBALANCES Validation.sql:121-129
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: BAL_CUSTOMER_NOT_FOUND
+  module: UM20400
+  legacy_issue_text: Customer Code NOT in STAGE OR CSM
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose code or key is missing from required staging or CSM reference data.
+  condition_sql: CustomerID NOT IN (SELECT CustomerID FROM stage.UM_Customer) AND CustomerID NOT IN (SELECT custnmbr FROM
+    ref.UMRM0101)
+  reference_data:
+  - customer staging
+  - CSM customers UMRM0101
+  parameters: {}
+  cross_entity: true
+  legacy_status: active
+  source: UM_BEGBALANCES Validation.sql:12-22
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: BAL_CUST_LOC_NOT_FOUND
+  module: UM20400
+  legacy_issue_text: Customer | Location Code NOT in Active or History
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose code or key is missing from required staging or CSM reference data.
+  condition_sql: NOT EXISTS (select * from ref.UM00600 l WHERE b.CustomerID = l.umBillToCust AND b.LocationID = l.umLocationID)
+    AND NOT EXISTS (select * from ref.UM00600H h WHERE b.CustomerID = h.umBillToCust AND b.LocationID = h.umLocationID)
+  reference_data:
+  - CSM location history UM00600H
+  - CSM active locations UM00600
+  parameters: {}
+  cross_entity: true
+  legacy_status: active
+  source: UM_BEGBALANCES Validation.sql:36-46
+  answer_key_rule: BAL_CUST_LOC_NOT_FOUND
+  expected_exclusion_hint: null
+- id: BAL_DESCRIPTION_TOO_LONG
+  module: UM20400
+  legacy_issue_text: Description too long (MAX 30)
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose field value exceeds the target field length.
+  condition_sql: LEN(BBTransDesc) > 30
+  reference_data: []
+  parameters:
+    max_length: from catalog
+  cross_entity: false
+  legacy_status: active
+  source: UM_BEGBALANCES Validation.sql:101-109
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: BAL_LOCATION_NOT_FOUND
+  module: UM20400
+  legacy_issue_text: Location Code NOT in STAGE OR CSM
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose code or key is missing from required staging or CSM reference data.
+  condition_sql: LocationID NOT IN (SELECT LocationID FROM stage.UM_LOCATIONS) AND LocationID NOT IN (SELECT LocationID FROM
+    ref.UM00600)
+  reference_data:
+  - location staging
+  - CSM active locations UM00600
+  parameters: {}
+  cross_entity: true
+  legacy_status: active
+  source: UM_BEGBALANCES Validation.sql:24-34
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: BAL_MISC_CHARGE_CODE_NOT_IN_CSM
+  module: UM20400
+  legacy_issue_text: Misc Charge Code not in CSM
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose code or key is missing from required staging or CSM reference data.
+  condition_sql: BBMisType NOT IN (Select umMiscChargeType from ref.UM40700) AND LEN(BBMisType) > 0
+  reference_data:
+  - CSM miscellaneous charge types UM40700
+  parameters: {}
+  cross_entity: true
+  legacy_status: active
+  source: UM_BEGBALANCES Validation.sql:69-78
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: BAL_MISC_CHARGE_CODE_TOO_LONG
+  module: UM20400
+  legacy_issue_text: Misc Charge Code too long (MAX 15)
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose field value exceeds the target field length.
+  condition_sql: LEN(BBMisType) > 15
+  reference_data: []
+  parameters:
+    max_length: from catalog
+  cross_entity: false
+  legacy_status: active
+  source: UM_BEGBALANCES Validation.sql:59-67
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: BAL_SERVICE_TYPE_NOT_IN_CSM
+  module: UM20400
+  legacy_issue_text: Service Type Code not in CSM
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose code or key is missing from required staging or CSM reference data.
+  condition_sql: BBServiceType NOT IN (Select umServiceType from ref.UM41000) AND LEN(BBServiceType) > 0
+  reference_data:
+  - CSM service types UM41000
+  parameters: {}
+  cross_entity: true
+  legacy_status: active
+  source: UM_BEGBALANCES Validation.sql:90-99
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: BAL_SERVICE_TYPE_TOO_LONG
+  module: UM20400
+  legacy_issue_text: Service Type Code too long (MAX 15)
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose field value exceeds the target field length.
+  condition_sql: LEN(BBServiceType) > 15
+  reference_data: []
+  parameters:
+    max_length: from catalog
+  cross_entity: false
+  legacy_status: active
+  source: UM_BEGBALANCES Validation.sql:80-88
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: BAL_TAX_SCHEDULE_NOT_IN_CSM
+  module: UM20400
+  legacy_issue_text: Tax Schedule Code not in CSM
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose code or key is missing from required staging or CSM reference data.
+  condition_sql: BBMisTaxSchedule NOT IN (Select TAXSCHID from ref.TX00101) AND LEN(BBMisTaxSchedule) > 0
+  reference_data:
+  - GP tax schedules TX00101
+  parameters: {}
+  cross_entity: true
+  legacy_status: active
+  source: UM_BEGBALANCES Validation.sql:141-150
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: BAL_TAX_SCHEDULE_TOO_LONG
+  module: UM20400
+  legacy_issue_text: Tax Schedule Code too long (MAX 15)
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose field value exceeds the target field length.
+  condition_sql: LEN(BBMisTaxSchedule) > 15
+  reference_data: []
+  parameters:
+    max_length: from catalog
+  cross_entity: false
+  legacy_status: active
+  source: UM_BEGBALANCES Validation.sql:131-139
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: DEP_AMOUNT_NUMERIC
+  module: UM01900
+  legacy_issue_text: Deposit Amount must be numeric
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records where the field must convert to a numeric value.
+  condition_sql: ISNUMERIC(DepositAmount) <> 1
+  reference_data: []
+  parameters: {}
+  cross_entity: false
+  legacy_status: active
+  source: UM_DEPOSITS Validation.sql:50-58
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: DEP_AMOUNT_PAID_NUMERIC
+  module: UM01900
+  legacy_issue_text: Deposit Amount Paid must be numeric
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records where the field must convert to a numeric value.
+  condition_sql: ISNUMERIC(DepositAmtPaid) <> 1
+  reference_data: []
+  parameters: {}
+  cross_entity: false
+  legacy_status: active
+  source: UM_DEPOSITS Validation.sql:100-108
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: DEP_CUSTOMER_NOT_FOUND
+  module: UM01900
+  legacy_issue_text: Customer Code NOT in STAGE OR CSM
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose code or key is missing from required staging or CSM reference data.
+  condition_sql: ( CustomerID NOT IN (SELECT CustomerID FROM stage.UM_Customer) AND CustomerID NOT IN (SELECT custnmbr FROM
+    ref.UMRM0101) ) OR CustomerID IS NULL
+  reference_data:
+  - customer staging
+  - CSM customers UMRM0101
+  parameters: {}
+  cross_entity: true
+  legacy_status: active
+  source: UM_DEPOSITS Validation.sql:12-24
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: DEP_CUST_LOC_NOT_FOUND
+  module: UM01900
+  legacy_issue_text: Customer | Location Code NOT in Active or History
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose code or key is missing from required staging or CSM reference data.
+  condition_sql: NOT EXISTS (select * from ref.UM00600 l WHERE b.CustomerID = l.umBillToCust AND b.LocationID = l.umLocationID)
+    AND NOT EXISTS (select * from ref.UM00600H h WHERE b.CustomerID = h.umBillToCust AND b.LocationID = h.umLocationID)
+  reference_data:
+  - CSM location history UM00600H
+  - CSM active locations UM00600
+  parameters: {}
+  cross_entity: true
+  legacy_status: active
+  source: UM_DEPOSITS Validation.sql:38-48
+  answer_key_rule: DEP_CUST_LOC_NOT_FOUND
+  expected_exclusion_hint: null
+- id: DEP_DATE_INVALID
+  module: UM01900
+  legacy_issue_text: Deposit Date invalid
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records with invalid date, status, code, or type values.
+  condition_sql: ISDATE(DepositDate) = 0
+  reference_data: []
+  parameters: {}
+  cross_entity: false
+  legacy_status: active
+  source: UM_DEPOSITS Validation.sql:60-68
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: DEP_ID_NOT_IN_CSM
+  module: UM01900
+  legacy_issue_text: Deposit ID NOT in CSM
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose code or key is missing from required staging or CSM reference data.
+  condition_sql: DepositID NOT IN (SELECT umDepositID FROM ref.UM41930)
+  reference_data:
+  - CSM deposit types UM41930
+  parameters: {}
+  cross_entity: true
+  legacy_status: active
+  source: UM_DEPOSITS Validation.sql:80-88
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: DEP_ID_TOO_LONG
+  module: UM01900
+  legacy_issue_text: Deposit ID too long (MAX 15)
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose field value exceeds the target field length.
+  condition_sql: LEN(DepositID) > 15
+  reference_data: []
+  parameters:
+    max_length: from catalog
+  cross_entity: false
+  legacy_status: active
+  source: UM_DEPOSITS Validation.sql:70-78
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: DEP_LOCATION_NOT_FOUND
+  module: UM01900
+  legacy_issue_text: Location Code NOT in STAGE OR CSM
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose code or key is missing from required staging or CSM reference data.
+  condition_sql: LocationID NOT IN (SELECT LocationID FROM stage.UM_LOCATIONS) AND LocationID NOT IN (SELECT LocationID FROM
+    ref.UM00600)
+  reference_data:
+  - location staging
+  - CSM active locations UM00600
+  parameters: {}
+  cross_entity: true
+  legacy_status: active
+  source: UM_DEPOSITS Validation.sql:26-36
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: DEP_PAYMENT_DATE_INVALID
+  module: UM01900
+  legacy_issue_text: Deposit Payment Date invalid
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records with invalid date, status, code, or type values.
+  condition_sql: ISDATE(DepositPaymentDate) = 0
+  reference_data: []
+  parameters: {}
+  cross_entity: false
+  legacy_status: active
+  source: UM_DEPOSITS Validation.sql:90-98
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: READ_CONSUMPTION_NUMERIC
+  module: UM30300
+  legacy_issue_text: Consumption must be numeric
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records where the field must convert to a numeric value.
+  condition_sql: ISNUMERIC(Consumption1) <> 1
+  reference_data: []
+  parameters: {}
+  cross_entity: false
+  legacy_status: active
+  source: UM_HISTMR Validation.sql:114-122
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: READ_CUSTOMER_NOT_FOUND
+  module: UM30300
+  legacy_issue_text: Customer Code NOT in STAGE OR CSM
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose code or key is missing from required staging or CSM reference data.
+  condition_sql: CustomerID NOT IN (SELECT CustomerID FROM stage.UM_Customer) AND CustomerID NOT IN (SELECT custnmbr FROM
+    ref.UMRM0101)
+  reference_data:
+  - customer staging
+  - CSM customers UMRM0101
+  parameters: {}
+  cross_entity: true
+  legacy_status: active
+  source: UM_HISTMR Validation.sql:22-32
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: READ_CUSTOMER_NULL
+  module: UM30300
+  legacy_issue_text: Customer Code is NULL
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records where a required key is NULL.
+  condition_sql: CustomerID IS NULL
+  reference_data: []
+  parameters: {}
+  cross_entity: false
+  legacy_status: active
+  source: UM_HISTMR Validation.sql:12-20
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: READ_CUST_LOC_NOT_FOUND
+  module: UM30300
+  legacy_issue_text: Customer | Location Code NOT in Active or History
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose code or key is missing from required staging or CSM reference data.
+  condition_sql: NOT EXISTS (select * from ref.UM00600 l WHERE b.CustomerID = l.umBillToCust AND b.LocationID = l.umLocationID)
+    AND NOT EXISTS (select * from ref.UM00600H h WHERE b.CustomerID = h.umBillToCust AND b.LocationID = h.umLocationID)
+  reference_data:
+  - CSM location history UM00600H
+  - CSM active locations UM00600
+  parameters: {}
+  cross_entity: true
+  legacy_status: active
+  source: UM_HISTMR Validation.sql:46-56
+  answer_key_rule: READ_CUST_LOC_NOT_FOUND
+  expected_exclusion_hint: null
+- id: READ_DATE_INVALID
+  module: UM30300
+  legacy_issue_text: Reading Date invalid
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records with invalid date, status, code, or type values.
+  condition_sql: ISDATE(ReadingDate) = 0
+  reference_data: []
+  parameters: {}
+  cross_entity: false
+  legacy_status: active
+  source: UM_HISTMR Validation.sql:84-92
+  answer_key_rule: READ_DATE_INVALID
+  expected_exclusion_hint: null
+- id: READ_EQUIPMENT_ID_OVERRIDE
+  module: UM30300
+  legacy_issue_text: Equipment ID OVERRIDE (' + EquipmentID + ') ** WARNING **
+  severity: W
+  severity_evidence: Update sets isvalid to 2 or preserves existing error; loader treats 2 as warning/loadable.
+  description: validate CUSTOMER AND LOCATION combo in UM00600 (active location) or UM00600H (Location History).
+  condition_sql: EquipmentID NOT IN (SELECT EquipmentID FROM stage.UM_Equipment WHERE isvalid <> 0) AND EquipmentID NOT IN
+    (SELECT umEquipmentID FROM ref.UM00400) AND RIGHT(EquipmentID, 1) = 'D'
+  reference_data:
+  - equipment staging
+  - CSM equipment UM00400
+  parameters:
+    allowed_values:
+    - D
+  cross_entity: true
+  legacy_status: active
+  source: UM_HISTMR Validation.sql:46-71
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: READ_EQUIPMENT_NOT_FOUND
+  module: UM30300
+  legacy_issue_text: Equipment ID not in Stage or CSM
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose code or key is missing from required staging or CSM reference data.
+  condition_sql: EquipmentID NOT IN (SELECT EquipmentID FROM stage.UM_Equipment WHERE isvalid <> 0) AND EquipmentID NOT IN
+    (SELECT umEquipmentID FROM ref.UM00400)
+  reference_data:
+  - equipment staging
+  - CSM equipment UM00400
+  parameters: {}
+  cross_entity: true
+  legacy_status: active
+  source: UM_HISTMR Validation.sql:73-82
+  answer_key_rule: READ_EQUIPMENT_NOT_FOUND
+  expected_exclusion_hint: null
+- id: READ_INVALID_TYPE
+  module: UM30300
+  legacy_issue_text: Invalid Reading Type value
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records with invalid date, status, code, or type values.
+  condition_sql: ReadingType NOT IN ('1', '2', '3', '4', '5', '6', '7', '8')
+  reference_data: []
+  parameters:
+    allowed_values:
+    - '1'
+    - '2'
+    - '3'
+    - '4'
+    - '5'
+    - '6'
+    - '7'
+    - '8'
+  cross_entity: false
+  legacy_status: active
+  source: UM_HISTMR Validation.sql:94-102
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: READ_LOCATION_NOT_FOUND
+  module: UM30300
+  legacy_issue_text: Location Code NOT in STAGE OR CSM
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose code or key is missing from required staging or CSM reference data.
+  condition_sql: LocationID NOT IN (SELECT LocationID FROM stage.UM_LOCATIONS) AND LocationID NOT IN (SELECT LocationID FROM
+    ref.UM00600)
+  reference_data:
+  - location staging
+  - CSM active locations UM00600
+  parameters: {}
+  cross_entity: true
+  legacy_status: active
+  source: UM_HISTMR Validation.sql:34-44
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: READ_READING_NUMERIC
+  module: UM30300
+  legacy_issue_text: Reading must be numeric
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records where the field must convert to a numeric value.
+  condition_sql: ISNUMERIC(Reading) <> 1
+  reference_data: []
+  parameters: {}
+  cross_entity: false
+  legacy_status: active
+  source: UM_HISTMR Validation.sql:104-112
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: NOTE_CUSTOMER_NOT_FOUND
+  module: UMACCTNOTE
+  legacy_issue_text: Customer Code NOT in STAGE OR CSM
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose code or key is missing from required staging or CSM reference data.
+  condition_sql: CUSTNMBR NOT IN (SELECT LegacyAcctNo FROM stage.UM_Customer) AND CUSTNMBR NOT IN (SELECT custnmbr FROM ref.UMRM0101)
+  reference_data:
+  - customer staging
+  - CSM customers UMRM0101
+  parameters: {}
+  cross_entity: true
+  legacy_status: active
+  source: UM_AcctNote Validation.sql:12-22
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: NOTE_DATE_COMPLETED_INVALID
+  module: UMACCTNOTE
+  legacy_issue_text: Date Completed invalid
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records with invalid date, status, code, or type values.
+  condition_sql: ISDATE(umDateCompleted) = 0
+  reference_data: []
+  parameters: {}
+  cross_entity: false
+  legacy_status: active
+  source: UM_AcctNote Validation.sql:54-62
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: NOTE_DESCRIPTION_TOO_LONG
+  module: UMACCTNOTE
+  legacy_issue_text: Description too long (MAX 61)
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose field value exceeds the target field length.
+  condition_sql: LEN(umDescr01) > 61
+  reference_data: []
+  parameters:
+    max_length: from catalog
+  cross_entity: false
+  legacy_status: active
+  source: UM_AcctNote Validation.sql:24-32
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: NOTE_DOCUMENT_DATE_INVALID
+  module: UMACCTNOTE
+  legacy_issue_text: Document Date invalid
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records with invalid date, status, code, or type values.
+  condition_sql: ISDATE(umDocDate) = 0
+  reference_data: []
+  parameters: {}
+  cross_entity: false
+  legacy_status: active
+  source: UM_AcctNote Validation.sql:44-52
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: NOTE_LOCATION_NOT_FOUND
+  module: UMACCTNOTE
+  legacy_issue_text: Location Code NOT in STAGE OR CSM
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose code or key is missing from required staging or CSM reference data.
+  condition_sql: umLocationID NOT IN (SELECT Legacy_Loc_ID FROM stage.UM_LOCATIONS) AND umLocationID NOT IN (SELECT umLocationID
+    FROM ref.UM00600)
+  reference_data:
+  - location staging
+  - CSM active locations UM00600
+  parameters: {}
+  cross_entity: true
+  legacy_status: active
+  source: UM_AcctNote Validation.sql:64-74
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: NOTE_TIME_START_INVALID
+  module: UMACCTNOTE
+  legacy_issue_text: Time Start invalid
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records with invalid date, status, code, or type values.
+  condition_sql: ISDATE(umTimeStart) = 0
+  reference_data: []
+  parameters: {}
+  cross_entity: false
+  legacy_status: active
+  source: UM_AcctNote Validation.sql:76-84
+  answer_key_rule: null
+  expected_exclusion_hint: null
+- id: NOTE_USER_ID_TOO_LONG
+  module: UMACCTNOTE
+  legacy_issue_text: User ID too long (MAX 15)
+  severity: E
+  severity_evidence: Update sets isvalid = 0; display selects isvalid <> 1 and loader skips errors.
+  description: Flags records whose field value exceeds the target field length.
+  condition_sql: LEN(UserID) > 15
+  reference_data: []
+  parameters:
+    max_length: from catalog
+  cross_entity: false
+  legacy_status: active
+  source: UM_AcctNote Validation.sql:34-42
+  answer_key_rule: null
+  expected_exclusion_hint: null

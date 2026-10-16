@@ -1,0 +1,1159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Connected data workflows with Microsoft</title>
+<style>
+  :root {
+    --ink:#0F172A; --text:#334155; --muted:#475569; --line:#E2E8F0; --page:#F1F5F9; --card:#FFFFFF;
+    --old:#B45309; --old-bg:#FFF7ED; --old-ink:#7C2D12;
+    --new:#0F766E; --new-bg:#ECFDF5; --new-ink:#064E3B;
+    --navy:#0F172A; --focus:#2563EB;
+    --rec:#92400E; --rec-bg:#FEF3C7; --mea:#065F46; --mea-bg:#D1FAE5; --est:#5B21B6; --est-bg:#EDE9FE;
+  }
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body { margin:0; background:var(--page); color:var(--ink); font-family:"Segoe UI", system-ui, -apple-system, sans-serif; font-size:15px; line-height:1.5; }
+  :focus-visible { outline:3px solid var(--focus); outline-offset:2px; border-radius:4px; }
+  .sr-only { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+  code { font-family:Consolas, "Cascadia Mono", monospace; font-size:.88em; background:#F8FAFC; border:1px solid var(--line); border-radius:4px; padding:0 4px; overflow-wrap:anywhere; }
+  button { font:inherit; cursor:pointer; }
+
+  /* top bar */
+  .top { position:sticky; top:0; z-index:5; background:var(--navy); color:#fff; padding:10px 22px 0; }
+  .top-row { display:flex; flex-wrap:wrap; align-items:center; gap:8px 18px; }
+  .brand { margin-right:auto; }
+  .brand b { display:block; font-size:16px; font-weight:600; }
+  .brand span { font-size:12.5px; color:#CBD5E1; }
+  .tools { display:flex; flex-wrap:wrap; align-items:center; gap:8px 14px; font-size:13px; }
+  .tools label { display:flex; align-items:center; gap:6px; color:#E2E8F0; cursor:pointer; }
+  .tools input { width:16px; height:16px; accent-color:#2DD4BF; }
+  .tools a { color:#99F6E4; text-decoration:none; }
+  .tools a:hover { text-decoration:underline; }
+  .rail { display:flex; gap:4px; overflow-x:auto; padding:10px 0 0; scrollbar-width:thin; }
+  .rail button { flex:1 0 auto; min-width:74px; background:transparent; border:0; border-bottom:3px solid #334155; color:#CBD5E1; padding:4px 8px 7px; font-size:12.5px; text-align:left; white-space:nowrap; }
+  .rail button .n { display:inline-block; min-width:18px; font-weight:600; color:#fff; }
+  .rail button.done { border-bottom-color:#2DD4BF; }
+  .rail button.on { border-bottom-color:#5EEAD4; color:#fff; background:#1E293B; border-radius:6px 6px 0 0; }
+  .rail button:hover { color:#fff; }
+
+  /* screens */
+  main { max-width:1200px; margin:0 auto; padding:22px 24px 110px; outline:none; }
+  .screen { animation:enter .35s ease both; }
+  @keyframes enter { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+  .kicker { font-size:12.5px; font-weight:600; letter-spacing:.4px; text-transform:uppercase; color:var(--new); }
+  h1 { font-size:28px; line-height:1.25; font-weight:600; margin:4px 0 6px; outline:none; }
+  h2.sec { font-size:17px; font-weight:600; margin:24px 0 10px; }
+  .why { font-size:16px; color:var(--text); margin:0 0 18px; max-width:880px; }
+  .lead { font-size:16px; color:var(--text); max-width:900px; margin:6px 0 0; }
+  .icon { font-size:.95em; margin-right:6px; }
+
+  /* today vs new */
+  .compare { display:grid; grid-template-columns:1fr; gap:14px; }
+  @media (min-width:900px) { .compare { grid-template-columns:1fr 1fr; } }
+  .side { background:var(--card); border:1px solid var(--line); border-top:5px solid var(--c); border-radius:10px; padding:14px 18px 12px; }
+  .side.old { --c:var(--old); }
+  .side.new { --c:var(--new); }
+  .tag { display:inline-flex; flex-wrap:wrap; align-items:center; gap:6px; font-size:12.5px; font-weight:600; border-radius:999px; padding:3px 10px; }
+  .old .tag { background:var(--old-bg); color:var(--old-ink); }
+  .new .tag { background:var(--new-bg); color:var(--new-ink); }
+  .tag i { font-style:normal; font-weight:400; }
+  .side p.plain { margin:10px 0 8px; color:var(--ink); }
+  .facts { margin:0; padding-left:18px; color:var(--text); font-size:14px; }
+  .facts li { margin:3px 0; }
+
+  /* value tiles */
+  .metrics { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:12px; }
+  .metric { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px 14px; display:flex; flex-direction:column; }
+  .m-label { font-size:13.5px; font-weight:600; color:var(--muted); }
+  .m-row { display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); align-items:start; gap:8px; margin:8px 0 6px; }
+  .m-k { display:block; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.4px; color:var(--muted); }
+  .m-v { display:block; font-size:24px; font-weight:600; line-height:1.15; overflow-wrap:anywhere; }
+  .m-v.mid { font-size:19px; white-space:nowrap; overflow-wrap:normal; }
+  .m-v.long { font-size:16px; line-height:1.25; }
+  .m-before .m-v { color:var(--old-ink); }
+  .m-after .m-v { color:var(--new); }
+  .m-arrow { font-size:20px; color:#94A3B8; align-self:center; padding-top:12px; }
+  .m-note { font-size:12.5px; color:var(--text); margin-top:auto; }
+  .m-src { display:flex; flex-wrap:wrap; gap:4px 6px; margin-top:8px; }
+  .src { display:inline-block; font-size:11px; font-weight:600; border-radius:999px; padding:1px 8px; white-space:nowrap; }
+  .src.record { background:var(--rec-bg); color:var(--rec); }
+  .src.measured { background:var(--mea-bg); color:var(--mea); }
+  .src.scenario { background:var(--est-bg); color:var(--est); }
+
+  /* under the hood */
+  .hood-btn { margin-top:20px; display:inline-flex; align-items:center; gap:8px; background:#fff; color:var(--ink); border:1px solid #CBD5E1; border-radius:8px; padding:9px 14px; font-weight:600; }
+  .hood-btn:hover { border-color:var(--new); color:var(--new); }
+  .hood-btn .chev { transition:transform .2s; display:inline-block; }
+  .hood-btn[aria-expanded="true"] .chev { transform:rotate(90deg); }
+  .hood { margin-top:12px; background:#fff; border:1px solid var(--line); border-radius:10px; padding:16px 18px; background-image:radial-gradient(#E2E8F0 1px, transparent 1px); background-size:16px 16px; }
+  .hood[hidden] { display:none; }
+  .lanes { display:grid; grid-template-columns:1fr; gap:16px; align-items:start; }
+  @media (min-width:900px) { .lanes { grid-template-columns:1fr 1fr; } }
+  .lane { background:rgba(255,255,255,.94); border:1px solid var(--line); border-radius:8px; padding:12px 14px; }
+  .lane h3 { margin:0 0 10px; font-size:14px; font-weight:600; }
+  .lane.old h3 { color:var(--old-ink); }
+  .lane.new h3 { color:var(--new-ink); }
+  .pipe { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:18px; }
+  .pipe li { position:relative; border:1px solid var(--c); background:var(--bg); color:var(--ink); border-radius:8px; padding:6px 10px; font-size:13.5px; }
+  .lane.old .pipe li { --c:#F59E0B; --bg:#FFFBEB; }
+  .lane.new .pipe li { --c:#14B8A6; --bg:#F0FDFA; }
+  .pipe li:not(:last-child)::after { content:""; position:absolute; left:22px; bottom:-18px; width:2px; height:18px; background:var(--c); }
+  .pipe li:not(:last-child)::before { content:""; position:absolute; left:18px; bottom:-19px; border:5px solid transparent; border-top-color:var(--c); border-bottom:0; z-index:1; }
+  .hood.flow .pipe li { animation:flow .45s ease both; animation-delay:calc(var(--i) * 110ms); }
+  @keyframes flow { from { opacity:0; transform:translateX(-6px); } to { opacity:1; transform:none; } }
+  .notes { margin:12px 0 0; padding-left:18px; font-size:13.5px; color:var(--text); }
+  .notes li { margin:4px 0; }
+  .prod { margin-top:14px; background:#EFF6FF; border:1px solid #BFDBFE; border-radius:8px; padding:10px 14px; font-size:13.5px; color:#1E3A8A; }
+
+  /* intro and summary */
+  .hero { background:#fff; border:1px solid var(--line); border-radius:12px; padding:22px 24px; }
+  .stats { display:grid; grid-template-columns:repeat(auto-fit, minmax(190px, 1fr)); gap:12px; margin-top:18px; }
+  .stat { background:var(--page); border-radius:10px; padding:12px 14px; }
+  .stat b { display:block; font-size:28px; font-weight:600; line-height:1.15; }
+  .stat .st { display:block; font-size:13px; color:var(--text); margin:2px 0 6px; }
+  .journey { display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:12px; }
+  .jcard { text-align:left; background:#fff; border:1px solid var(--line); border-radius:10px; padding:12px 14px; color:var(--ink); }
+  .jcard:hover { border-color:var(--new); box-shadow:0 2px 10px rgba(15,23,42,.08); }
+  .jcard .jn { font-size:12px; font-weight:600; color:var(--muted); }
+  .jcard b { display:block; font-size:15.5px; margin:2px 0 6px; }
+  .jcard .jt { display:block; font-size:13px; color:var(--old-ink); }
+  .jcard .jw { display:block; font-size:13px; color:var(--new-ink); margin-top:3px; }
+  .legend { display:flex; flex-wrap:wrap; gap:8px 18px; font-size:13px; color:var(--text); margin-top:10px; }
+  .legend div { display:flex; gap:6px; align-items:baseline; max-width:360px; }
+  .cta { margin-top:18px; background:var(--new); color:#fff; border:0; border-radius:8px; padding:11px 18px; font-weight:600; font-size:15px; }
+  .cta:hover { background:#115E59; }
+  table.sum { width:100%; border-collapse:collapse; background:#fff; border:1px solid var(--line); border-radius:10px; overflow:hidden; font-size:14px; }
+  .sum th { text-align:left; background:#F8FAFC; color:var(--muted); font-weight:600; font-size:13px; padding:9px 12px; border-bottom:1px solid var(--line); }
+  .sum td { padding:9px 12px; border-bottom:1px solid var(--line); vertical-align:top; }
+  .sum td:first-child { white-space:nowrap; }
+  .sum td.t { color:var(--old-ink); }
+  .sum td.w { color:var(--new-ink); }
+  .sum td.v { font-weight:600; color:var(--new); }
+  .sum tr:last-child td { border-bottom:0; }
+  .sum button { background:none; border:0; padding:0; color:var(--ink); font-weight:600; text-align:left; }
+  .sum button:hover { color:var(--new); text-decoration:underline; }
+  .scroll { overflow-x:auto; }
+  .people { display:grid; grid-template-columns:repeat(auto-fit, minmax(230px, 1fr)); gap:12px; }
+  .person { background:#fff; border:1px solid var(--line); border-left:4px solid #6366F1; border-radius:8px; padding:10px 14px; font-size:14px; }
+  .person b { display:block; }
+  .stack { display:grid; grid-template-columns:minmax(0,1fr); gap:8px; }
+  @media (min-width:900px) { .stack { grid-template-columns:minmax(0,1fr) 230px; } }
+  .layers { display:flex; flex-direction:column; gap:6px; }
+  .layer { display:grid; grid-template-columns:200px minmax(0,1fr); gap:10px; align-items:center; background:#fff; border:1px solid var(--line); border-left:5px solid var(--c); border-radius:8px; padding:8px 12px; font-size:14px; }
+  .layer b { font-size:14px; }
+  @media (max-width:640px) { .layer { grid-template-columns:1fr; } }
+  .guard { background:#F5F3FF; border:1px solid #DDD6FE; border-radius:8px; padding:12px 14px; font-size:13.5px; color:#3B0764; }
+  .guard ul { margin:6px 0 0; padding-left:18px; }
+  .footnote { font-size:12.5px; color:var(--muted); margin-top:20px; max-width:980px; }
+
+  /* bottom controls */
+  .controls { position:fixed; left:0; right:0; bottom:0; z-index:5; background:rgba(255,255,255,.96); border-top:1px solid var(--line); backdrop-filter:blur(4px); }
+  .controls-in { max-width:1200px; margin:0 auto; padding:10px 24px; display:flex; align-items:center; gap:12px; }
+  .controls .pos { flex:1; text-align:center; font-size:13.5px; color:var(--muted); }
+  .nav { background:#fff; border:1px solid #CBD5E1; border-radius:8px; padding:8px 16px; font-weight:600; color:var(--ink); min-width:110px; }
+  .nav.next { background:var(--new); border-color:var(--new); color:#fff; }
+  .nav:disabled { opacity:.4; cursor:default; }
+  .keys { font-size:12px; color:#64748B; }
+  @media (max-width:700px) { .keys { display:none; } h1 { font-size:23px; } main { padding:16px 14px 100px; } }
+
+  /* one-page / print */
+  .allstep { margin-top:34px; padding-top:20px; border-top:2px solid var(--line); }
+  @media print {
+    .top, .controls, .hood-btn { display:none !important; }
+    body { background:#fff; font-size:12.5px; }
+    main { padding:0; max-width:none; }
+    .hood { display:block !important; background-image:none; }
+    .allstep { break-before:page; border-top:0; }
+    .screen { animation:none; }
+  }
+  @media (prefers-reduced-motion:reduce) { .screen, .hood.flow .pipe li { animation:none; } html { scroll-behavior:auto; } }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-row">
+    <div class="brand"><b>Connected data workflows</b><span>A Microsoft capability walkthrough · illustrative prototype evidence</span></div>
+    <div class="tools">
+      <label><input type="checkbox" id="plumbAll"> Show how it works on every step</label>
+      <a href="#all" id="allLink">All steps on one page</a>
+    </div>
+  </div>
+  <nav class="rail" id="rail" aria-label="Walkthrough steps"></nav>
+</header>
+<main id="main" tabindex="-1"><noscript>This walkthrough needs JavaScript. Open it in a web browser such as Microsoft Edge.</noscript></main>
+<div class="controls" id="controls">
+  <div class="controls-in">
+    <button class="nav back" id="back" type="button">← Back</button>
+    <div class="pos"><span id="pos"></span> <span class="keys">· arrow keys to move · P for how it works</span></div>
+    <button class="nav next" id="next" type="button">Next →</button>
+  </div>
+</div>
+<div class="sr-only" aria-live="polite" id="announce"></div>
+<script>
+"use strict";
+/* Sources for every number on these pages */
+const SOURCES = {
+  "record": {
+    "label": "Documented baseline",
+    "title": "Manual activities documented in the source workflow. This is context, not a matched end-to-end benchmark."
+  },
+  "measured": {
+    "label": "Prototype measurement",
+    "title": "Observed using de-identified example data in the deployed prototype. Timings include notebook startup where applicable; human review is not timed. Not a customer guarantee."
+  },
+  "scenario": {
+    "label": "Simulated example",
+    "title": "A deliberately changed second batch illustrates how the workflow responds. It is not a measured customer saving."
+  }
+};
+
+const STEPS = [
+  {
+    "short": "Bring data together",
+    "icon": "📥",
+    "title": "Bring data together",
+    "why": "Give your team one place to start, while keeping the original files unchanged.",
+    "card": {
+      "today": "Prepare and reconnect files by hand",
+      "now": "Keep each batch together in one place"
+    },
+    "sum": {
+      "today": "Manual file preparation and setup",
+      "now": "Reusable file discovery in OneLake",
+      "value": "3 example files per batch"
+    },
+    "old": {
+      "text": "Files arrive in different places. Someone opens them, checks the format and adjusts the import settings before work can begin. The setup has to be repeated when the next set arrives.",
+      "facts": [
+        "Extra handling can change a value or lose its original formatting.",
+        "The team needs to know which files belong to which run."
+      ]
+    },
+    "neu": {
+      "service": "Microsoft Fabric · OneLake",
+      "text": "Put a batch of files in a shared location. The workflow finds the supported files and reads identifiers as text, so there is no need to reopen them just to change number formatting. The originals stay available for checking.",
+      "facts": [
+        "One location for each batch, with the original files preserved.",
+        "A person still supplies the files and chooses when to run the prototype."
+      ]
+    },
+    "metrics": [
+      {
+        "label": "File types demonstrated",
+        "before": "Manual setup",
+        "after": "3 files",
+        "src": [
+          "record",
+          "measured"
+        ],
+        "note": "Three example extracts are processed together. Automatic collection from source systems is a production extension."
+      },
+      {
+        "label": "Spreadsheet format edits before processing",
+        "before": "Required",
+        "after": "0",
+        "src": [
+          "record",
+          "measured"
+        ],
+        "note": "The prototype reads its supported extracts directly. This does not mean every file format needs no preparation."
+      }
+    ],
+    "hood": {
+      "old": {
+        "chips": [
+          "Receive files",
+          "Open and adjust formatting",
+          "Choose import files",
+          "Preview the import"
+        ],
+        "notes": [
+          "Manual setup connects the new files to the existing import process."
+        ]
+      },
+      "neu": {
+        "chips": [
+          "Place files in a batch folder",
+          "Keep originals in OneLake",
+          "Find files by their supported name pattern",
+          "Read values without editing the files"
+        ],
+        "notes": [
+          "OneLake is the shared storage behind Fabric. Processing reads the stored files; it does not rewrite them."
+        ]
+      },
+      "prod": "**For production:** connect approved source systems, check that all expected files arrived, and apply access and retention policies."
+    }
+  },
+  {
+    "short": "Make data usable",
+    "icon": "🧩",
+    "title": "Turn files into usable data",
+    "why": "Turn report-style files into clean rows that systems can work with.",
+    "card": {
+      "today": "Clean report layouts in a spreadsheet",
+      "now": "Run the same preparation steps automatically"
+    },
+    "sum": {
+      "today": "Remove headers and rearrange rows by hand",
+      "now": "Repeatable preparation in a Fabric notebook",
+      "value": "51–63 s observed"
+    },
+    "old": {
+      "text": "A report is designed to be read, not imported. It can contain page headings, blank lines and two items printed side by side. Someone has to tidy those layouts and fill missing identifiers before the data is usable.",
+      "facts": [
+        "Spreadsheet cleanup is repeated for each new batch.",
+        "A missed line or missing identifier can affect later results."
+      ]
+    },
+    "neu": {
+      "service": "Microsoft Fabric · Notebooks",
+      "text": "A small processing program removes report-only lines, fills repeated identifiers where the report layout requires it, and separates side-by-side items into individual rows. It repeats those same preparation rules each time.",
+      "facts": [
+        "Prepared rows keep a link to their source file and line.",
+        "Preparation rules are written for the demonstrated file layouts; new layouts need review."
+      ]
+    },
+    "metrics": [
+      {
+        "label": "Preparation activity",
+        "before": "Not timed",
+        "after": "51–63 s",
+        "src": [
+          "record",
+          "measured"
+        ],
+        "note": "Observed across four prototype runs, including notebook startup. There is no matched manual-time benchmark."
+      },
+      {
+        "label": "Report-only lines removed",
+        "before": "Manual filtering",
+        "after": "1,981 lines",
+        "src": [
+          "record",
+          "measured"
+        ],
+        "note": "The example service report becomes 22,047 usable service rows after layout cleanup and splitting paired entries."
+      }
+    ],
+    "hood": {
+      "old": {
+        "chips": [
+          "Open a report in a spreadsheet",
+          "Remove headings and blank lines",
+          "Fill repeated identifiers",
+          "Split paired entries",
+          "Save an import file"
+        ],
+        "notes": [
+          "A person follows the report's layout and performs each transformation."
+        ]
+      },
+      "neu": {
+        "chips": [
+          "Read the source text",
+          "Identify data lines",
+          "Carry identifiers through the report layout",
+          "Split paired items into rows",
+          "Keep source-line references"
+        ],
+        "notes": [
+          "A Fabric notebook runs Python preparation logic. It is repeatable code, not an AI guess about individual records."
+        ]
+      },
+      "prod": "**For production:** add layout checks and regression tests so an unexpected source-file change stops the run instead of producing misleading data."
+    }
+  },
+  {
+    "short": "Create a shared view",
+    "icon": "🗂️",
+    "title": "Prepare data in a shared platform",
+    "why": "Give processing, review and reporting a consistent place to work.",
+    "card": {
+      "today": "Move data through separate import steps",
+      "now": "Store prepared rows and results together"
+    },
+    "sum": {
+      "today": "Separate import tools and intermediate copies",
+      "now": "Shared structured data in Fabric SQL",
+      "value": "264 → 35 s for one write"
+    },
+    "old": {
+      "text": "Import tools map fields and move the data through intermediate tables. The team may need to follow several scripts and copies to understand where a record is now.",
+      "facts": [
+        "Each transfer adds setup and a place to troubleshoot.",
+        "Field mappings and relationships still need careful design."
+      ]
+    },
+    "neu": {
+      "service": "Microsoft Fabric · SQL database",
+      "text": "Store prepared rows in structured tables, alongside their checks and processing status. Your team can review the data, and the rest of the workflow can use the same prepared results.",
+      "facts": [
+        "Each batch has its own identity and record status.",
+        "Files stay in OneLake; structured working data sits in the SQL database."
+      ]
+    },
+    "metrics": [
+      {
+        "label": "Same prototype database write",
+        "before": "264 s",
+        "after": "35 s",
+        "beforeLabel": "One row at a time",
+        "afterLabel": "Grouped writes",
+        "src": [
+          "measured",
+          "measured"
+        ],
+        "note": "Changing one-row-at-a-time writes to grouped writes made this tested write about 7.5× faster. This is not an end-to-end migration speedup."
+      }
+    ],
+    "hood": {
+      "old": {
+        "chips": [
+          "Map fields in an import tool",
+          "Write intermediate tables",
+          "Run preparation scripts",
+          "Build working tables"
+        ],
+        "notes": [
+          "Mappings define how source fields become fields in the destination layout."
+        ]
+      },
+      "neu": {
+        "chips": [
+          "Map supported fields in code",
+          "Group rows for efficient writes",
+          "Insert into structured SQL tables",
+          "Share batch and record status"
+        ],
+        "notes": [
+          "The notebook sends groups of rows to the database rather than making a separate request for every row."
+        ]
+      },
+      "prod": "**For production:** extend field mappings, define retry and duplicate-handling rules, and size the platform against realistic volumes."
+    }
+  },
+  {
+    "short": "Check quality",
+    "icon": "✅",
+    "title": "Apply consistent quality checks",
+    "why": "Catch problems before they reach the destination, using agreed rules.",
+    "card": {
+      "today": "Run separate scripts and inspect failures",
+      "now": "Apply checks and record the outcome"
+    },
+    "sum": {
+      "today": "Separate validation scripts",
+      "now": "Shared rules and recorded issues",
+      "value": "45,521 rows checked"
+    },
+    "old": {
+      "text": "The team runs validation scripts and reads the failures. Checks may be spread across modules, so changing a rule can mean editing a script and keeping track of which version was used.",
+      "facts": [
+        "The business still decides which checks are appropriate.",
+        "Failed records need a clear reason and a route back to the source."
+      ]
+    },
+    "neu": {
+      "service": "Microsoft Fabric · SQL database",
+      "text": "Run the demonstrated checks together and record which rows passed or were held back. Supported rules can be enabled or disabled in a shared rule table. Everyone can see the reason for a failure.",
+      "facts": [
+        "Five simplified rules demonstrate the capability.",
+        "Adding a new kind of check can still require new code and testing."
+      ]
+    },
+    "metrics": [
+      {
+        "label": "Example batch quality result",
+        "before": "Separate checks",
+        "after": "45,521 rows",
+        "src": [
+          "record",
+          "measured"
+        ],
+        "note": "37,188 passed the demonstrated rules; 8,333 were held back. Passing these five checks is not proof of complete business validity."
+      },
+      {
+        "label": "Quality-check activity",
+        "before": "Not timed",
+        "after": "21–39 s",
+        "src": [
+          "record",
+          "measured"
+        ],
+        "note": "Observed across four prototype runs, including notebook startup."
+      }
+    ],
+    "hood": {
+      "old": {
+        "chips": [
+          "Choose validation scripts",
+          "Run each module's checks",
+          "Read failure lists",
+          "Track changes to scripts"
+        ],
+        "notes": [
+          "Checks test field formats, relationships and other agreed business conditions."
+        ]
+      },
+      "neu": {
+        "chips": [
+          "Read active rule settings",
+          "Run supported checks in SQL",
+          "Record each issue",
+          "Mark passing and held-back rows",
+          "Group common issues"
+        ],
+        "notes": [
+          "A SQL procedure evaluates the implemented rules. AI does not decide whether a row passes these checks."
+        ]
+      },
+      "prod": "**For production:** build and test the full rule library, approve rule changes, and verify results against known business outcomes."
+    }
+  },
+  {
+    "short": "Focus attention with AI",
+    "icon": "💡",
+    "title": "Focus attention with AI",
+    "why": "Help reviewers understand repeated issues without handing decisions to AI.",
+    "card": {
+      "today": "Read failures and draft explanations",
+      "now": "Review grouped issues with AI suggestions"
+    },
+    "sum": {
+      "today": "Explain repeated failures manually",
+      "now": "AI-assisted summaries for human review",
+      "value": "9 groups; 225 flagged rows"
+    },
+    "old": {
+      "text": "A reviewer reads the failures, works out which are expected and explains what needs fixing. Many rows may have the same cause, but the reviewer still needs to connect them to the agreed business decisions.",
+      "facts": [
+        "A long failure list is not the same as a long action list.",
+        "People decide what is acceptable and what needs correction."
+      ]
+    },
+    "neu": {
+      "service": "Azure AI Foundry",
+      "text": "AI reads grouped issue codes, counts and documented decisions, then proposes plain-language explanations and next actions. A person reviews the suggestions. AI does not change source data, approve a load or release held-back rows.",
+      "facts": [
+        "The demonstrated prompt uses issue metadata, not raw personal records.",
+        "A personal-data check runs before the request is sent to the regional model."
+      ]
+    },
+    "metrics": [
+      {
+        "label": "Issues organised for review",
+        "before": "8,333 held rows",
+        "after": "9 groups",
+        "beforeLabel": "Example input",
+        "afterLabel": "Review groups",
+        "src": [
+          "measured",
+          "measured"
+        ],
+        "note": "The same prototype batch is grouped before AI explains it; this is not a timed traditional-workflow comparison. Reviewers can still investigate individual records."
+      },
+      {
+        "label": "AI-proposed action split",
+        "before": "8,333 held rows",
+        "after": "225 flagged",
+        "beforeLabel": "Example input",
+        "afterLabel": "Suggested action",
+        "src": [
+          "measured",
+          "measured"
+        ],
+        "note": "AI proposed 8,108 as expected exclusions and 225 as needing action: about 2.7% of held rows. All 8,333 remain held back; the suggestions need review."
+      }
+    ],
+    "hood": {
+      "old": {
+        "chips": [
+          "Read failure rows",
+          "Look up agreed decisions",
+          "Identify repeated causes",
+          "Write explanations and correction requests"
+        ],
+        "notes": [
+          "Review effort includes understanding the reason, not just counting failures."
+        ]
+      },
+      "neu": {
+        "chips": [
+          "Group issues by rule and code",
+          "Add documented decision context",
+          "Check prompt for personal data",
+          "Ask the regional AI model for explanations",
+          "Save suggestions for human review"
+        ],
+        "notes": [
+          "The model returns structured suggestions. The prototype records the request metadata and response for review."
+        ]
+      },
+      "prod": "**For production:** evaluate suggestion quality, govern the approved context, and require human review before any business action."
+    }
+  },
+  {
+    "short": "See progress",
+    "icon": "📊",
+    "title": "See progress and reconcile",
+    "why": "Make it easy to see what arrived, what passed and what still needs attention.",
+    "card": {
+      "today": "Collect counts and write a status report",
+      "now": "Read shared results in Power BI"
+    },
+    "sum": {
+      "today": "Manual counts and report assembly",
+      "now": "Connected progress and reconciliation view",
+      "value": "0 tested variance"
+    },
+    "old": {
+      "text": "The team gathers counts and amounts from different screens, checks that they add up and writes a status report. By the time it is shared, another run may have changed the results.",
+      "facts": [
+        "Counts must balance so records are not lost.",
+        "Financial totals are checked separately from record counts."
+      ]
+    },
+    "neu": {
+      "service": "Power BI · Direct Lake",
+      "text": "A shared report shows passing rows, held-back rows, issue groups and recorded loads. Counts and balance totals can be compared in the same view. The report reads the database's automatically mirrored data in OneLake.",
+      "facts": [
+        "Before loading: received = passing + held back.",
+        "After the tested load: received = loaded + held back."
+      ]
+    },
+    "metrics": [
+      {
+        "label": "Tested reconciliation difference",
+        "before": "Manual check",
+        "after": "0 variance",
+        "src": [
+          "record",
+          "measured"
+        ],
+        "note": "The example reconciled record counts and a $1,036,502.09 balance total. Matching totals do not prove every field is correct."
+      },
+      {
+        "label": "Report visibility after a tested load",
+        "before": "Manual update",
+        "after": "18 s",
+        "src": [
+          "record",
+          "measured"
+        ],
+        "note": "Observed once on the simulated second batch without manually refreshing the semantic model. This is not a refresh-latency guarantee."
+      }
+    ],
+    "hood": {
+      "old": {
+        "chips": [
+          "Collect counts and amounts",
+          "Compare totals",
+          "Investigate differences",
+          "Write and share a report"
+        ],
+        "notes": [
+          "A manually assembled report captures a point in time."
+        ]
+      },
+      "neu": {
+        "chips": [
+          "Store run results in SQL",
+          "Mirror tables into OneLake",
+          "Read results through Direct Lake",
+          "Display counts, issues and totals in Power BI"
+        ],
+        "notes": [
+          "Automatic mirroring connects the operational tables to the report. Report updates still have some latency."
+        ]
+      },
+      "prod": "**For production:** add role-based report access, exception alerts and the agreed reconciliation and sign-off controls."
+    }
+  },
+  {
+    "short": "Approve and act",
+    "icon": "🤝",
+    "title": "Approve and act",
+    "why": "Keep a person in control of when passing data moves forward.",
+    "card": {
+      "today": "Review results and launch the import",
+      "now": "Run a controlled load with a recorded decision"
+    },
+    "sum": {
+      "today": "Separate review and import steps",
+      "now": "Required approver entry and recorded load",
+      "value": "37,229 loaded in a test"
+    },
+    "old": {
+      "text": "Someone reviews the outcome and starts the import into the destination system. Review evidence and import results may be recorded in different places.",
+      "facts": [
+        "The business decides when a batch is ready.",
+        "The destination's own business rules still matter."
+      ]
+    },
+    "neu": {
+      "service": "Microsoft Fabric · Data Factory pipelines",
+      "text": "A person starts the load with an approver-name entry. The workflow moves only rows that passed the demonstrated checks, leaves failed rows behind and records the load result. This prototype writes to demonstration destination tables, not a live business application.",
+      "facts": [
+        "The approver field must be filled in; it is not a verified digital signature.",
+        "A production approval workflow would enforce who is allowed to approve."
+      ]
+    },
+    "metrics": [
+      {
+        "label": "Simulated second-batch load",
+        "before": "Ready for review",
+        "after": "37,229 loaded",
+        "beforeLabel": "Before loading",
+        "afterLabel": "After loading",
+        "src": [
+          "scenario",
+          "measured"
+        ],
+        "note": "In the tested stand-in destination, 8,292 rows stayed held back. This is not a live target-system import."
+      },
+      {
+        "label": "Load activity duration",
+        "before": "Not timed",
+        "after": "22–32 s",
+        "src": [
+          "record",
+          "measured"
+        ],
+        "note": "Two observed notebook activity runs, including startup. Human review and real destination business logic are outside this timing."
+      }
+    ],
+    "hood": {
+      "old": {
+        "chips": [
+          "Review the results",
+          "Confirm permission to proceed",
+          "Run the destination import",
+          "Record the result"
+        ],
+        "notes": [
+          "The existing destination may enforce additional business rules during import."
+        ]
+      },
+      "neu": {
+        "chips": [
+          "Enter an approver name",
+          "Start the load pipeline",
+          "Select passing rows only",
+          "Write demonstration destination tables",
+          "Record the load and reconciliation"
+        ],
+        "notes": [
+          "The load procedure requires the name entry. It does not verify that the typed name belongs to the signed-in user."
+        ]
+      },
+      "prod": "**For production:** use authenticated, authorised approval and connect the real destination through its supported business interface."
+    }
+  },
+  {
+    "short": "Repeat with confidence",
+    "icon": "🔁",
+    "title": "Repeat with confidence",
+    "why": "Use the same workflow for the next batch and make changes easier to spot.",
+    "card": {
+      "today": "Repeat preparation and compare by hand",
+      "now": "Run the same workflow for a new batch"
+    },
+    "sum": {
+      "today": "Repeat file setup, checks and reporting",
+      "now": "Reusable preparation with comparable results",
+      "value": "225 → 184 in a simulation"
+    },
+    "old": {
+      "text": "When corrected files arrive, the team repeats preparation, validation and reporting. Comparing the old and new results can take extra work, especially when a new issue appears.",
+      "facts": [
+        "Repetition is common in migrations and recurring imports.",
+        "The source owner still corrects the source data."
+      ]
+    },
+    "neu": {
+      "service": "Microsoft Fabric · Data Factory pipelines",
+      "text": "Choose the next batch and run the same preparation workflow. Its results are stored under that batch's identity, so the team can see what changed. A simulated second batch shows both resolved issues and a newly introduced code.",
+      "facts": [
+        "The next run uses the same preparation, quality checks and AI assistance.",
+        "The prototype does not automatically fix source data or prove savings across a full project."
+      ]
+    },
+    "metrics": [
+      {
+        "label": "Complete preparation pipeline",
+        "before": "Repeated manual tasks",
+        "after": "120–158 s",
+        "src": [
+          "record",
+          "measured"
+        ],
+        "note": "Four observed server-side runs include preparation, checks and AI assistance. File delivery, human review and loading are excluded."
+      },
+      {
+        "label": "Rows AI flagged for action",
+        "before": "225",
+        "after": "184",
+        "beforeLabel": "First example",
+        "afterLabel": "Second example",
+        "src": [
+          "measured",
+          "scenario"
+        ],
+        "note": "A simulated second batch reduced one known issue and added a new code affecting five rows. This is an illustration, not a customer productivity result."
+      }
+    ],
+    "hood": {
+      "old": {
+        "chips": [
+          "Receive corrected files",
+          "Repeat setup and preparation",
+          "Run checks again",
+          "Reassemble the report",
+          "Compare against the last run"
+        ],
+        "notes": [
+          "People repeat the operational steps as well as reviewing the changes."
+        ]
+      },
+      "neu": {
+        "chips": [
+          "Choose the next batch",
+          "Run the preparation pipeline",
+          "Repeat preparation, checks and AI assistance",
+          "Save batch-specific results",
+          "Compare in Power BI and review"
+        ],
+        "notes": [
+          "A batch parameter selects the input location. It does not make an unfamiliar file layout safe without validation."
+        ]
+      },
+      "prod": "**For production:** add scheduled ingestion, change alerts, recovery controls and measured operational targets based on customer workloads."
+    }
+  }
+];
+
+const INTRO = {
+  "kicker": "Interactive walkthrough · 8 steps · about 8 minutes",
+  "title": "From manual data work to a connected workflow",
+  "lead": "See how Microsoft can help your team bring files together, prepare data, check quality and review results before moving forward. The capabilities apply to migrations, recurring imports and other data workflows. This offline walkthrough uses a deployed prototype as an example; it does not run or change the deployment.",
+  "stats": [
+    {
+      "value": "45,521",
+      "text": "example rows checked using five simplified rules",
+      "src": "measured"
+    },
+    {
+      "value": "9 groups",
+      "text": "of issues explained with AI assistance for human review",
+      "src": "measured"
+    },
+    {
+      "value": "264 → 35 s",
+      "text": "same tested database write, using grouped writes",
+      "src": "measured"
+    },
+    {
+      "value": "0 variance",
+      "text": "in tested record counts and balance reconciliation",
+      "src": "measured"
+    }
+  ],
+  "how": [
+    "**Compare:** a traditional approach and the Microsoft capability, side by side.",
+    "**See the evidence:** figures are prototype measurements or a clearly labelled simulation, not guaranteed savings.",
+    "**Go one level deeper:** open How it works, press P, or enable Show how it works on every step.",
+    "**Keep people in charge:** your team owns the rules, reviews AI suggestions and decides when to load.",
+    "**Prototype scope:** three example extracts, five checks and a demonstration destination. Not a complete migration or production approval system."
+  ]
+};
+
+const SUMMARY = {
+  "title": "Less repeated work. More visibility. People in control.",
+  "lead": "The opportunity is to automate routine preparation and checks, make issues easier to understand and give your team a shared view. The prototype demonstrates these capabilities in a limited example. It does not establish project-wide savings or replace the destination's business logic.",
+  "totals": [
+    {
+      "value": "~7.5×",
+      "text": "faster for the same tested database write only",
+      "src": "measured"
+    },
+    {
+      "value": "120–158 s",
+      "text": "observed preparation pipeline; human review excluded",
+      "src": "measured"
+    },
+    {
+      "value": "9 groups",
+      "text": "for review, with AI suggestions rather than automatic decisions",
+      "src": "measured"
+    },
+    {
+      "value": "2 batches",
+      "text": "original example and deliberately changed second example",
+      "src": "scenario"
+    }
+  ],
+  "people": [
+    {
+      "who": "Data owner",
+      "what": "Supplies files and corrects the source when needed."
+    },
+    {
+      "who": "Business reviewer",
+      "what": "Owns the checks and reviews AI suggestions."
+    },
+    {
+      "who": "Approver",
+      "what": "Decides whether passing data should move forward."
+    },
+    {
+      "who": "Operations team",
+      "what": "Monitors runs, investigates issues and manages recovery."
+    }
+  ],
+  "layers": [
+    {
+      "name": "Power BI",
+      "what": "Shows shared results, issues and reconciliation through Direct Lake.",
+      "c": "#B45309"
+    },
+    {
+      "name": "Azure AI Foundry",
+      "what": "Proposes explanations from grouped issue metadata and documented context.",
+      "c": "#BE185D"
+    },
+    {
+      "name": "Fabric Data Factory",
+      "what": "Coordinates preparation and the separate, person-started load.",
+      "c": "#1D4ED8"
+    },
+    {
+      "name": "Fabric notebooks",
+      "what": "Prepare supported files and connect the processing steps.",
+      "c": "#6D28D9"
+    },
+    {
+      "name": "Fabric SQL database",
+      "what": "Holds prepared data, checks, results and a demonstration destination.",
+      "c": "#0369A1"
+    },
+    {
+      "name": "OneLake",
+      "what": "Keeps source files and automatically mirrored tables for reporting.",
+      "c": "#0F766E"
+    }
+  ],
+  "guard": [
+    "The demo uses de-identified data.",
+    "The AI request uses issue metadata and passes a personal-data check.",
+    "Failed rows stay held back, regardless of AI suggestions.",
+    "Prepared rows retain source references.",
+    "The prototype records an approver-name entry, not a verified approval signature."
+  ],
+  "production": [
+    "Connect the real sources and destination through supported interfaces.",
+    "Implement and test the complete business rules and mappings.",
+    "Enforce authenticated approval permissions and separation of duties.",
+    "Apply access controls, data protection, retention and operational monitoring.",
+    "Measure time, cost, accuracy and review effort in a customer pilot before promising savings."
+  ]
+};
+
+const N = STEPS.length;
+const ORDER = ["intro"].concat(STEPS.map((_, i) => String(i + 1)), ["summary"]);
+const $ = (id) => document.getElementById(id);
+const state = { view: "intro", plumbAll: false };
+const SHOW = "Show how it works", HIDE = "Hide how it works";
+
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+function fmt(s) {                                    // content markup: `code` and **bold**
+  return esc(s).replace(/`([^`]+)`/g, "<code>$1</code>").replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+}
+function badge(key, prefix) {
+  const s = SOURCES[key];
+  return `<span class="src ${key}" title="${esc(s.title)}">${prefix ? esc(prefix) + ": " : ""}${esc(s.label)}</span>`;
+}
+function srcLine(src, beforeLabel, afterLabel) {
+  return src[0] === src[1] ? badge(src[0], "Both") : badge(src[0], beforeLabel || "Traditional") + badge(src[1], afterLabel || "Microsoft");
+}
+function value(v) {
+  return `<span class="m-v${v.length > 12 ? " long" : v.length > 6 ? " mid" : ""}">${fmt(v)}</span>`;
+}
+function stat(s) {
+  return `<div class="stat"><b>${esc(s.value)}</b><span class="st">${esc(s.text)}</span>${badge(s.src)}</div>`;
+}
+
+function introHtml() {
+  return `<section class="screen">
+    <div class="hero">
+      <div class="kicker">${esc(INTRO.kicker)}</div>
+      <h1 tabindex="-1">${esc(INTRO.title)}</h1>
+      <p class="lead">${fmt(INTRO.lead)}</p>
+      <div class="stats">${INTRO.stats.map(stat).join("")}</div>
+    </div>
+    <h2 class="sec">Eight capabilities, one connected workflow</h2>
+    <div class="journey">${STEPS.map((s, i) => `<button type="button" class="jcard" data-go="${i + 1}">
+      <span class="jn">Step ${i + 1}</span><b><span class="icon" aria-hidden="true">${s.icon}</span>${esc(s.title)}</b>
+      <span class="jt">Traditional: ${esc(s.card.today)}</span><span class="jw">Microsoft: ${esc(s.card.now)}</span></button>`).join("")}</div>
+    <h2 class="sec">How to read each step</h2>
+    <ul class="facts">${INTRO.how.map((h) => `<li>${fmt(h)}</li>`).join("")}</ul>
+    <div class="legend">${Object.keys(SOURCES).map((k) => `<div>${badge(k)}<span>${esc(SOURCES[k].title)}</span></div>`).join("")}</div>
+    <button type="button" class="cta" data-go="1">Start with step 1 →</button>
+  </section>`;
+}
+
+function side(cls, tag, service, d) {
+  return `<article class="side ${cls}"><span class="tag">${esc(tag)}${service ? ` <i>· ${esc(service)}</i>` : ""}</span>
+    <p class="plain">${fmt(d.text)}</p><ul class="facts">${d.facts.map((f) => `<li>${fmt(f)}</li>`).join("")}</ul></article>`;
+}
+function metric(m) {
+  return `<div class="metric"><div class="m-label">${fmt(m.label)}</div>
+    <div class="m-row"><div class="m-before"><span class="m-k">${esc(m.beforeLabel || "Traditional")}</span>${value(m.before)}</div>
+      <div class="m-arrow" aria-hidden="true">→</div><div class="m-after"><span class="m-k">${esc(m.afterLabel || "Microsoft")}</span>${value(m.after)}</div></div>
+    <div class="m-note">${fmt(m.note)}</div><div class="m-src">${srcLine(m.src, m.beforeLabel, m.afterLabel)}</div></div>`;
+}
+function lane(cls, title, d) {
+  return `<div class="lane ${cls}"><h3>${esc(title)}</h3>
+    <ol class="pipe">${d.chips.map((c, i) => `<li style="--i:${i}">${fmt(c)}</li>`).join("")}</ol>
+    <ul class="notes">${d.notes.map((x) => `<li>${fmt(x)}</li>`).join("")}</ul></div>`;
+}
+function stepHtml(i, open, prefix) {
+  const s = STEPS[i], n = i + 1, hid = `${prefix || ""}hood-${n}`;
+  return `<section class="screen step">
+    <div class="kicker">Step ${n} of ${N}</div>
+    <h1 tabindex="-1"><span class="icon" aria-hidden="true">${s.icon}</span>${esc(s.title)}</h1>
+    <p class="why">${fmt(s.why)}</p>
+    <div class="compare">${side("old", "Traditional approach", "", s.old)}${side("new", "With Microsoft", s.neu.service, s.neu)}</div>
+    <h2 class="sec">Value and prototype evidence</h2>
+    <div class="metrics">${s.metrics.map(metric).join("")}</div>
+    <button type="button" class="hood-btn" aria-expanded="${open}" aria-controls="${hid}" data-hood="${hid}">
+      <span class="chev" aria-hidden="true">▸</span><span aria-hidden="true">🔧</span><span class="hood-label">${open ? HIDE : SHOW}</span></button>
+    <div class="hood${open ? " flow" : ""}" id="${hid}"${open ? "" : " hidden"}>
+      <div class="lanes">${lane("old", "How the traditional approach works", s.hood.old)}${lane("new", "How Microsoft supports it", s.hood.neu)}</div>
+      <div class="prod">${fmt(s.hood.prod)}</div>
+    </div>
+  </section>`;
+}
+
+function summaryHtml() {
+  return `<section class="screen">
+    <div class="hero">
+      <div class="kicker">The value, step by step</div>
+      <h1 tabindex="-1">${esc(SUMMARY.title)}</h1>
+      <p class="lead">${fmt(SUMMARY.lead)}</p>
+      <div class="stats">${SUMMARY.totals.map(stat).join("")}</div>
+    </div>
+    <h2 class="sec">Capabilities and evidence at a glance</h2>
+    <div class="scroll"><table class="sum"><thead><tr><th>Step</th><th>Traditional approach</th><th>With Microsoft</th><th>Prototype evidence</th></tr></thead><tbody>
+      ${STEPS.map((s, i) => `<tr><td><button type="button" data-go="${i + 1}">${i + 1} · ${esc(s.short)}</button></td>
+        <td class="t">${fmt(s.sum.today)}</td><td class="w">${fmt(s.sum.now)}</td><td class="v">${fmt(s.sum.value)}</td></tr>`).join("")}
+    </tbody></table></div>
+    <h2 class="sec">What people still decide</h2>
+    <div class="people">${SUMMARY.people.map((p) => `<div class="person"><b>${esc(p.who)}</b>${fmt(p.what)}</div>`).join("")}</div>
+    <h2 class="sec">The Microsoft services behind the experience</h2>
+    <div class="stack">
+      <div class="layers">${SUMMARY.layers.map((l) => `<div class="layer" style="--c:${l.c}"><b>${esc(l.name)}</b><span>${fmt(l.what)}</span></div>`).join("")}</div>
+      <div class="guard"><b>Controls demonstrated in this prototype</b><ul>${SUMMARY.guard.map((g) => `<li>${fmt(g)}</li>`).join("")}</ul></div>
+    </div>
+    <h2 class="sec">What a production deployment would add</h2>
+    <ul class="facts">${SUMMARY.production.map((p) => `<li>${fmt(p)}</li>`).join("")}</ul>
+    <p class="footnote">${Object.keys(SOURCES).map((k) => `${badge(k)} ${esc(SOURCES[k].title)}`).join("<br>")}</p>
+  </section>`;
+}
+
+function allHtml() {
+  return introHtml() + STEPS.map((_, i) => `<div class="allstep">${stepHtml(i, true, "all-")}</div>`).join("")
+    + `<div class="allstep">${summaryHtml()}</div>`;
+}
+
+function renderRail() {
+  const items = [["intro", "", "Start"]].concat(STEPS.map((s, i) => [String(i + 1), String(i + 1), s.short]), [["summary", "", "The value"]]);
+  $("rail").innerHTML = items.map(([key, n, label]) =>
+    `<button type="button" data-go="${key}">${n ? `<span class="n">${n}</span> ` : ""}${esc(label)}</button>`).join("");
+}
+function markRail(view) {
+  const at = ORDER.indexOf(view);
+  document.querySelectorAll("#rail button").forEach((b, i) => {
+    b.classList.toggle("on", i === at);
+    b.classList.toggle("done", at > 0 && i < at);
+    if (i === at) { b.setAttribute("aria-current", "step"); b.scrollIntoView({ block: "nearest", inline: "nearest" }); }
+    else b.removeAttribute("aria-current");
+  });
+}
+
+function route() {
+  const h = decodeURIComponent(location.hash.slice(1));
+  const m = /^(\d+)(p?)$/.exec(h);
+  if (m && +m[1] >= 1 && +m[1] <= N) return { view: m[1], open: m[2] === "p" };
+  return { view: h === "summary" || h === "all" ? h : "intro", open: false };
+}
+function render(moveFocus) {
+  const r = route(), main = $("main");
+  state.view = r.view;
+  main.innerHTML = r.view === "intro" ? introHtml() : r.view === "summary" ? summaryHtml() : r.view === "all" ? allHtml()
+    : stepHtml(+r.view - 1, r.open || state.plumbAll);
+  markRail(r.view);
+  const at = ORDER.indexOf(r.view);
+  $("controls").hidden = r.view === "all";
+  $("back").disabled = at <= 0;
+  $("next").disabled = at < 0 || at >= ORDER.length - 1;
+  $("next").textContent = at === 0 ? "Start →" : at === ORDER.length - 2 ? "See the value →" : "Next →";
+  $("pos").textContent = r.view === "intro" ? "Overview" : r.view === "summary" ? "The value" : r.view === "all" ? "" : `Step ${r.view} of ${N}`;
+  window.scrollTo(0, 0);
+  const h1 = main.querySelector("h1");
+  if (moveFocus && h1) h1.focus({ preventScroll: true });
+  $("announce").textContent = h1 ? h1.textContent : "";
+}
+function go(key) {
+  const target = key === "intro" ? "#intro" : `#${key}`;
+  if (location.hash === target) render(true); else location.hash = target;
+}
+function move(delta) {
+  const at = ORDER.indexOf(state.view);
+  go(ORDER[Math.min(ORDER.length - 1, Math.max(0, (at < 0 ? 0 : at) + delta))]);
+}
+function toggleHood(btn) {
+  const box = document.getElementById(btn.dataset.hood), open = box.hidden;
+  box.hidden = !open;
+  btn.setAttribute("aria-expanded", String(open));
+  btn.querySelector(".hood-label").textContent = open ? HIDE : SHOW;
+  if (open) {
+    box.classList.remove("flow"); void box.offsetWidth; box.classList.add("flow");
+    box.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+}
+
+document.addEventListener("click", (e) => {
+  const nav = e.target.closest("[data-go]");
+  if (nav) { go(nav.dataset.go); return; }
+  const hood = e.target.closest("[data-hood]");
+  if (hood) toggleHood(hood);
+});
+document.addEventListener("keydown", (e) => {
+  if (e.altKey || e.ctrlKey || e.metaKey || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+  if (e.key === "ArrowRight" || e.key === "PageDown") { move(1); e.preventDefault(); }
+  else if (e.key === "ArrowLeft" || e.key === "PageUp") { move(-1); e.preventDefault(); }
+  else if (e.key === "Home") { go("intro"); e.preventDefault(); }
+  else if (e.key === "End") { go("summary"); e.preventDefault(); }
+  else if (e.key === "p" || e.key === "P") { const b = $("main").querySelector(".hood-btn"); if (b) toggleHood(b); }
+});
+$("back").addEventListener("click", () => move(-1));
+$("next").addEventListener("click", () => move(1));
+$("plumbAll").addEventListener("change", (e) => {
+  state.plumbAll = e.target.checked;
+  try { localStorage.setItem("cogsdale-walkthrough-plumbing", state.plumbAll ? "1" : "0"); } catch (err) { /* storage may be off for file:// */ }
+  if (/^\d+$/.test(state.view)) render(false);
+});
+window.addEventListener("hashchange", () => render(true));
+
+try { state.plumbAll = localStorage.getItem("cogsdale-walkthrough-plumbing") === "1"; } catch (err) { state.plumbAll = false; }
+$("plumbAll").checked = state.plumbAll;
+renderRail();
+render(false);
+</script>
+</body>
+</html>

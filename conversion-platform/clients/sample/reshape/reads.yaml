@@ -1,0 +1,17 @@
+kind: reshape
+version: 1
+client: sample
+id: reads
+source:
+  file: Meters and Readings {take_date}.csv
+  layout: table
+  header_row: 0
+  read_as_text: true
+  encoding: utf-8-sig
+steps:
+- strip_artifacts:
+    blank_rows: true
+    header_repeats: true
+target: silver.reads
+expect:
+  min_rows: 1

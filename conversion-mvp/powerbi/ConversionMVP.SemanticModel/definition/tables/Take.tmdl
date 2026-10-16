@@ -1,0 +1,31 @@
+/// One delivery of extracts from the client (a take).
+table Take
+
+	/// Footer line: which take this is.
+	measure 'Take Context' = VAR t = SELECTEDVALUE(Take[Take Id]) RETURN IF(ISBLANK(t), "Select one take", t & " · take date " & FORMAT(MAX(Take[Take Date]), "yyyy-mm-dd") & " · " & SELECTEDVALUE(Take[Description]))
+		formatString: General
+		displayFolder: Context
+
+	column 'Take Id'
+		dataType: string
+		isKey
+		summarizeBy: none
+		sourceColumn: TakeId
+
+	column 'Take Date'
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		summarizeBy: none
+		sourceColumn: TakeDate
+
+	column Description
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Description
+
+	partition Take = entity
+		mode: directLake
+		source
+			entityName: Take
+			schemaName: mvp
+			expressionSource: DL_ConversionDB

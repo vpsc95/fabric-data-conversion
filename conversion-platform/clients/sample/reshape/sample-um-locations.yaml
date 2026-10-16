@@ -1,0 +1,38 @@
+kind: reshape
+version: 1
+client: sample
+id: sample-um-locations
+source:
+  file: UM_Customer joined to SAMPLE_UM_Customer
+  layout: table
+  read_as_text: true
+steps:
+- filter:
+    where: CUSTOMERSTATUS = 'ACTIVE' OR finaled location has no active customer on
+      same LEFT(INCODEACCT,7)
+    reason: Script loads active locations and finaled-only locations.
+- derive:
+    CustomerID: xref(customer_status_location_handling, CUSTOMERSTATUS, customer_id_rule)
+    SCity: xref(route_to_city, LEFT(LegacyAcctNo, 2))
+    LocationClass: xref(customer_class_to_location_class, CUSTOMERCLASS)
+    ZoneID: xref(route_to_zone, LEFT(LegacyAcctNo, 2))
+    RouteID: LEFT(LegacyAcctNo, 2)
+    SAddress1: REPLACE(ServiceAddress, '"', '')
+- dedupe:
+    keys:
+    - LocationID
+    keep: first
+    order_by:
+    - Legacy_Loc_ID
+target: silver.sample_um_locations
+open_questions:
+- id: OQ-LOC-DEDUPE
+  text: Confirm DELETE MAX(Legacy_Loc_ID) per duplicate LocationID is equivalent to
+    keeping the first ordered by Legacy_Loc_ID.
+  owner: cogsdale
+  status: answered
+  answer: Implemented exactly as the legacy DELETE (the highest Legacy_Loc_ID per
+    duplicate LocationID is removed), so equivalence with keep-first doesn't matter.
+    All 6,449 locations reproduce.
+  decided_by: Demo assumptions only; recipient review required
+  decided_on: '2026-10-06'

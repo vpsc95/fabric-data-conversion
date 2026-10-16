@@ -1,0 +1,9 @@
+polars>=1.30,<2
+pyarrow>=19,<24
+deltalake>=1.0,<2
+PyYAML>=6.0.2,<7
+openpyxl>=3.1.5,<4
+pandas>=2.2,<3
+pyodbc>=5.2,<6
+python-docx>=1.1,<2
+requests>=2.32.4,<3

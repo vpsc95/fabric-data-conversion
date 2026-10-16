@@ -1,0 +1,50 @@
+kind: reshape
+version: 1
+client: sample
+id: sample-um-connections
+source:
+  file: SAMPLE_UM_Connections
+  layout: table
+  read_as_text: true
+steps:
+- unpivot:
+    groups:
+    - - DESCRIPTION
+      - STATUS
+      - TABLE
+      - METER
+    - - DESCRIPTION2
+      - STATUS2
+      - TABLE2
+      - METER2
+    as:
+    - DESCRIPTION
+    - STATUS
+    - TABLE
+    - METER
+    index_as: ServiceSlot
+    drop_empty: true
+- filter:
+    where: METER <> 'PULLED' AND DESCRIPTION <> '' AND STATUS <> 'OFF'
+    reason: Script excludes pulled meters, blank descriptions, and off service rows.
+- derive:
+    ServiceCode: LEFT(DESCRIPTION, 3)
+    Category: xref(connection_service_code, ServiceCode, category)
+    ServiceType: xref(connection_service_code, ServiceCode)
+    RouteID: LEFT(ACCT, 2)
+    TariffID: xref(connection_service_code, ServiceCode, fixed_tariff)
+    CTAR11: water/sewer variable tariff from service code, Individual, and Meter_Size_Desc
+target: silver.sample_um_connections
+open_questions:
+- id: OQ-CONN-FLATRATE-SEWER
+  text: Confirm sewer equipment copy excludes flat_rate COM and FLT; script comment
+    says criteria need confirmation.
+  owner: cogsdale
+  status: assumed
+  assumption: Sewer connections on flat rate tables COM and FLT don't take the location's
+    water meter (as coded), so they fail 'Equipment ID not in Stage or CSM'.
+  evidence: 287 such sewer rows keep no meter (COM 274, FLT 13). With them, equipment-not-found
+    7,117 and failed 7,119 reproduce exactly; they are part of the report's 381 actionable
+    water/sewer equipment issues.
+  decided_by: Demo assumptions only; recipient review required
+  decided_on: '2026-10-06'

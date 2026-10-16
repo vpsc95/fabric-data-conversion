@@ -1,0 +1,49 @@
+{
+  "properties": {
+    "description": "The human approval: run this with approved_by = your name after reviewing the report. Loads the ready records and records the reconciliation.",
+    "activities": [
+      {
+        "name": "4 Load to CSM",
+        "type": "TridentNotebook",
+        "dependsOn": [],
+        "policy": {
+          "timeout": "0.01:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "notebookId": "{{4_Load_to_CSM}}",
+          "workspaceId": "{{workspace_id}}",
+          "parameters": {
+            "take_id": {
+              "value": {
+                "value": "@pipeline().parameters.take_id",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "approved_by": {
+              "value": {
+                "value": "@pipeline().parameters.approved_by",
+                "type": "Expression"
+              },
+              "type": "string"
+            }
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "take_id": {
+        "type": "string",
+        "defaultValue": "go-live"
+      },
+      "approved_by": {
+        "type": "string",
+        "defaultValue": ""
+      }
+    }
+  }
+}

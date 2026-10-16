@@ -1,0 +1,5 @@
+/// Conversion MVP: one take from the client's extracts to CSM. Direct Lake on the Fabric SQL database's tables, mirrored to OneLake.
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	discourageImplicitMeasures

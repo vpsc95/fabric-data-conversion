@@ -1,0 +1,97 @@
+/// Cleansing proposals by rule: deterministic fixes with a confidence. They are never applied in a replay; low-confidence ones wait for an analyst (gate 2).
+table Cleansing
+
+	/// Cleansing proposals.
+	measure 'Cleansing Proposals' = SUM(Cleansing[Proposals]) + 0
+		formatString: #,##0
+		displayFolder: Cleansing
+
+	/// Proposals an analyst reviews at gate 2.
+	measure 'Low-Confidence Proposals' = SUM(Cleansing[Low]) + 0
+		formatString: #,##0
+		displayFolder: Cleansing
+
+	/// Proposals no one has decided yet.
+	measure 'Proposals Pending' = SUM(Cleansing[Pending]) + 0
+		formatString: #,##0
+		displayFolder: Cleansing
+
+	column 'Module Code'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: Module
+
+	column 'Take Key'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: TakeKey
+
+	column ClientId
+		dataType: string
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: ClientId
+
+	column TakeId
+		dataType: string
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: TakeId
+
+	column 'Rule Id'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: RuleId
+
+	column Proposals
+		dataType: int64
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: sum
+		sourceColumn: Proposals
+
+	column High
+		dataType: int64
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: sum
+		sourceColumn: High
+
+	column Low
+		dataType: int64
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: sum
+		sourceColumn: Low
+
+	column Approved
+		dataType: int64
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: sum
+		sourceColumn: Approved
+
+	column Rejected
+		dataType: int64
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: sum
+		sourceColumn: Rejected
+
+	column Pending
+		dataType: int64
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: sum
+		sourceColumn: Pending
+
+	partition Cleansing = entity
+		mode: directLake
+		source
+			entityName: rpt_cleanse
+			schemaName: dbo
+			expressionSource: DL_Lakehouse

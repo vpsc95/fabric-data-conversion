@@ -1,0 +1,124 @@
+kind: mapping
+version: 1
+client: sample
+module: UM00300
+source: silver.sample_um_connections
+target: gold.UM_CONNECTIONS
+fields:
+- target: LegacyAcctNo
+  from: LegacyAcctNo
+- target: Legacy_Loc_ID
+  from: Legacy_Loc_ID
+- target: LocationID
+  from: LocationID
+- target: Category
+  from: Category
+  note: Translated through connection_service_code.
+- target: ServiceType
+  from: ServiceType
+  note: Translated through connection_service_code plus customer_individual_to_service_class
+    where applicable.
+- target: EquipmentID
+  from: EquipmentID
+- target: Alternate
+  from: Alternate
+- target: RouteID
+  from: RouteID
+- target: ConnStatus
+  from: ConnStatus
+- target: ConnDate
+  from: ConnDate
+- target: DisconnDate
+  from: DisconnDate
+- target: ConnMultiplier
+  from: ConnMultiplier
+- target: FixedMultiplier
+  from: FixedMultiplier
+- target: ConsMultiplier
+  from: ConsMultiplier
+- target: LossMultiplier
+  from: LossMultiplier
+- target: RMiMultiplier
+  from: RMiMultiplier
+- target: Imported
+  from: Imported
+- target: SEQNO
+  from: SEQNO
+- target: BelongsTo
+  from: BelongsTo
+- target: TaxSched
+  from: TaxSched
+- target: ConnUDF1
+  from: ConnUDF1
+- target: ConnUDF2
+  from: ConnUDF2
+- target: Transponder
+  from: Transponder
+- target: Channel
+  from: Channel
+- target: umINDX
+  from: umINDX
+- target: TaxDiscount
+  from: TaxDiscount
+- target: TariffID
+  from: TariffID
+  note: Fixed tariff from connection_service_code for grinder and drainage; blank
+    otherwise.
+- target: CTAR11
+  from: CTAR11
+  note: Variable tariff from meter_size_to_water_tariff or customer_individual_to_service_class.
+- target: CTAR12
+  from: CTAR12
+- target: CTAR13
+  from: CTAR13
+- target: CTAR21
+  from: CTAR21
+- target: CTAR22
+  from: CTAR22
+- target: CTAR23
+  from: CTAR23
+- target: CTAR31
+  from: CTAR31
+- target: CTAR32
+  from: CTAR32
+- target: CTAR33
+  from: CTAR33
+- target: UUDF1
+  from: UUDF1
+- target: UUDF2
+  from: UUDF2
+- target: UUDF3
+  from: UUDF3
+- target: UUDF4
+  from: UUDF4
+- target: Legacy_Service
+  from: Legacy_Service
+- target: Legacy_Bill_Type
+  from: Legacy_Bill_Type
+- target: Legacy_Charge_Type
+  from: Legacy_Charge_Type
+- target: Legacy_Meter_Size
+  from: Legacy_Meter_Size
+- target: Legacy_Service_Class
+  from: Legacy_Service_Class
+- target: Final_Bill
+  from: Final_Bill
+- target: flat_rate
+  from: flat_rate
+- target: DeliveredEquipmentID
+  from: DeliveredEquipmentID
+- target: isvalid
+  from: isvalid
+- target: message
+  from: message
+open_questions:
+- id: OQ-UM00300-COMPLEX
+  text: Review sp_Load_UM_CONNECTIONS.sql for complex CASE/update logic represented
+    in the reshape spec before generating SQL for gold.UM_CONNECTIONS.
+  owner: partner
+  status: answered
+  answer: Ported to gold.usp_Build_Connection (sql/50_gold_build.sql) from the active
+    'New Logic' block. The replay reproduces 20,037 received, 12,918 loaded and 7,119
+    failed.
+  decided_by: Demo assumptions only; recipient review required
+  decided_on: '2026-10-06'

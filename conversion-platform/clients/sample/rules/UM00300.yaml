@@ -1,0 +1,25 @@
+kind: rules
+version: 1
+client: sample
+module: UM00300
+overrides:
+- rule: CONN_INVALID_RATE_CTAR12
+  enabled: false
+  reason: Legacy script comments this block as NOT REQUIRED.
+- rule: CONN_INVALID_SERVICE_TYPE
+  expected_exclusion:
+    when: ServiceType NOT IN (SELECT umServiceType FROM ref.UM41000)
+    applies_to: Every connection that fails this rule. Its service type isn't set
+      up in CSM, so that legacy service is deliberately not converted; the record's
+      other issues don't need action either.
+    reason: SAMPLE go-live classified invalid service types as a by-design exclusion
+      for DEMO-41065.
+  reason: Matches integrity-report expected exclusion.
+- rule: CONN_INVALID_TARIFF
+  expected_exclusion:
+    when: TariffID = 'GRP'
+    applies_to: Connections that fail this rule with tariff GRP. Grinder service isn't
+      converted, so these records are deliberately left out.
+    reason: SAMPLE go-live classified grinder (fixed tariff GRP) rows as expected
+      for DEMO-41068.
+  reason: Matches integrity-report expected exclusion.

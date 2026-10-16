@@ -1,0 +1,67 @@
+kind: crosswalk
+version: 1
+client: sample
+id: connection_service_code
+description: 'LEFT(DESCRIPTION,3) -> service category, service type family, and fixed
+  tariff. Source: sp_Load_UM_CONNECTIONS.sql lines 485-605.'
+values:
+- legacy_code: '100'
+  target: WATER
+  category: '2'
+  service_type_individual: WATER-RES
+  service_type_business: WATER-COM
+  fixed_tariff: ''
+- legacy_code: '200'
+  target: SEWER
+  category: '3'
+  service_type_individual: SWR-RES
+  service_type_business: SWR-COM
+  fixed_tariff: ''
+- legacy_code: '500'
+  target: GRINDER
+  category: '99'
+  service_type_individual: GRINDER-RES
+  service_type_business: GRINDER-COM
+  fixed_tariff: GRP
+  reason: Category falls to ELSE 99 in active script.
+- legacy_code: '900'
+  target: 'DRAINAGE FEES '
+  category: '6'
+  service_type_individual: 'DRAINAGE FEES '
+  service_type_business: 'DRAINAGE FEES '
+  fixed_tariff: DRF
+- legacy_code: '105'
+  target: EXCLUDED
+  include: false
+  reason: Commented filter says senior is not a service but a discount; filter is
+    not active in current script.
+- legacy_code: '205'
+  target: EXCLUDED
+  include: false
+  reason: Commented filter says senior is not a service but a discount; filter is
+    not active in current script.
+open_questions:
+- id: OQ-CONN-SENIOR-DISCOUNT
+  text: Should service codes 105 and 205 be excluded? The script has the exclusion
+    commented out.
+  owner: cogsdale
+  status: assumed
+  assumption: Service codes 105 and 205 (senior discounts) are not converted as services.
+    They fail 'Invalid ServiceType' and are expected by design (DEMO-41065); the commented-out
+    filter stays off.
+  evidence: 'The 6,694 expected invalid-service-type failures reproduce exactly: 105:
+    952, 205: 857, 300: 4,873, 400: 9, 600: 3. Filtering 105/205 out in staging would
+    change received (20,037) and failed (7,119), which both match.'
+  decided_by: Demo assumptions only; recipient review required
+  decided_on: '2026-10-06'
+- id: OQ-CONN-GRINDER-CATEGORY
+  text: Confirm connection category for service code 500; current CASE falls through
+    to 99.
+  owner: cogsdale
+  status: assumed
+  assumption: Grinder service (500) keeps category 99, as coded.
+  evidence: 'Grinder connections never load: all 43 fail the tariff check by design
+    (DEMO-41068), which reproduces exactly. The category rule fires on those same
+    records only.'
+  decided_by: Demo assumptions only; recipient review required
+  decided_on: '2026-10-06'

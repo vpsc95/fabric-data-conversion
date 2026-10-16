@@ -1,0 +1,41 @@
+kind: mapping_hints
+version: 1
+client: sample
+tuned_on_answer_key: true
+hints:
+- 'Use the profile''s spec names as strong evidence: customers feeds customer/address/location
+  targets; services-report feeds connection/service targets; balances-report feeds
+  beginning balances; deposits-report feeds deposits; reads and Meter Asset List feed
+  meters, equipment and read history.'
+- 'The services report is a printed two-slot service listing: ACCT and STDATE are
+  fill-down helper columns, and DESCRIPTION/STATUS/TABLE/METER plus DESCRIPTION2/STATUS2/TABLE2/METER2
+  are slot 1 and slot 2. For connection targets, prefer paired source expressions
+  such as DESCRIPTION / DESCRIPTION2, STATUS / STATUS2, TABLE / TABLE2, and METER
+  / METER2.'
+- When a connection target needs a legacy service/category/service-type code from
+  the service description, propose LEFT 3 of DESCRIPTION / DESCRIPTION2 and mark it
+  lookup/crosswalk if CSM codes are implied.
+- For connection legacy account, location, route or connection date fields, prefer
+  the services-report helper columns ACCT and STDATE over unrelated AMI read-history
+  columns unless the target is explicitly meter-read history.
+- For connection EquipmentID/DeliveredEquipmentID, prefer the service-row meter columns
+  METER / METER2; use the meter asset list only for equipment-master targets.
+- For connection CTAR, Tariff or rate fields, the services-report TABLE / TABLE2 columns
+  are stronger evidence than balance columns named SVC1/SVC2/SVC3. If the target asks
+  for RouteID and only ACCT exists in the services report, propose First 2 digits
+  of ACCT rather than an AMI route column.
+- When target descriptions mention legacy account or premise reference on a connection
+  module, ACCT is the likely source even if the target field name is LegacyAcctNo.
+- For equipment-master targets, prefer the Meters and Readings profile columns named
+  Meter_ID, Meter_SN, Endpoint_SN, Meter_Manufacturer, Meter_Model, Meter_Size, Meter_Size_Desc,
+  Dials and Register_Resolution when those target concepts appear; the Meter Asset
+  List is secondary evidence for asset-only attributes.
+- For beginning-balance targets, the balances report has repeated service/balance
+  slots SVC1/BAL1, SVC2/BAL2 and SVC3/BAL3. Use source expressions that name the repeated
+  balance or service columns rather than the total BALANCE when the target is per-service.
+- For meter-read-history targets, Read_Time is the reading date/time, Read is the
+  register reading, Flow is consumption (often scaled), Meter_ID or Meter_SN identifies
+  the meter and Endpoint_SN identifies the remote endpoint.
+- For customer and location targets, CUSTOMERCLASS, CUSTOMERSTATUS, INCODEACCT, SERVICEADDRESS
+  and STARTDATE in the customers profile are stronger evidence than similarly named
+  AMI columns.

@@ -1,0 +1,276 @@
+/// Issue groups (records with the same module, failed rules and features) with the triage agent's proposal and the person's decision. The agent sees codes and counts only; nothing applies until a person decides.
+table Triage
+
+	/// Issue groups in the selection.
+	measure 'Issue Groups' = COUNTROWS(Triage)
+		formatString: #,##0
+		displayFolder: Triage
+
+	/// Records in the selected issue groups.
+	measure 'Group Records' = SUM(Triage[Records])
+		formatString: #,##0
+		displayFolder: Triage
+
+	/// Groups with a proposal that no one has decided yet.
+	measure 'Groups Pending' = CALCULATE([Issue Groups], Triage[Decision Status] = "pending") + 0
+		formatString: #,##0
+		displayFolder: Triage
+
+	/// Groups a person approved, changed or rejected.
+	measure 'Groups Decided' = CALCULATE([Issue Groups], Triage[Decision Status] IN {"approved", "changed", "rejected"}) + 0
+		formatString: #,##0
+		displayFolder: Triage
+
+	/// Records in groups whose final label isn't "expected": the work still to do.
+	measure 'Records to Fix' = CALCULATE([Group Records], Triage[Final Label] <> "expected") + 0
+		formatString: #,##0
+		displayFolder: Triage
+
+	/// Share of records where the agent's expected / not-expected call matches what the approved rules say (records-weighted, groups with a proposal only).
+	measure 'Agent Agreement %' = ```
+			VAR _proposed = FILTER(Triage, NOT ISBLANK(Triage[Agent Label]))
+			VAR _agree =
+				SUMX(
+					FILTER(_proposed, (Triage[Agent Label] = "expected") = (Triage[Rule Class] = "expected")),
+					Triage[Records]
+				)
+			RETURN
+				DIVIDE(_agree, SUMX(_proposed, Triage[Records]))
+			```
+		formatString: 0.0%
+		displayFolder: Triage
+
+	/// Groups where the agent's expected / not-expected call differs from the approved rules: review these first.
+	measure 'Agent Disagreements' = CALCULATE([Issue Groups], Triage[Agent vs Rules] = "disagrees") + 0
+		formatString: #,##0
+		displayFolder: Triage
+
+	/// Pending proposals that disagree with the approved rules: the first ones a person should decide.
+	measure 'Groups to Review First' = CALCULATE([Issue Groups], Triage[Agent vs Rules] = "disagrees", Triage[Decision Status] = "pending") + 0
+		formatString: #,##0
+		displayFolder: Triage
+
+	/// Average confidence the agent gave its proposals.
+	measure 'Agent Confidence' = AVERAGE(Triage[Confidence])
+		formatString: 0%
+		displayFolder: Triage
+
+	/// Reference line for the records-to-fix card: failed records (they did not load; equals Actionable Failures) plus warnings (loaded, but to fix at source), and the groups they sit in.
+	measure 'Records to Fix Context' = ```
+			VAR _fix = FILTER(Triage, Triage[Final Label] <> "expected")
+			VAR _failed = SUMX(FILTER(_fix, Triage[Severity] = "Error"), Triage[Records]) + 0
+			VAR _warnings = SUMX(FILTER(_fix, Triage[Severity] <> "Error"), Triage[Records]) + 0
+			RETURN FORMAT(_failed, "#,##0") & " failed + " & FORMAT(_warnings, "#,##0") & " warnings · " & FORMAT(COUNTROWS(_fix) + 0, "#,##0") & " groups"
+			```
+		formatString: General
+		displayFolder: Triage
+
+	/// Reference line for the agent card: what is waiting for a person.
+	measure 'Review Context' = FORMAT([Groups to Review First], "#,##0") & " to review first · " & FORMAT([Groups Pending], "#,##0") & " pending"
+		formatString: General
+		displayFolder: Triage
+
+	column 'Module Code'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: Module
+
+	column 'Take Key'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: TakeKey
+
+	column ClientId
+		dataType: string
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: ClientId
+
+	column TakeId
+		dataType: string
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: TakeId
+
+	column 'Group Id'
+		dataType: string
+		isHidden
+		isKey
+		summarizeBy: none
+		sourceColumn: GroupId
+
+	/// Module, the agent's title and the start of the group key.
+	column Group
+		dataType: string
+		summarizeBy: none
+		sourceColumn: GroupLabel
+
+	/// Stable signature of the group; use it with `run_local.py decide`.
+	column 'Group Key'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: GroupKey
+
+	column 'Rule Set'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: RuleSet
+
+	/// Yes/no and code features shared by the group's records (never values).
+	column Features
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Features
+
+	column 'Severity Code'
+		dataType: string
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: Severity
+
+	column Severity
+		dataType: string
+		summarizeBy: none
+		sourceColumn: SeverityName
+
+	column Records
+		dataType: int64
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: sum
+		sourceColumn: Records
+
+	/// Records in the group when its final label isn't expected (blank otherwise); ranks the top-groups chart.
+	column 'Fix Records'
+		dataType: int64
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: sum
+		sourceColumn: RecordsToFix
+
+	/// What the approved rules say: expected, actionable or mixed. The agent never sees it.
+	column 'Rule Class'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: RuleClass
+
+	column 'Agent Label'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: AgentLabel
+
+	column 'Proposed Owner'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: ProposedOwner
+
+	column 'Proposed Category'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: ProposedCategory
+
+	column Title
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Title
+
+	column Action
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Action
+
+	/// Wording for the client's fix list.
+	column 'Client Message'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: ClientMessage
+
+	column Rationale
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Rationale
+
+	column Confidence
+		dataType: double
+		formatString: 0%
+		summarizeBy: none
+		sourceColumn: Confidence
+
+	column 'Call Id'
+		dataType: int64
+		isHidden
+		isAvailableInMdx: false
+		summarizeBy: none
+		sourceColumn: CallId
+
+	column Observation
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Observation
+
+	column 'Root Cause'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: RootCause
+
+	/// The approved exclusion the agent cited, if any.
+	column 'Excluded By'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: ExcludedBy
+
+	/// agrees / disagrees: the agent's expected or not-expected call against the approved rules. Review disagreements first.
+	column 'Agent vs Rules'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: AgentVsRules
+
+	/// not triaged, pending, approved, changed or rejected.
+	column 'Decision Status'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: DecisionStatus
+
+	/// The label that applies: the person's decision when there is one; until then, what the approved rules say.
+	column 'Final Label'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: FinalLabel
+
+	column 'Final Owner'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: FinalOwner
+
+	column 'Final Category'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: FinalCategory
+
+	column 'Decision Note'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: DecisionNote
+
+	column 'Decided By'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: DecidedBy
+
+	column 'Decided On'
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		summarizeBy: none
+		sourceColumn: DecidedOn
+
+	partition Triage = entity
+		mode: directLake
+		source
+			entityName: rpt_triage
+			schemaName: dbo
+			expressionSource: DL_Lakehouse
