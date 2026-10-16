@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 sys.path.insert(0, str(ROOT / "conversion-platform" / "engine"))
 from configure import validate
+import check_release
 from deploy_reports import definition_parts
 from generate_sample import generate
 from convplat.reshape import run_reshape
@@ -33,6 +34,23 @@ def settings():
 
 
 class ReleaseTests(unittest.TestCase):
+    def test_privacy_check_uses_repository_relative_paths(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp) / ".local" / "checkout"
+            repo.mkdir(parents=True)
+            source = repo / "safe.py"
+            source.write_text("print('synthetic example')\n", encoding="utf-8")
+            with patch.object(check_release, "ROOT", repo), \
+                    patch.object(check_release, "tracked_files", return_value=[source]), \
+                    patch.object(check_release.subprocess, "run") as run:
+                run.return_value.returncode = 0
+                self.assertEqual(check_release.main(), 0)
+                local = repo / ".local" / "unsafe.py"
+                local.parent.mkdir()
+                local.write_text("print('must not be tracked')\n", encoding="utf-8")
+                with patch.object(check_release, "tracked_files", return_value=[local]):
+                    self.assertEqual(check_release.main(), 1)
+
     def test_templates_need_recipient_configuration(self):
         template = json.loads((ROOT / "deployment.example.json").read_text(encoding="utf-8"))
         with self.assertRaises(ValueError):

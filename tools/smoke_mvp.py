@@ -7,6 +7,8 @@ import types
 import uuid
 from pathlib import Path
 
+import pyodbc
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "conversion-platform" / "engine"))
 from convplat import sqlio
@@ -44,7 +46,7 @@ def main():
                 assert count == 40, count
                 try:
                     sqlio.exec_proc(cn, "EXEC mvp.usp_LoadToCsm ?, ?", take, "")
-                except Exception as error:
+                except pyodbc.Error as error:
                     if "approv" not in str(error).lower():
                         raise
                 else:
@@ -57,7 +59,6 @@ def main():
                 print(f"{take}: approval gate enforced; 40 records and balance 100 reconcile")
     finally:
         cn.close()
-        import pyodbc
         with pyodbc.connect("Driver={ODBC Driver 18 for SQL Server};Server=(localdb)\\MSSQLLocalDB;"
                             "Database=master;Trusted_Connection=yes;Encrypt=no", autocommit=True) as admin:
             # Only the unique database created by this invocation is removed.

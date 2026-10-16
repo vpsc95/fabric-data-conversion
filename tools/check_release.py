@@ -26,7 +26,7 @@ def main():
     failures, text_files = [], []
     for p in files:
         rel = p.relative_to(ROOT).as_posix()
-        if p.name in ("workspace.json", "deployment.json") or p.suffix in BLOCKED_SUFFIXES or any(part in (".local", ".pbi", "__pycache__") for part in p.parts):
+        if p.name in ("workspace.json", "deployment.json") or p.suffix in BLOCKED_SUFFIXES or any(part in (".local", ".pbi", "__pycache__") for part in p.relative_to(ROOT).parts):
             failures.append(f"{rel}: local configuration or data must not be tracked")
             continue
         if rel in ALLOWED_BINARY:
