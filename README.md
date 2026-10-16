@@ -50,11 +50,25 @@ In the recipient's tenant, provision these prerequisites through the Fabric and 
 
 This release deploys items into resources **you provision and configure**; it does not create a paid capacity or a Foundry resource, or modify cloud permissions. Network/firewall policies must allow the approved CLI, SQL, OneLake and AI connections. Check the target's collation before adapting the GP-compatible SQL; the local fixture uses `SQL_Latin1_General_CP1_CI_AS`.
 
-## 2. Clone and install
+## 2. Get the source and install
+
+**Repository access:** the repository is private. Invited collaborators can clone it:
 
 ```powershell
 git clone https://github.com/vpsc95/fabric-data-conversion.git
 Set-Location fabric-data-conversion
+```
+
+**Shared ZIP:** recipients do not need GitHub access. Extract `Fabric_Data_Conversion_Shareable.zip`, then open PowerShell in its `fabric-data-conversion` folder. The archive includes source, configuration templates, documentation and diagrams, but no Git history or local/customer data. Initialise a local Git index so the source/privacy checks in section 6 can inspect the file set; this does not upload anything or require a GitHub account:
+
+```powershell
+git init
+git add .
+```
+
+From the source folder, install the dependencies:
+
+```powershell
 py -3.11 -m venv .venv
 $py = ".\.venv\Scripts\python.exe"
 & $py -m pip install -r requirements.txt
@@ -64,6 +78,8 @@ $env:PYTHONUTF8 = "1"
 ```
 
 The examples below run from the repository root. Set `$py` again in a new shell. Fabric notebooks need the libraries in `requirements-fabric.txt`; both deployers add a dependency-check cell that installs missing packages. For restricted environments, arrange approved package availability in the notebook runtime first. Do not bypass package/network policies.
+
+When sharing an updated copy, export committed source with `git archive` rather than zipping the working folder. A working folder can contain credentials, generated reports or customer files even when those files are gitignored. Share the source archive only with authorised recipients.
 
 ## 3. Configure your own environment
 
