@@ -52,7 +52,7 @@ This release deploys items into resources **you provision and configure**; it do
 
 ## 2. Get the source and install
 
-**Repository access:** the repository is private. Invited collaborators can clone it:
+**Public repository:** anyone can view, download or clone this repository without an invitation or GitHub account:
 
 ```powershell
 git clone https://github.com/vpsc95/fabric-data-conversion.git
@@ -79,7 +79,7 @@ $env:PYTHONUTF8 = "1"
 
 The examples below run from the repository root. Set `$py` again in a new shell. Fabric notebooks need the libraries in `requirements-fabric.txt`; both deployers add a dependency-check cell that installs missing packages. For restricted environments, arrange approved package availability in the notebook runtime first. Do not bypass package/network policies.
 
-When sharing an updated copy, export committed source with `git archive` rather than zipping the working folder. A working folder can contain credentials, generated reports or customer files even when those files are gitignored. Share the source archive only with authorised recipients.
+When sharing an updated copy, export committed source with `git archive` rather than zipping the working folder. A working folder can contain credentials, generated reports or customer files even when those files are gitignored. Do not add customer data or private settings to a shared copy.
 
 ## 3. Configure your own environment
 
